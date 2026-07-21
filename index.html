@@ -125,8 +125,8 @@
             <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.5s; animation-direction: reverse;"></div>
             <svg class="w-8 h-8 text-white absolute animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4" id="processing-title">ANALISANDO CONTEXTO...</h2>
-        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4" id="processing-subtitle">A IA está assistindo o vídeo para decidir os cortes ideais automaticamente.</p>
+        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4" id="processing-title">MOTOR DE IA TRABALHANDO</h2>
+        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4" id="processing-subtitle">Analisando contexto, removendo silêncios e cortando conversas paralelas...</p>
     </div>
 
     <!-- Tela Inicial -->
@@ -138,7 +138,7 @@
             <svg class="w-8 h-8 absolute text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
         <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 animate-pulse" style="filter: drop-shadow(0 0 15px rgba(255,126,5,0.4));">FeGil<span class="text-white">.</span></h1>
-        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Inteligência Audiovisual de Alta Performance</p>
+        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Edição Baseada em Texto (IA Autônoma)</p>
         
         <button id="btn-start" class="btn-primary mt-8 px-10 py-4 rounded-full text-sm font-bold tracking-widest">
             INICIAR PLATAFORMA
@@ -164,7 +164,7 @@
             <div class="pointer-events-auto mt-[-2rem] md:mt-[-3rem] relative z-20 w-full max-w-md mx-auto">
                 <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)] transition-all hover:border-brand-500/40">
                     <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug transition-opacity duration-300 min-h-[3rem]">
-                        "Olá. Aguardando a inserção da sua mídia bruta."
+                        "Olá. Aguardando a indicação da sua mídia bruta."
                     </p>
                 </div>
             </div>
@@ -172,14 +172,14 @@
 
         <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 mt-6 lg:mt-0 pb-16 lg:pb-0 pointer-events-auto">
             
-            <label for="upload-video" id="card-upload" class="meta-card p-6 flex flex-col items-center justify-center cursor-pointer text-center">
-                <input type="file" id="upload-video" accept="video/*">
+            <div id="card-upload" class="meta-card p-6 flex flex-col items-center justify-center cursor-pointer text-center group">
                 <div class="icon-bounce w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mb-3 text-brand-400">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
                 </div>
-                <h3 class="text-white font-bold text-lg mb-1" id="txt-upload-title">Anexar Arquivo de Vídeo</h3>
-                <p class="text-brand-200/50 text-sm" id="txt-upload-desc">Clique para selecionar do seu dispositivo</p>
-            </label>
+                <h3 class="text-white font-bold text-lg mb-1" id="txt-upload-title">Indicar Vídeo do Drive</h3>
+                <p class="text-brand-200/50 text-sm mb-3">O arquivo já deve estar na pasta "FeGil" do Google Drive.</p>
+                <input type="text" id="input-nome-video" placeholder="Ex: meu_treinamento.mp4" class="w-full max-w-xs text-sm p-3 rounded-lg text-center transition-colors">
+            </div>
 
             <div class="flex flex-col gap-4 mt-2">
                 <div id="wrapper-cortes" class="meta-card disabled relative transition-all">
@@ -188,10 +188,9 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-white font-semibold text-base mb-1">Cortes Semânticos (Automático)</h3>
-                            <p class="text-brand-200/60 text-xs pr-2">A inteligência artificial do motor decidirá o número de módulos analisando o assunto.</p>
+                            <h3 class="text-white font-semibold text-base mb-1">Limpeza e Cortes (IA Autônoma)</h3>
+                            <p class="text-brand-200/60 text-xs pr-2">O motor remove silêncios e erros sozinho usando compreensão semântica.</p>
                         </div>
-                        <!-- Badge Dinâmico -->
                         <span class="hidden md:inline-block bg-brand-500/20 text-brand-400 text-[10px] font-bold px-2 py-1 rounded border border-brand-500/30 uppercase tracking-wide">AUTO IA</span>
                     </button>
                     <div class="processing-bar" id="bar-cortes"></div>
@@ -200,7 +199,7 @@
             
             <button id="btn-open-editor" disabled onclick="abrirEditor()" class="meta-card disabled mt-4 p-4 bg-brand-600/20 border-brand-500/50 flex justify-center items-center gap-2 hover:bg-brand-500/40 transition-colors cursor-pointer w-full">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-white font-bold text-sm tracking-wide">ACESSAR ESTÚDIO DE EDIÇÃO</span>
+                <span class="text-white font-bold text-sm tracking-wide">ACESSAR RESULTADOS NO ESTÚDIO</span>
             </button>
         </div>
     </main>
@@ -208,25 +207,22 @@
     <!-- ESTÚDIO DE EDIÇÃO RESPONSIVO -->
     <div id="editor-workspace" class="fixed inset-0 z-50 bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 flex flex-col h-[100dvh]">
         
-        <!-- Header -->
         <header class="h-12 shrink-0 border-b border-white/5 flex items-center justify-between px-3 md:px-4 bg-[#141414] sticky top-0 z-40">
             <div class="flex items-center gap-3">
                 <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree text-xs">F</span></div>
-                <span class="text-xs text-white/50 hidden md:block">FeGil Studio</span>
+                <span class="text-xs text-white/50 hidden md:block">FeGil Studio Autônomo</span>
             </div>
             <div class="flex items-center gap-3">
                 <span id="modules-detected" class="text-[10px] text-brand-400 bg-brand-500/10 px-2 py-1 rounded border border-brand-500/20 hidden md:block"></span>
-                <button class="text-white/60 hover:text-red-500 text-[10px] md:text-xs font-bold px-2 py-1 rounded hover:bg-white/5 transition-colors" onclick="fecharEditor()">FECHAR</button>
+                <button class="text-white/60 hover:text-red-500 text-[10px] md:text-xs font-bold px-2 py-1 rounded hover:bg-white/5 transition-colors" onclick="fecharEditor()">SAIR</button>
             </div>
         </header>
 
-        <!-- Main Workspace (Vídeo + Inspetor) - Rola no mobile, lado a lado no Desktop -->
         <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
             
-            <!-- Viewer (Vídeo) -->
             <div class="w-full lg:flex-1 flex flex-col bg-[#111111] border-b lg:border-b-0 lg:border-r border-white/5 p-2 md:p-4 min-h-min shrink-0">
                 <div class="w-full aspect-video bg-black relative rounded-lg overflow-hidden border border-white/10 flex items-center justify-center group cursor-pointer shadow-lg" onclick="togglePlay()">
-                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=AGUARDANDO+VÍDEO" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Video Placeholder">
+                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=RENDERIZAÇÃO+BACKEND" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Video Placeholder">
                     <video id="main-video-player" class="w-full h-full object-contain hidden" playsinline></video>
                     
                     <div class="absolute inset-0 flex items-center justify-center z-20 transition-opacity bg-black/30 group-hover:bg-black/40" id="play-overlay">
@@ -234,12 +230,9 @@
                             <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
                         </div>
                     </div>
-
-                    <!-- Legendas OSD -->
                     <div id="subtitle-display" class="subtitle-box bottom-10 z-10 hidden w-[90%]"></div>
                 </div>
 
-                <!-- Controles do Vídeo -->
                 <div class="h-12 flex items-center justify-between px-2 mt-2 shrink-0">
                     <span class="text-brand-500 font-mono text-xs md:text-sm bg-brand-500/10 px-2 py-1 rounded" id="timecode">00:00:00</span>
                     <div class="flex gap-4 text-white/70">
@@ -254,63 +247,49 @@
                 </div>
             </div>
 
-            <!-- Inspector Lateral -->
             <div class="w-full lg:w-[380px] bg-[#141414] flex flex-col text-sm shrink-0">
                 <div class="p-4 flex flex-col gap-5">
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Módulos Inteligentes</h3>
-                            <span class="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">Decisão IA Concluída</span>
+                            <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Módulos Aprovados pela IA</h3>
+                            <span class="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">Google Drive Sync</span>
                         </div>
-                        <p class="text-xs text-white/50 mb-3 leading-relaxed">A inteligência analisou o contexto do vídeo e definiu automaticamente a fila de processamento ideal.</p>
-                        <div id="render-queue-list" class="h-32 bg-[#0a0a0a] border border-white/5 rounded p-2 overflow-y-auto no-scrollbar flex flex-col gap-1">
-                            <!-- Populated dynamically -->
+                        <p class="text-xs text-white/50 mb-3 leading-relaxed">Silêncios e erros foram descartados. Abaixo estão os módulos finais salvos no seu Drive.</p>
+                        
+                        <div id="render-queue-list" class="h-40 bg-[#0a0a0a] border border-white/5 rounded p-2 overflow-y-auto no-scrollbar flex flex-col gap-1">
+                            <!-- Populated dynamically by API Response -->
                         </div>
                     </div>
 
                     <hr class="border-white/5">
                     
-                    <div>
-                        <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider mb-2">Posição da Legenda</h3>
-                        <div class="grid grid-cols-3 gap-1 bg-[#0a0a0a] p-1 rounded border border-white/5">
-                            <button onclick="setSubPosition('top')" class="pos-btn py-2 text-xs text-white/60 hover:bg-white/5 rounded transition-colors">Topo</button>
-                            <button onclick="setSubPosition('center')" class="pos-btn py-2 text-xs text-white/60 hover:bg-white/5 rounded transition-colors">Centro</button>
-                            <button onclick="setSubPosition('bottom')" class="pos-btn py-2 text-xs text-brand-500 font-bold bg-[#141414] rounded shadow-md border border-white/5 transition-colors">Rodapé</button>
-                        </div>
-                    </div>
-
-                    <button id="btn-export-lote" class="w-full bg-brand-500 hover:bg-brand-400 text-white py-3.5 rounded text-xs font-bold shadow-[0_0_15px_rgba(255,126,5,0.2)] transition-all active:scale-95 uppercase tracking-wide cursor-pointer mt-4">
-                        Renderizar Módulos
+                    <button class="w-full bg-brand-500/20 border border-brand-500/50 hover:bg-brand-500/40 text-brand-300 py-3.5 rounded text-xs font-bold transition-all active:scale-95 uppercase tracking-wide cursor-pointer mt-auto">
+                        Módulos Salvos no Drive
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Timeline Principal -->
         <div class="w-full h-32 lg:h-48 shrink-0 bg-[#141414] border-t border-white/5 flex flex-col z-30">
             <div class="h-6 bg-[#1a1a1a] flex items-center px-3 border-b border-white/5 justify-between shrink-0">
-                <span class="text-[9px] text-white/50 font-medium uppercase tracking-wider">Timeline</span>
+                <span class="text-[9px] text-white/50 font-medium uppercase tracking-wider">Visualização da Linha do Tempo Gerada</span>
             </div>
 
             <div class="flex-1 bg-[#111] overflow-x-auto overflow-y-hidden flex flex-col relative no-scrollbar py-2" id="timeline-container">
-                <!-- Playhead (Linha vermelha que corre) -->
                 <div id="playhead" class="absolute top-0 bottom-0 left-0 w-[1px] bg-red-500 z-30 shadow-[0_0_4px_red] transition-all duration-75 ml-[60px] md:ml-[80px]">
                     <div class="w-2 h-2 -ml-1 -mt-0.5 bg-red-500 rounded-sm"></div>
                 </div>
                 
-                <!-- Track de Vídeo -->
                 <div class="flex mb-1 w-max min-w-full h-8 lg:h-12 relative">
                     <div class="w-[60px] md:w-[80px] shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[9px] text-white/50 sticky left-0 z-20">V1</div>
                     <div class="flex-1 relative flex gap-1 px-2" id="timeline-video-track"></div>
                 </div>
                 
-                <!-- Track de Áudio -->
                 <div class="flex mb-1 w-max min-w-full h-6 lg:h-8 relative">
                     <div class="w-[60px] md:w-[80px] shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[9px] text-green-500/50 sticky left-0 z-20">A1</div>
                     <div class="flex-1 relative flex gap-1 px-2" id="timeline-audio-track"></div>
                 </div>
                 
-                <!-- Track de Legenda -->
                 <div class="flex w-max min-w-full h-4 lg:h-6 relative">
                     <div class="w-[60px] md:w-[80px] shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 text-[8px] text-brand-500/80 font-bold text-center sticky left-0 z-20">SUB</div>
                     <div class="flex-1 relative flex gap-0.5 px-2 items-center" id="timeline-subtitle-track"></div>
@@ -321,10 +300,10 @@
 
     <script>
         // ==============================================================
-        // CONFIGURAÇÕES DA API (MUDE PARA SEU NGROK QUANDO USAR PYTHON)
+        // CONFIGURAÇÕES DA API (SEU ENDPOINT NGROK)
         // ==============================================================
         const API_URL = "https://suave-unshackle-chug.ngrok-free.dev/processar-video";
-        let qtdModulosDinamicos = 1; // Controlado pela IA
+        let modulosGeradosPelaIA = []; // Armazena a resposta real do Python
 
         // Background Animation Setup
         const canvas = document.getElementById('ai-aura-canvas');
@@ -429,7 +408,6 @@
             setTimeout(() => { toast.style.bottom = '-50px'; }, 3000);
         }
 
-        // Logic Principal
         const uiStart = document.getElementById('start-screen');
         const uiMain = document.getElementById('main-ui');
         const overlayProcessing = document.getElementById('processing-overlay');
@@ -437,34 +415,33 @@
         
         document.getElementById('btn-start').addEventListener('click', async () => {
             await initAudio();
-            falar("Sistema ativo. Selecione a mídia bruta.");
+            falar("Sistema ativo. Digite o nome do vídeo bruto que está no Drive.");
             uiStart.classList.add('opacity-0');
             setTimeout(() => { uiStart.classList.add('hidden'); uiMain.classList.remove('opacity-0', 'pointer-events-none'); }, 700);
         });
 
-        document.getElementById('upload-video').addEventListener('change', (e) => {
-            if(e.target.files.length > 0) {
-                const file = e.target.files[0];
-                document.getElementById('txt-upload-title').innerText = file.name;
-                document.getElementById('txt-upload-desc').innerText = "Arquivo indexado na memória.";
-                document.getElementById('card-upload').style.borderColor = '#FF7E05';
-                
-                const url = URL.createObjectURL(file);
-                videoPlayer.src = url;
-                
-                // Retira a capa e mostra o video player
-                document.getElementById('placeholder-video').classList.add('hidden');
-                videoPlayer.classList.remove('hidden');    
-                
+        // Habilita botão após digitar o nome
+        document.getElementById('input-nome-video').addEventListener('input', function() {
+            if(this.value.length > 3) {
                 document.getElementById('wrapper-cortes').classList.remove('disabled');
                 document.getElementById('btn-cortes').disabled = false;
-
-                falar("Vídeo recebido. A inteligência agora fará a decisão estrutural dos cortes.");
+                this.classList.add('success');
+            } else {
+                this.classList.remove('success');
+                document.getElementById('wrapper-cortes').classList.add('disabled');
             }
         });
 
-        // EXECUÇÃO DA IA - DECISÃO DINÂMICA DE MÓDULOS
+        // ==============================================================
+        // INTEGRAÇÃO REAL COM O BACKEND FEGIL (PYTHON NO COLAB)
+        // ==============================================================
         async function executarIA(tipo) {
+            const nomeVideoArquivo = document.getElementById('input-nome-video').value.trim();
+            if(!nomeVideoArquivo) {
+                showToast("Por favor, informe o nome do arquivo.");
+                return;
+            }
+
             isProcessing = true;
             if(audioInit) noiseProcess.triggerAttack();
             if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
@@ -473,73 +450,66 @@
             setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
 
             const bar = document.getElementById(`bar-${tipo}`);
-            bar.style.width = '20%';
+            bar.style.width = '30%';
 
-            falar("Analisando assunto do vídeo. Calculando a melhor estratégia de retenção...");
+            falar("Enviando solicitação para o motor Python. Extraindo áudio e analisando semântica via Inteligência Artificial...");
 
-            // Lógica para decidir Módulos com base na duração do vídeo
-            let duracao = videoPlayer.duration || 0;
-            
-            // Simulação (Na vida real, a API Python faz isso e te devolve o len(cortes))
-            setTimeout(async () => {
-                bar.style.width = '70%';
-                try {
-                    // SEU BACKEND AQUI (Comentado até o Ngrok estar 100% online)
-                    /*
-                    const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ nome_arquivo: 'video.mp4' }) });
-                    const data = await response.json();
-                    qtdModulosDinamicos = data.cortes ? data.cortes.length : 1;
-                    */
-                    
-                    // Simulação da Inteligência tomando a decisão para a interface funcionar
-                    if (duracao < 60) {
-                        qtdModulosDinamicos = 1; // Vídeo muito curto, não quebra
-                        falar("Vídeo curto detectado. Mantendo estrutura em módulo único.");
-                    } else if (duracao >= 60 && duracao < 300) {
-                        qtdModulosDinamicos = Math.floor(Math.random() * 2) + 2; // 2 a 3
-                        falar("Múltiplos assuntos identificados. Fragmentando em pequenos módulos.");
-                    } else {
-                        qtdModulosDinamicos = Math.floor(Math.random() * 4) + 5; // 5 a 8
-                        falar("Treinamento extenso. A inteligência dividiu perfeitamente em múltiplos tópicos.");
-                    }
+            try {
+                // CHAMA O SEU BACKEND NGROK
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome_arquivo: nomeVideoArquivo })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) throw new Error(data.erro || "Erro no processamento");
+                
+                // Sucesso na resposta real da API
+                bar.style.width = '100%';
+                isProcessing = false;
+                modulosGeradosPelaIA = data.modulos; // Armazena a resposta real
+                
+                if(audioInit) { 
+                    noiseProcess.triggerRelease(); 
+                    const synthSuccess = new Tone.PolySynth(Tone.Synth).toDestination();
+                    synthSuccess.volume.value = -8;
+                    synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
+                }
+                
+                overlayProcessing.classList.add('opacity-0');
+                setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+                
+                const qtd = modulosGeradosPelaIA.length;
+                document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Criado(s) pela IA`;
+                document.getElementById('modules-detected').classList.remove('hidden');
 
-                    bar.style.width = '100%';
-                    isProcessing = false;
-                    
-                    if(audioInit) { 
-                        noiseProcess.triggerRelease(); 
-                        const synthSuccess = new Tone.PolySynth(Tone.Synth).toDestination();
-                        synthSuccess.volume.value = -8;
-                        synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
-                    }
-                    
-                    overlayProcessing.classList.add('opacity-0');
-                    setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
-                    
-                    document.getElementById('modules-detected').innerText = `${qtdModulosDinamicos} Módulos Detectados`;
-                    document.getElementById('modules-detected').classList.remove('hidden');
-
+                falar(`Sucesso. O motor removeu as conversas paralelas e gerou ${qtd} módulo${qtd > 1 ? 's' : ''}. Acesse o painel.`, () => {
                     bar.style.width = '0%';
                     const btnEditor = document.getElementById('btn-open-editor');
                     btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
                     btnEditor.classList.add('bg-brand-500/20');
+                });
 
-                } catch(e) {
-                    isProcessing = false;
-                    bar.style.width = '0%';
-                    if(audioInit) noiseProcess.triggerRelease();
-                    overlayProcessing.classList.add('opacity-0');
-                    setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
-                    showToast("Erro na comunicação. Simulação ativada.");
-                }
-            }, 3500); // Delay falso para parecer que a IA tá pensando
+            } catch (error) {
+                // Tratamento de Erro de Conexão
+                isProcessing = false;
+                bar.style.width = '0%';
+                if(audioInit) noiseProcess.triggerRelease();
+                overlayProcessing.classList.add('opacity-0');
+                setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+                
+                falar("Falha de conexão. O motor não está respondendo. Verifique se o Colab está ativo.");
+                console.error(error);
+                showToast("Erro: " + error.message);
+            }
         }
 
         // ==============================================================
-        // ESTÚDIO RESPONSIVO (FRONTEND)
+        // ESTÚDIO BASEADO NA RESPOSTA DA IA (FRONTEND)
         // ==============================================================
         const workspace = document.getElementById('editor-workspace');
-        const subtitleDisplay = document.getElementById('subtitle-display');
         let simInterval;
 
         function abrirEditor() {
@@ -551,42 +521,44 @@
 
             workspace.classList.remove('hidden');
             setTimeout(() => workspace.classList.remove('opacity-0'), 50);
-            
-            const btnExport = document.getElementById('btn-export-lote');
-            btnExport.disabled = false;
-            btnExport.classList.replace('bg-green-600', 'bg-brand-500');
-            btnExport.innerText = `RENDERIZAR ${qtdModulosDinamicos} MÓDULOS`;
 
-            // Gerar fila lateral baseada na IA
+            // Popula a lista lateral com os Nomes REAIS devolvidos pela IA
             const queueList = document.getElementById('render-queue-list');
             queueList.innerHTML = '';
-            for(let i = 1; i <= qtdModulosDinamicos; i++) {
-                const num = i.toString().padStart(2, '0');
-                queueList.innerHTML += `
-                    <div class="flex items-center justify-between bg-white/5 hover:bg-white/10 px-2 py-2 rounded group transition-colors">
-                        <span class="text-[11px] text-white/80 font-mono">Topico_0${i}.mp4</span>
-                        <span class="text-[9px] bg-brand-500/10 text-brand-400 px-1 rounded border border-brand-500/20 status-badge">Ready</span>
-                    </div>`;
+            
+            if(modulosGeradosPelaIA && modulosGeradosPelaIA.length > 0) {
+                modulosGeradosPelaIA.forEach(mod => {
+                    queueList.innerHTML += `
+                        <div class="flex flex-col bg-white/5 p-2 rounded group border border-white/5">
+                            <span class="text-[10px] text-brand-400 font-bold uppercase mb-1">${mod.modulo}</span>
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] text-white/60 font-mono truncate mr-2">${mod.arquivo}</span>
+                                <span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/30 shrink-0">Drive OK</span>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                queueList.innerHTML = `<p class="text-xs text-white/40 text-center mt-4">Nenhum módulo detectado.</p>`;
             }
 
-            // Timeline Tracks Baseado na IA
+            // Gera a Timeline baseada na quantidade de módulos
             const videoTrack = document.getElementById('timeline-video-track');
             const audioTrack = document.getElementById('timeline-audio-track');
             const subTrack = document.getElementById('timeline-subtitle-track');
             
             videoTrack.innerHTML = ''; audioTrack.innerHTML = ''; subTrack.innerHTML = '';
 
-            for(let i = 1; i <= qtdModulosDinamicos; i++) {
-                // Aumentando largura para caber no celular sem quebrar
-                const width = 80 + Math.random() * 120; 
+            let qtd = modulosGeradosPelaIA.length || 1;
+            for(let i = 1; i <= qtd; i++) {
+                const width = 100 + Math.random() * 80; 
                 const num = i.toString().padStart(2, '0');
-                videoTrack.innerHTML += `<div class="h-full bg-[#183955] border border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center hover:brightness-125" style="width: ${width}px"><span class="text-[8px] text-white/70">V_${num}</span></div>`;
+                videoTrack.innerHTML += `<div class="h-full bg-[#183955] border border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center hover:brightness-125" style="width: ${width}px"><span class="text-[8px] text-white/70">CORTE_${num}</span></div>`;
                 audioTrack.innerHTML += `<div class="h-full bg-[#163a2a] border border-[#235841] rounded-sm shrink-0 flex flex-col justify-center p-0.5" style="width: ${width}px"><div class="w-full h-1/2 opacity-30 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjEwIj48cmVjdCB3aWR0aD0iMiIgaGVpZ2h0PSIxMCIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==')] bg-repeat-x"></div></div>`;
             }
-            // Legendas (Blocos menores)
-            for(let i = 0; i < (qtdModulosDinamicos * 3); i++) {
-                const subW = 30 + Math.random() * 40; 
-                const margin = Math.random() * 10;
+            
+            for(let i = 0; i < (qtd * 4); i++) {
+                const subW = 20 + Math.random() * 30; 
+                const margin = Math.random() * 5;
                 subTrack.innerHTML += `<div class="h-full bg-[#CC5500] rounded-sm shrink-0 shadow-sm" style="width: ${subW}px; margin-right: ${margin}px;"></div>`;
             }
         }
@@ -595,141 +567,9 @@
             workspace.classList.add('opacity-0');
             clearInterval(simInterval);
             if(videoPlayer) videoPlayer.pause();
-            syncUI();
             setTimeout(() => workspace.classList.add('hidden'), 500);
         }
 
-        function setSubPosition(pos) {
-            document.querySelectorAll('.pos-btn').forEach(btn => {
-                btn.classList.remove('bg-[#141414]', 'text-brand-500', 'font-bold', 'shadow-md'); btn.classList.add('text-white/60', 'hover:bg-white/5');
-            });
-            event.target.classList.remove('text-white/60', 'hover:bg-white/5');
-            event.target.classList.add('bg-[#141414]', 'text-brand-500', 'font-bold', 'shadow-md');
-
-            subtitleDisplay.style.top = pos === 'top' ? '10%' : pos === 'center' ? '45%' : 'auto';
-            subtitleDisplay.style.bottom = pos === 'bottom' ? '10%' : 'auto';
-        }
-
-        document.getElementById('btn-export-lote').addEventListener('click', function() {
-            if(this.disabled) return;
-            this.disabled = true;
-            this.innerText = "PROCESSANDO...";
-            
-            falar("Iniciando exportação. Acompanhe a fila.");
-            let jobs = document.querySelectorAll('#render-queue-list .group');
-            let current = 0;
-            
-            let interval = setInterval(() => {
-                if(current < jobs.length) {
-                    let statusSpan = jobs[current].querySelector('.status-badge');
-                    statusSpan.className = "text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/30 status-badge";
-                    statusSpan.innerText = "Done";
-                    current++;
-                } else {
-                    clearInterval(interval);
-                    this.innerText = "TODOS OS MÓDULOS GERADOS";
-                    this.classList.replace('bg-brand-500', 'bg-green-600');
-                    falar("Processo completo. O vídeo foi reestruturado.");
-                }
-            }, 800);
-        });
-
-        // Controles reais do vídeo
-        function formatTimecode(seconds) {
-            if(isNaN(seconds)) return "00:00:00";
-            const m = Math.floor(seconds / 60);
-            const s = Math.floor(seconds % 60);
-            const ms = Math.floor((seconds % 1) * 100);
-            return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}:${ms.toString().padStart(2, '0')}`;
-        }
-
-        videoPlayer.addEventListener('loadedmetadata', () => {
-            document.getElementById('duration-timecode').innerText = formatTimecode(videoPlayer.duration);
-        });
-
-        videoPlayer.addEventListener('timeupdate', () => {
-            document.getElementById('timecode').innerText = formatTimecode(videoPlayer.currentTime);
-            // Move o Playhead vermelha na Timeline
-            const percentage = (videoPlayer.currentTime / videoPlayer.duration) * 100;
-            if(!isNaN(percentage)) {
-                // A timeline é 100% de espaço. O playhead avança nesse %.
-                document.getElementById('playhead').style.left = `calc(${percentage}%)`;
-            }
-        });
-
-        function skipVideo(seconds) {
-            if(videoPlayer && videoPlayer.src) videoPlayer.currentTime += seconds;
-        }
-
-        function togglePlay() {
-            if (!videoPlayer.src) return;
-            if (videoPlayer.paused) {
-                videoPlayer.play();
-            } else {
-                videoPlayer.pause();
-            }
-        }
-
-        function syncUI() {
-            const playOverlay = document.getElementById('play-overlay');
-            const iconPlay = document.getElementById('icon-play');
-            const iconPause = document.getElementById('icon-pause');
-            
-            if (videoPlayer.paused) {
-                playOverlay.classList.remove('hidden');
-                iconPlay.classList.remove('hidden');
-                iconPause.classList.add('hidden');
-                clearInterval(simInterval);
-            } else {
-                playOverlay.classList.add('hidden');
-                iconPlay.classList.add('hidden');
-                iconPause.classList.remove('hidden');
-                startSubtitleLoop(); 
-            }
-        }
-
-        videoPlayer.addEventListener('play', syncUI);
-        videoPlayer.addEventListener('pause', syncUI);
-
-        // Simulador da Legenda Sincronizada
-        const phrases = [
-            ["A", "Inteligência", "Artificial", "avançou"],
-            ["podemos", "otimizar", "conteúdos", "agora"],
-            ["sem", "perder", "tempo", "editando"],
-            ["A", "retenção", "vai", "aumentar"]
-        ];
-        
-        let phraseIndex = 0;
-        let wordIndex = 0;
-        
-        function startSubtitleLoop() {
-            clearInterval(simInterval);
-            subtitleDisplay.classList.remove('hidden');
-
-            simInterval = setInterval(() => {
-                if(videoPlayer.paused) return; 
-                const words = phrases[phraseIndex];
-                
-                if(wordIndex === 0) {
-                    subtitleDisplay.innerHTML = `
-                        <div class="subtitle-line shadow-[0_0_20px_rgba(204,85,0,0.5)] text-center">
-                            ${words.map((w, i) => `<span class="subtitle-word" id="word-${i}">${w}</span>`).join('')}
-                        </div>`;
-                }
-
-                document.querySelectorAll('.subtitle-word').forEach(el => el.classList.remove('active'));
-                
-                if(wordIndex < words.length) {
-                    let wEl = document.getElementById(`word-${wordIndex}`);
-                    if(wEl) wEl.classList.add('active'); 
-                    wordIndex++;
-                } else {
-                    wordIndex = 0;
-                    phraseIndex++;
-                    if(phraseIndex >= phrases.length) phraseIndex = 0; 
-                }
-            }, 380); 
-        }
     </script>
 </body>
 </html>
