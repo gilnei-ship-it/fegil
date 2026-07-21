@@ -44,8 +44,8 @@
     <canvas id="ai-aura-canvas"></canvas>
     <div id="toast">Notificação</div>
 
-    <!-- Loading Overlay -->
-    <div id="processing-overlay" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-300 opacity-0">
+    <!-- Loading Overlay CORRIGIDO -->
+    <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-300 opacity-0">
         <div class="w-20 h-20 mb-6 relative flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1s;"></div>
             <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.5s; animation-direction: reverse;"></div>
@@ -277,7 +277,7 @@
             if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
 
             const overlayProcessing = document.getElementById('processing-overlay');
-            overlayProcessing.classList.remove('hidden');
+            overlayProcessing.style.display = 'flex';
             setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
 
             const bar = document.getElementById(`bar-${tipo}`); bar.style.width = '30%';
@@ -285,7 +285,11 @@
 
             try {
                 const response = await fetch(API_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', 
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
                     body: JSON.stringify({ link_video: linkVideo })
                 });
                 
@@ -302,7 +306,7 @@
                 }
                 
                 overlayProcessing.classList.add('opacity-0');
-                setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+                setTimeout(() => overlayProcessing.style.display = 'none', 300);
                 
                 const qtd = modulosGeradosPelaIA.length;
                 document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Criado(s) pela IA`;
@@ -316,7 +320,7 @@
                 });
             } catch (error) {
                 isProcessing = false; bar.style.width = '0%'; if(audioInit) noiseProcess.triggerRelease();
-                overlayProcessing.classList.add('opacity-0'); setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+                overlayProcessing.classList.add('opacity-0'); setTimeout(() => overlayProcessing.style.display = 'none', 300);
                 falar("Falha de conexão. O motor não está respondendo. Verifique o link e se o Colab está ativo.");
                 showToast("Erro: " + error.message);
             }
