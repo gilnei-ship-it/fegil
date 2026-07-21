@@ -28,7 +28,7 @@
         input[type="url"] { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; }
         input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
         input.success { border-color: #10B981 !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important; }
-        .processing-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.3s ease; box-shadow: 0 0 10px #FF7E05; }
+        .processing-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.5s ease; box-shadow: 0 0 10px #FF7E05; }
         
         .subtitle-box { position: absolute; width: 90%; text-align: center; pointer-events: none; z-index: 30; left: 50%; transform: translateX(-50%); }
         .subtitle-line { background-color: #CC5500; display: inline-block; padding: 6px 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
@@ -44,32 +44,33 @@
     <canvas id="ai-aura-canvas"></canvas>
     <div id="toast">Notificação</div>
 
-    <!-- Loading Overlay CORRIGIDO -->
-    <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-300 opacity-0">
-        <div class="w-20 h-20 mb-6 relative flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1s;"></div>
-            <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.5s; animation-direction: reverse;"></div>
+    <!-- Loading Overlay Centralizado e Sincronizado -->
+    <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-500 opacity-0">
+        <div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1.5s;"></div>
+            <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.8s; animation-direction: reverse;"></div>
+            <span id="loading-percentage" class="text-white font-figtree font-black text-xl absolute">0%</span>
         </div>
-        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4">MOTOR DE IA TRABALHANDO</h2>
-        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4">Baixando vídeo, analisando contexto, removendo silêncios e cortando conversas...</p>
+        <h2 class="text-3xl md:text-4xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4">MOTOR DE IA ATIVO</h2>
+        <p id="processing-subtitle" class="text-brand-400 font-medium mt-4 max-w-md text-center text-sm md:text-lg px-4 transition-all duration-300">Iniciando conexão segura com o servidor...</p>
     </div>
 
-    <!-- Tela Inicial -->
-    <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-opacity duration-700">
-        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700">FeGil<span class="text-white">.</span></h1>
-        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Edição Autônoma de Treinamentos (Link Mode)</p>
-        <button id="btn-start" class="btn-primary mt-8 px-10 py-4 rounded-full text-sm font-bold tracking-widest">INICIAR PLATAFORMA</button>
+    <!-- Tela Inicial Refinada -->
+    <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-all duration-700 ease-in-out">
+        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 drop-shadow-[0_0_15px_rgba(255,126,5,0.4)]">FeGil<span class="text-white">.</span></h1>
+        <p class="text-brand-200/60 mb-2 text-center text-sm font-light uppercase tracking-widest">Edição Autônoma e Semântica</p>
+        <button id="btn-start" class="btn-primary mt-10 px-12 py-4 rounded-full text-sm font-bold tracking-widest uppercase">Inicializar Sistema</button>
     </div>
 
     <!-- UI Principal -->
-    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-700 overflow-y-auto lg:overflow-hidden no-scrollbar">
+    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-1000 ease-in-out overflow-y-auto lg:overflow-hidden no-scrollbar">
         
         <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none min-h-[50vh] lg:min-h-full">
             <div class="absolute top-0 left-0 pt-2 md:pt-4">
                 <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
                 <div class="flex items-center gap-2">
                     <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span></span>
-                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">MOTOR DE IA ATIVO</p>
+                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">CONEXÃO NEURAL ESTABELECIDA</p>
                 </div>
             </div>
             
@@ -80,25 +81,24 @@
             <div class="pointer-events-auto mt-[-2rem] md:mt-[-3rem] relative z-20 w-full max-w-md mx-auto">
                 <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)]">
                     <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug transition-opacity duration-300 min-h-[3rem]">
-                        "Olá. Cole o link do seu vídeo do Google Drive ou YouTube abaixo."
+                        "Sistemas operacionais prontos. Insira a URL da mídia bruta para começarmos."
                     </p>
                 </div>
             </div>
         </div>
 
         <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 mt-6 lg:mt-0 pb-16 lg:pb-0 pointer-events-auto">
-            
             <div id="card-upload" class="meta-card p-6 flex flex-col justify-center w-full">
                 <div class="flex items-center gap-3 mb-3">
                     <div class="icon-bounce w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center text-brand-400">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
                     </div>
                     <div>
-                        <h3 class="text-white font-bold text-base">Anexar via Link URL</h3>
-                        <p class="text-brand-200/50 text-xs">Drive (Acesso Público) ou YouTube</p>
+                        <h3 class="text-white font-bold text-base">Anexar Mídia via Link</h3>
+                        <p class="text-brand-200/50 text-xs">Cole o link do Google Drive (Público) ou YouTube</p>
                     </div>
                 </div>
-                <input type="url" id="input-link-video" placeholder="Cole o link aqui..." class="w-full text-sm p-3 rounded-lg transition-colors border border-white/10 mt-2">
+                <input type="url" id="input-link-video" placeholder="https://..." class="w-full text-sm p-3 rounded-lg transition-colors border border-white/10 mt-2">
             </div>
 
             <div class="flex flex-col gap-4 mt-2">
@@ -108,8 +108,8 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-white font-semibold text-base mb-1">Limpeza e Cortes (IA Autônoma)</h3>
-                            <p class="text-brand-200/60 text-xs pr-2">O motor remove silêncios e erros sozinho usando compreensão semântica.</p>
+                            <h3 class="text-white font-semibold text-base mb-1">Processamento de Inteligência Artificial</h3>
+                            <p class="text-brand-200/60 text-xs pr-2">Remoção de silêncios, conversas fora de script e corte modular.</p>
                         </div>
                     </button>
                     <div class="processing-bar" id="bar-cortes"></div>
@@ -118,7 +118,7 @@
             
             <button id="btn-open-editor" disabled onclick="abrirEditor()" class="meta-card disabled mt-4 p-4 bg-brand-600/20 border-brand-500/50 flex justify-center items-center gap-2 hover:bg-brand-500/40 transition-colors cursor-pointer w-full">
                 <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <span class="text-white font-bold text-sm tracking-wide">ACESSAR RESULTADOS NO ESTÚDIO</span>
+                <span class="text-white font-bold text-sm tracking-wide">VER RESULTADOS NO ESTÚDIO</span>
             </button>
         </div>
     </main>
@@ -139,7 +139,7 @@
         <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
             <div class="w-full lg:flex-1 flex flex-col bg-[#111111] border-b lg:border-b-0 lg:border-r border-white/5 p-2 md:p-4 min-h-min shrink-0">
                 <div class="w-full aspect-video bg-black relative rounded-lg overflow-hidden border border-white/10 flex items-center justify-center group cursor-pointer shadow-lg" onclick="togglePlay()">
-                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=RENDERIZAÇÃO+BACKEND" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Video Placeholder">
+                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=ARQUIVOS+NO+DRIVE" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Video Placeholder">
                     <video id="main-video-player" class="w-full h-full object-contain hidden" playsinline></video>
                     
                     <div class="absolute inset-0 flex items-center justify-center z-20 transition-opacity bg-black/30 group-hover:bg-black/40" id="play-overlay">
@@ -184,7 +184,9 @@
     </div>
 
     <script>
-        const API_URL = "https://suave-unshackle-chug.ngrok-free.dev/processar-video";
+        const API_BASE = "https://suave-unshackle-chug.ngrok-free.dev";
+        const API_URL = `${API_BASE}/processar-video`;
+        const API_STATUS_URL = `${API_BASE}/status`;
         let modulosGeradosPelaIA = []; 
 
         const canvas = document.getElementById('ai-aura-canvas');
@@ -252,10 +254,16 @@
             const toast = document.getElementById('toast'); toast.innerText = message; toast.style.bottom = '20px'; setTimeout(() => { toast.style.bottom = '-50px'; }, 3000);
         }
 
+        // Inicialização refinada
         document.getElementById('btn-start').addEventListener('click', async () => {
-            await initAudio(); falar("Sistema ativo. Cole o link do seu vídeo abaixo.");
-            document.getElementById('start-screen').classList.add('opacity-0');
-            setTimeout(() => { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); }, 700);
+            await initAudio(); 
+            falar("Inicialização concluída. Bem-vindo à interface autônoma FeGil.");
+            const startScreen = document.getElementById('start-screen');
+            startScreen.classList.add('opacity-0', 'scale-105');
+            setTimeout(() => { 
+                startScreen.style.display = 'none'; 
+                document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); 
+            }, 700);
         });
 
         document.getElementById('input-link-video').addEventListener('input', function() {
@@ -268,6 +276,9 @@
             }
         });
 
+        // ==========================================================
+        // LÓGICA DE POLLING (Sincronia com o Servidor)
+        // ==========================================================
         async function executarIA(tipo) {
             const linkVideo = document.getElementById('input-link-video').value.trim();
             if(!linkVideo) { showToast("Por favor, informe o link do arquivo."); return; }
@@ -280,10 +291,28 @@
             overlayProcessing.style.display = 'flex';
             setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
 
-            const bar = document.getElementById(`bar-${tipo}`); bar.style.width = '30%';
-            falar("Enviando solicitação para o motor. Baixando vídeo via link e analisando semântica via Inteligência Artificial...");
+            const bar = document.getElementById(`bar-${tipo}`); 
+            bar.style.width = '5%';
+            document.getElementById('loading-percentage').innerText = '5%';
+
+            falar("Enviando solicitação de processamento de alto desempenho.");
+
+            // Inicia o "Polling" (Pergunta o status pro backend a cada 2 segundos)
+            let pollInterval = setInterval(async () => {
+                try {
+                    const res = await fetch(API_STATUS_URL, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+                    const statusData = await res.json();
+                    
+                    document.getElementById('processing-subtitle').innerText = statusData.mensagem;
+                    document.getElementById('loading-percentage').innerText = `${statusData.progresso}%`;
+                    bar.style.width = `${statusData.progresso}%`;
+                } catch (e) {
+                    console.log("Aguardando sincronia...");
+                }
+            }, 2000);
 
             try {
+                // Requisição principal que faz o trabalho pesado
                 const response = await fetch(API_URL, {
                     method: 'POST', 
                     headers: { 
@@ -294,9 +323,13 @@
                 });
                 
                 const data = await response.json();
+                clearInterval(pollInterval); // Para a verificação de status
+                
                 if (!response.ok) throw new Error(data.erro || "Erro no processamento");
                 
-                bar.style.width = '100%'; isProcessing = false;
+                document.getElementById('loading-percentage').innerText = '100%';
+                bar.style.width = '100%'; 
+                isProcessing = false;
                 modulosGeradosPelaIA = data.modulos;
                 
                 if(audioInit) { 
@@ -306,22 +339,23 @@
                 }
                 
                 overlayProcessing.classList.add('opacity-0');
-                setTimeout(() => overlayProcessing.style.display = 'none', 300);
+                setTimeout(() => overlayProcessing.style.display = 'none', 500);
                 
                 const qtd = modulosGeradosPelaIA.length;
-                document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Criado(s) pela IA`;
+                document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Criado(s)`;
                 document.getElementById('modules-detected').classList.remove('hidden');
 
-                falar(`Sucesso. O motor removeu os silêncios e gerou ${qtd} módulo${qtd > 1 ? 's' : ''}. Acesse os resultados.`, () => {
+                falar(`Edição concluída com sucesso. Os módulos foram salvos na sua nuvem.`, () => {
                     bar.style.width = '0%';
                     const btnEditor = document.getElementById('btn-open-editor');
                     btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
                     btnEditor.classList.add('bg-brand-500/20');
                 });
             } catch (error) {
+                clearInterval(pollInterval);
                 isProcessing = false; bar.style.width = '0%'; if(audioInit) noiseProcess.triggerRelease();
                 overlayProcessing.classList.add('opacity-0'); setTimeout(() => overlayProcessing.style.display = 'none', 300);
-                falar("Falha de conexão. O motor não está respondendo. Verifique o link e se o Colab está ativo.");
+                falar("Falha de conexão. O motor não está respondendo adequadamente.");
                 showToast("Erro: " + error.message);
             }
         }
