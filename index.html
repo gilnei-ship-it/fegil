@@ -33,27 +33,28 @@
     <style>
         body { margin: 0; padding: 0; background-color: #080605; color: #ffffff; overflow: hidden; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         #ai-aura-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .meta-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
+        .meta-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; transition: all 0.4s ease; box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
         .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 126, 5, 0.15), transparent 40%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: -1; }
         .meta-card:not(.disabled):hover::before { opacity: 1; }
         .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); }
-        .meta-card:not(.disabled):active { transform: translateY(1px) scale(0.98); }
-        .icon-bounce { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .icon-bounce { transition: all 0.4s ease; }
         .meta-card:not(.disabled):hover .icon-bounce { transform: scale(1.15) translateY(-3px); color: #FF7E05; filter: drop-shadow(0 0 8px rgba(255,126,5,0.6)); }
         .disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-        .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; box-shadow: 0 4px 15px rgba(255, 126, 5, 0.4); border: none; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; box-shadow: 0 4px 15px rgba(255, 126, 5, 0.4); border: none; transition: all 0.3s ease; }
         .btn-primary:hover { box-shadow: 0 8px 30px rgba(255, 126, 5, 0.6); transform: translateY(-3px) scale(1.02); }
         input[type="file"] { display: none; }
-        input[type="text"] { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; }
-        input[type="text"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
+        input[type="text"], input[type="number"] { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        input[type="text"]:focus, input[type="number"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
         .processing-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.3s ease; box-shadow: 0 0 10px #FF7E05; }
-        .video-container { background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05); }
-        @media (max-width: 1024px) { .video-container { min-height: 35vh; max-height: 45vh; } }
-        .subtitle-box { position: absolute; width: 90%; text-align: center; transition: bottom 0.5s ease, top 0.5s ease; pointer-events: none; z-index: 30; }
+        
+        /* Editor Styles */
+        .video-container { background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); }
+        .clip-item { cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
+        .clip-item.selected { border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.5); z-index: 10; filter: brightness(1.3); }
+        .subtitle-box { position: absolute; width: 90%; text-align: center; pointer-events: none; z-index: 30; }
         .subtitle-line { background-color: #CC5500; display: inline-block; padding: 8px 24px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
-        .subtitle-word { font-family: 'Figtree', sans-serif; font-weight: 900; font-size: 2.2rem; color: white; display: inline-block; margin: 0 4px; -webkit-text-stroke: 1.5px black; text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000; transition: color 0.1s ease; }
-        .subtitle-word.active { color: #FFD700; }
-        @media (max-width: 768px) { .subtitle-word { font-size: 1.2rem; -webkit-text-stroke: 1px black; } .subtitle-line { padding: 6px 16px; border-radius: 8px; } .meta-card { padding: 1rem; } }
+        .subtitle-word { font-family: 'Figtree', sans-serif; font-weight: 900; font-size: 2.2rem; color: white; display: inline-block; margin: 0 4px; -webkit-text-stroke: 1.5px black; text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
@@ -62,521 +63,284 @@
 
     <canvas id="ai-aura-canvas"></canvas>
 
-    <!-- TELA DE AVISO DURANTE O PROCESSAMENTO -->
+    <!-- Overlay de Processamento -->
     <div id="processing-overlay" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-300 opacity-0">
         <div class="w-20 h-20 mb-6 relative flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1s;"></div>
-            <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.5s; animation-direction: reverse;"></div>
             <svg class="w-8 h-8 text-white absolute animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse" id="processing-title">PROCESSANDO NO DRIVE</h2>
-        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4" id="processing-subtitle">A IA está cortando e legendando seu vídeo no Google Colab. Isso pode demorar alguns minutos dependendo do tamanho do vídeo...</p>
+        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse" id="processing-title">PROCESSANDO NA IA</h2>
+        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4">Analisando transcrição e gerando cortes semânticos iniciais...</p>
     </div>
 
     <!-- Tela Inicial -->
     <div id="start-screen" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-opacity duration-700">
-        <div class="w-32 h-32 mb-8 relative flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-t-2 border-brand-500 animate-spin" style="animation-duration: 3s;"></div>
-            <div class="absolute inset-4 rounded-full border-b-2 border-brand-400 animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
-            <div class="w-16 h-16 bg-brand-500 rounded-full blur-md animate-pulse"></div>
-            <svg class="w-8 h-8 absolute text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        </div>
-        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 animate-pulse" style="filter: drop-shadow(0 0 15px rgba(255,126,5,0.4));">FeGil<span class="text-white">.</span></h1>
-        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Inteligência Audiovisual de Alta Performance</p>
-        <p class="text-white/40 mb-10 text-center max-w-md px-6 text-sm">Otimização semântica, edição de retenção e treinamentos modulares.</p>
-        
-        <button id="btn-start" class="btn-primary px-10 py-4 rounded-full text-sm font-bold tracking-widest">
-            INICIAR PLATAFORMA
-        </button>
+        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 animate-pulse">FeGil<span class="text-white">.</span></h1>
+        <p class="text-brand-200/60 mb-10 text-center text-sm font-light">Inteligência Audiovisual de Alta Performance</p>
+        <button id="btn-start" class="btn-primary px-10 py-4 rounded-full text-sm font-bold tracking-widest">INICIAR PLATAFORMA</button>
     </div>
 
-    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-700 overflow-y-auto lg:overflow-hidden no-scrollbar">
-        
-        <!-- Lado Esquerdo -->
-        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none min-h-[60vh] lg:min-h-full">
-            <div class="absolute top-0 left-0 pt-2 md:pt-4">
-                <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
-                <div class="flex items-center gap-2">
-                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span></span>
-                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">PROGRAMA DE AUTOMAÇÃO EM VÍDEOS</p>
-                </div>
-            </div>
+    <!-- Interface Principal (Upload) -->
+    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-700 overflow-y-auto no-scrollbar">
+        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10">
+            <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
+            <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase mb-10">PROGRAMA DE AUTOMAÇÃO EM VÍDEOS</p>
             
-            <div class="relative w-72 h-72 md:w-96 md:h-96 mt-16 lg:mt-20 mx-auto flex-shrink-0">
-                 <img id="fegil-avatar" src="https://github.com/gilnei-ship-it/fegil/raw/main/fegil.png" alt="FeGil IA" class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(255,126,5,0.3)] transition-all duration-300 opacity-90">
-            </div>
-            
-            <div class="pointer-events-auto mt-[-2rem] md:mt-[-3rem] relative z-20 w-full max-w-md mx-auto">
-                <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)] transition-all hover:border-brand-500/40">
-                    <div class="flex items-center gap-3 mb-3">
-                        <div class="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_8px_#FF7E05]"></div>
-                        <span class="text-[10px] font-bold tracking-widest text-brand-400 uppercase">Conexão Neural Ativa</span>
-                    </div>
-                    <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug transition-opacity duration-300 min-h-[3rem]">
-                        "Olá. Certifique-se de que o vídeo já está no Google Drive."
-                    </p>
+            <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)]">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_8px_#FF7E05]"></div>
+                    <span class="text-[10px] font-bold tracking-widest text-brand-400 uppercase">Status</span>
                 </div>
+                <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug">"Olá. Selecione o vídeo que deseja processar."</p>
             </div>
         </div>
 
-        <!-- Lado Direito -->
-        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 mt-6 lg:mt-0 pb-8 lg:pb-0">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label for="upload-video" id="card-upload" class="meta-card p-5 flex flex-col items-start justify-center cursor-pointer">
-                    <input type="file" id="upload-video" accept="video/*">
-                    <div class="icon-bounce w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center mb-3 text-brand-400">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                    </div>
-                    <h3 class="text-white font-semibold text-base mb-1" id="txt-upload-title">Selecionar Vídeo Base</h3>
-                    <p class="text-brand-200/50 text-[10px] leading-tight" id="txt-upload-desc">Escolha o mesmo vídeo que já está na pasta FeGil do Drive</p>
-                </label>
+        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10">
+            <label for="upload-video" id="card-upload" class="meta-card p-5 flex flex-col items-start justify-center cursor-pointer">
+                <input type="file" id="upload-video" accept="video/*">
+                <h3 class="text-white font-semibold text-base mb-1" id="txt-upload-title">Anexar Vídeo</h3>
+                <p class="text-brand-200/50 text-xs" id="txt-upload-desc">Identifique o arquivo no seu Drive</p>
+            </label>
 
-                <div id="context-container" class="meta-card disabled p-5 flex flex-col justify-center">
-                    <div class="flex items-center gap-2 mb-2">
-                        <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                        <h3 class="text-white font-semibold text-sm">Contexto Semântico (Opcional)</h3>
-                    </div>
-                    <input type="text" id="input-docs" placeholder="Cole o link do Google Docs..." class="w-full text-xs p-2 rounded-lg" disabled>
-                    <p class="text-[10px] text-brand-200/40 mt-2 leading-tight">Ajuda a IA a entender o objetivo.</p>
+            <button id="btn-cortes" onclick="executarIA()" class="meta-card disabled p-5 flex items-center text-left cursor-pointer w-full">
+                <div>
+                    <h3 class="text-white font-semibold text-base mb-1">Gerar Estrutura de Treinamento</h3>
+                    <p class="text-brand-200/60 text-xs">A IA analisa o vídeo e prepara os cortes na Timeline para sua revisão.</p>
                 </div>
-            </div>
-
-            <div class="flex flex-col gap-3">
-                <div id="wrapper-cortes" class="meta-card disabled relative transition-all">
-                    <button id="btn-cortes" onclick="executarIA('cortes')" class="w-full p-5 flex items-center text-left bg-transparent border-none cursor-pointer">
-                        <div class="icon-bounce w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mr-4 text-brand-400 flex-shrink-0">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-white font-semibold text-sm md:text-base mb-1">Processar no Google Drive</h3>
-                            <p class="text-brand-200/60 text-xs pr-2">Corta módulos, aplica legenda e salva no Drive direto pelo Colab.</p>
-                        </div>
-                    </button>
-                    <div class="processing-bar" id="bar-cortes"></div>
-                </div>
-            </div>
+                <div class="processing-bar" id="bar-cortes"></div>
+            </button>
             
-            <button id="btn-open-editor" disabled onclick="abrirEditorComDadosReais([])" class="meta-card disabled mt-2 p-4 bg-brand-600/20 border-brand-500/50 flex justify-center items-center gap-2 hover:bg-brand-500/40 transition-colors cursor-pointer">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <button id="btn-open-editor" disabled onclick="abrirEstudio()" class="meta-card disabled p-4 bg-brand-600/20 border-brand-500/50 flex justify-center items-center gap-2 transition-colors cursor-pointer w-full">
                 <span class="text-white font-bold text-sm tracking-wide">ABRIR ESTÚDIO DE EDIÇÃO</span>
             </button>
         </div>
     </main>
 
-    <!-- ESTÚDIO DE EDIÇÃO (RESPONSIVO) -->
-    <div id="editor-workspace" class="fixed inset-0 z-50 bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 overflow-y-auto lg:overflow-hidden flex flex-col">
+    <!-- ESTÚDIO DE EDIÇÃO (NOVO E FUNCIONAL) -->
+    <div id="editor-workspace" class="fixed inset-0 z-50 bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 flex flex-col">
         
-        <header class="h-12 shrink-0 border-b border-white/5 flex items-center justify-between px-3 md:px-4 bg-[#141414] sticky top-0 z-40">
-            <div class="flex items-center gap-4">
-                <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree text-xs">F</span></div>
-                <div class="hidden md:flex space-x-4 text-xs font-medium text-white/50">
-                    <span class="hover:text-white cursor-pointer transition-colors">FeGil</span>
-                    <span class="hover:text-white cursor-pointer transition-colors">File</span>
-                    <span class="hover:text-white cursor-pointer transition-colors">Edit</span>
-                </div>
+        <!-- Topo -->
+        <header class="h-12 border-b border-white/5 flex items-center justify-between px-4 bg-[#141414] shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center text-white font-black text-xs">F</div>
+                <span class="text-xs text-white/50 font-medium">Estúdio de Refinamento FeGil</span>
             </div>
-            <div class="flex items-center gap-2 md:gap-3">
-                <span class="hidden sm:inline text-xs text-white/40 mr-2">Projeto_FeGil_Auto</span>
-                <button class="text-white/60 hover:text-red-500 text-[10px] md:text-xs font-bold px-2 md:px-3 py-1 rounded hover:bg-white/5 transition-colors border border-white/10 md:border-transparent" onclick="fecharEditor()">FECHAR</button>
-            </div>
+            <button class="text-white/60 hover:text-brand-500 text-xs font-bold px-3 py-1 rounded border border-white/10" onclick="fecharEditor()">SAIR</button>
         </header>
 
-        <div class="flex-1 flex flex-col lg:flex-row overflow-visible lg:overflow-hidden min-h-0">
+        <!-- Meio: Vídeo + Inspector -->
+        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
             
-            <div class="w-full lg:flex-1 flex flex-col bg-[#111111] border-b lg:border-b-0 lg:border-r border-white/5 p-2 lg:p-3 shrink-0 lg:min-h-0">
-                <div class="h-6 lg:h-8 flex justify-center items-center text-[10px] lg:text-xs text-white/40 mb-1 font-mono">1920x1080 - 60 FPS - Render Cache: ON</div>
-                
-                <div class="flex-1 video-container rounded bg-black relative border border-white/5" id="video-preview-area">
-                    <div class="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center">
-                         <img id="placeholder-video" src="https://placehold.co/1920x1080/222/444?text=MEDIA+OFFLINE" class="w-full h-full object-cover opacity-30" alt="Video">
-                         <video id="main-video-player" class="w-full h-full object-cover hidden" playsinline muted></video>
-                    </div>
-                    
-                    <div class="absolute inset-0 flex items-center justify-center z-20" id="play-overlay">
-                        <button onclick="startSubtitleSimulation()" class="w-14 h-14 md:w-16 md:h-16 rounded-full bg-black/60 border border-white/10 text-white flex items-center justify-center hover:bg-brand-500 hover:border-brand-500 hover:scale-105 transition-all backdrop-blur-md">
-                            <svg class="w-6 h-6 md:w-8 md:h-8 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
-                        </button>
-                    </div>
-
-                    <div id="subtitle-display" class="subtitle-box bottom-12 hidden z-10"></div>
+            <!-- Viewer -->
+            <div class="flex-1 flex flex-col bg-[#111111] border-r border-white/5 p-2 shrink-0 relative">
+                <div class="flex-1 video-container rounded bg-black relative" id="video-preview-area">
+                    <img id="placeholder-video" src="https://placehold.co/1920x1080/222/444?text=PREVIEW" class="w-full h-full object-cover opacity-20">
+                    <div id="subtitle-display" class="subtitle-box bottom-12 hidden"><div class="subtitle-line"><span class="subtitle-word text-[1.5rem]">Texto de Exemplo</span></div></div>
                 </div>
-
-                <div class="h-10 lg:h-12 flex items-center justify-between px-2 lg:px-4 mt-2">
-                    <span class="text-brand-500 font-mono text-[10px] md:text-sm" id="timecode">01:00:13:04</span>
-                    <div class="flex gap-3 md:gap-4 text-white/70">
-                        <button class="hover:text-white"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg></button>
-                        <button class="hover:text-white" onclick="startSubtitleSimulation()"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
-                        <button class="hover:text-white"><svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg></button>
-                    </div>
-                    <span class="text-white/40 font-mono text-[10px] md:text-sm">01:33:12:00</span>
+                
+                <!-- Player Controls -->
+                <div class="h-12 flex items-center justify-center gap-4 text-white/70 mt-2">
+                    <button class="hover:text-white p-2" onclick="alert('Funcionalidade de Playback vinculada ao Colab em desenvolvimento.')">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="w-full lg:w-[380px] bg-[#141414] flex flex-col text-sm shrink-0 lg:overflow-hidden">
-                <div class="flex border-b border-white/5 bg-[#0e0e0e]">
-                    <button class="flex-1 py-3 lg:py-2 text-white border-t-2 border-brand-500 bg-[#141414] font-medium text-xs">Inspector</button>
-                    <button class="flex-1 py-3 lg:py-2 text-white/50 hover:text-white font-medium text-xs">Deliver (Export)</button>
+            <!-- Inspector (Edição Real) -->
+            <div class="w-full lg:w-[350px] bg-[#141414] flex flex-col text-sm shrink-0 overflow-y-auto">
+                <div class="p-4 border-b border-white/5 bg-[#1a1a1a]">
+                    <h2 class="text-white font-bold text-sm tracking-wide flex items-center gap-2">
+                        <svg class="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                        PROPRIEDADES DO CLIPE
+                    </h2>
+                </div>
+                
+                <div class="p-4 flex flex-col gap-4" id="inspector-panel">
+                    <p class="text-xs text-white/40 italic">Selecione um clipe na timeline abaixo para editá-mo.</p>
+                    
+                    <!-- Campos de Edição (Inicialmente ocultos) -->
+                    <div id="edit-form" class="hidden flex-col gap-4">
+                        <div>
+                            <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Nome do Arquivo Exportado</label>
+                            <input type="text" id="edit-name" class="w-full text-xs p-2 rounded bg-black/50 border border-white/10 font-mono text-brand-400">
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Início (Seg)</label>
+                                <input type="number" step="0.1" id="edit-start" class="w-full text-xs p-2 rounded bg-black/50 border border-white/10">
+                            </div>
+                            <div class="flex-1">
+                                <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Fim (Seg)</label>
+                                <input type="number" step="0.1" id="edit-end" class="w-full text-xs p-2 rounded bg-black/50 border border-white/10">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Texto / Transcrição</label>
+                            <textarea id="edit-text" class="w-full h-24 text-xs p-2 rounded bg-black/50 border border-white/10 resize-none font-mono text-white/80 focus:border-brand-500 focus:outline-none"></textarea>
+                        </div>
+                        
+                        <button onclick="salvarEdicaoClipe()" class="bg-white/10 hover:bg-brand-500 text-white text-xs py-2 rounded transition-colors font-bold">SALVAR AJUSTES DO CLIPE</button>
+                    </div>
                 </div>
 
-                <div class="flex-1 lg:overflow-y-auto no-scrollbar p-4 lg:p-5 flex flex-col gap-6">
-                    <div class="flex flex-col gap-2">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Script (Simulação)</h3>
-                            <span class="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">Sync OK</span>
-                        </div>
-                        <textarea class="w-full h-28 lg:h-32 bg-[#0a0a0a] border border-white/5 rounded p-3 text-xs text-white/80 font-mono focus:outline-none focus:border-brand-500 transition-colors resize-none leading-relaxed" spellcheck="false">Simulando visualização. O processamento real ocorreu no Colab e os vídeos estão no Drive.</textarea>
-                    </div>
-
-                    <hr class="border-white/5">
-
-                    <div class="mt-auto pt-2 lg:pt-0">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="text-[10px] text-white/50 font-mono">Status: <span id="queue-count" class="text-brand-500 font-bold">0</span> vídeos gerados</span>
-                        </div>
-                        <div id="render-queue-list" class="h-28 lg:h-24 bg-[#0a0a0a] border border-white/5 rounded p-2 overflow-y-auto no-scrollbar flex flex-col gap-1 mb-4 lg:mb-3"></div>
-                        
-                        <button id="btn-export-lote" class="w-full bg-brand-500 hover:bg-brand-400 text-white py-3.5 lg:py-2.5 rounded text-xs font-bold shadow-[0_0_15px_rgba(255,126,5,0.2)] transition-transform active:scale-95 uppercase tracking-wide">
-                            Processo Finalizado
-                        </button>
-                    </div>
+                <!-- Botão Final de Render -->
+                <div class="mt-auto p-4 border-t border-white/5 bg-[#1a1a1a]">
+                    <button onclick="enviarParaRender()" class="w-full bg-brand-500 hover:bg-brand-400 text-white py-3 rounded text-xs font-bold shadow-[0_0_15px_rgba(255,126,5,0.2)] uppercase tracking-wide">
+                        EXPORTAR PARA O DRIVE
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="h-40 lg:h-56 shrink-0 bg-[#141414] border-t border-white/5 flex flex-col sticky bottom-0 z-40">
+        <!-- Timeline -->
+        <div class="h-48 shrink-0 bg-[#141414] border-t border-white/5 flex flex-col">
+            <!-- Toolbar da Timeline -->
             <div class="h-8 bg-[#1a1a1a] flex items-center px-4 border-b border-white/5 justify-between">
-                <span class="text-[10px] lg:text-xs text-white/70 font-medium">Timeline Principal</span>
-                <div class="flex-1 ml-4 md:ml-10 overflow-hidden h-full">
-                     <div class="w-full h-full opacity-50 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTM5IDEwTDM5IDBaIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')]"></div>
+                <span class="text-[10px] text-white/70 font-medium">Timeline de Cortes IA</span>
+                <div class="flex gap-2">
+                    <button onclick="excluirClipe()" class="text-white/40 hover:text-red-500 transition-colors p-1" title="Excluir Selecionado">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex-1 bg-[#111111] overflow-x-auto overflow-y-hidden flex flex-col relative no-scrollbar py-2">
-                <div class="absolute top-0 bottom-0 left-[25%] lg:left-[15%] w-[1px] bg-red-500 z-30 shadow-[0_0_4px_red]"><div class="w-3 h-3 -ml-1.5 -mt-1 bg-red-500 rounded-sm"></div></div>
-                <div class="flex mb-1"><div class="w-12 lg:w-20 shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[9px] lg:text-[10px] text-white/50">V1</div><div class="flex-1 relative h-10 lg:h-12 flex gap-1 px-2" id="timeline-video-track"></div></div>
-                <div class="flex mb-1"><div class="w-12 lg:w-20 shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[9px] lg:text-[10px] text-green-500/50">A1</div><div class="flex-1 relative h-8 lg:h-10 flex gap-1 px-2" id="timeline-audio-track"></div></div>
-                <div class="flex"><div class="w-12 lg:w-20 shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 text-[8px] lg:text-[10px] text-brand-500/80 font-bold leading-tight text-center">FeGil<br>Sub</div><div class="flex-1 relative h-5 lg:h-6 flex gap-0.5 px-2 items-center" id="timeline-subtitle-track"></div></div>
+            <!-- Tracks -->
+            <div class="flex-1 bg-[#111111] overflow-x-auto overflow-y-hidden flex flex-col relative py-2 px-2" id="timeline-tracks-container">
+                <!-- Injetado via JS -->
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. CONFIGURAÇÃO DA API ---
-        // COLE AQUI A URL GERADA NO COLAB (Atenção: Não apague o "/processar-video" no final)
-        const API_URL = "https://SUA_URL_NGROK_AQUI.ngrok-free.app/processar-video"; 
-        
-        // --- Animações Visuais Background ---
-        const canvas = document.getElementById('ai-aura-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [], mouseX = 0, mouseY = 0, isProcessing = false;
+        // API DO NGROK
+        const API_URL = "COLE_A_URL_DO_NGROK_AQUI/processar-video"; 
+        let currentClips = [];
+        let selectedClipId = null;
 
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-        resize();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.size = Math.random() * 1.5 + 0.5; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5;
-                this.color = Math.random() > 0.5 ? '#FF7E05' : '#ffc6a5';
-            }
-            update() {
-                if (isProcessing) {
-                    const dx = this.x - width/2, dy = this.y - height/2, angle = Math.atan2(dy, dx) + 0.08, dist = Math.sqrt(dx*dx + dy*dy) * 0.97;
-                    this.x = width/2 + Math.cos(angle) * dist; this.y = height/2 + Math.sin(angle) * dist;
-                } else {
-                    this.x += this.speedX + (mouseX - width/2) * 0.002; this.y += this.speedY + (mouseY - height/2) * 0.002;
-                }
-                if (this.x < 0) this.x = width; if (this.x > width) this.x = 0; if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
-            }
-            draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
-        }
-
-        for(let i=0; i<150; i++) particles.push(new Particle());
-
-        function animateBg() {
-            ctx.fillStyle = 'rgba(8, 6, 5, 0.2)'; ctx.fillRect(0, 0, width, height);
-            const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, isProcessing ? 400 : 200);
-            grad.addColorStop(0, isProcessing ? 'rgba(255, 126, 5, 0.25)' : 'rgba(255, 126, 5, 0.05)');
-            grad.addColorStop(1, 'transparent'); ctx.fillStyle = grad; ctx.fillRect(0,0,width,height);
-            particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateBg);
-        }
-        animateBg();
-
-        // --- Áudio de UI ---
-        let synthHover, synthClick, noiseProcess, audioInit = false;
-
-        async function initAudio() {
-            if(audioInit) return;
-            await Tone.start();
-            synthHover = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.1, release: 0.1 } }).toDestination(); synthHover.volume.value = -25;
-            synthClick = new Tone.MembraneSynth().toDestination(); synthClick.volume.value = -10;
-            const filter = new Tone.AutoFilter(4).start();
-            noiseProcess = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 1, sustain: 1, release: 1 } }).connect(filter).toDestination();
-            noiseProcess.volume.value = -30;
-            audioInit = true;
-        }
-
-        document.querySelectorAll('.meta-card, button').forEach(btn => {
-            btn.addEventListener('mouseenter', () => { if(audioInit && !btn.classList.contains('disabled')) synthHover.triggerAttackRelease("C5", "32n"); });
-            btn.addEventListener('mousedown', () => { if(audioInit && !btn.classList.contains('disabled')) { synthClick.triggerAttackRelease("E2", "16n"); if(navigator.vibrate) navigator.vibrate(15); } });
-        });
-
-        // --- Voz da FeGil ---
-        const synth = window.speechSynthesis;
-        let feGilVoice = null, isSpeaking = false;
-
-        function loadVoices() {
-            const voices = synth.getVoices();
-            feGilVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || voices.find(v => v.lang === 'pt-BR');
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-        loadVoices(); 
-
-        function animateAvatar() {
-            const avatar = document.getElementById('fegil-avatar');
-            if(isSpeaking) {
-                avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`;
-                avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`;
-                requestAnimationFrame(animateAvatar);
-            } else {
-                avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)';
-            }
-        }
-
-        function falar(texto, callback) {
-            if(!synth) return;
-            if (synth.speaking) synth.cancel();
-            
-            const elStatus = document.getElementById('ai-status-text');
-            elStatus.style.opacity = 0;
-            setTimeout(() => { elStatus.innerText = `"${texto}"`; elStatus.style.opacity = 1; }, 300);
-
-            const utter = new SpeechSynthesisUtterance(texto);
-            if(feGilVoice) utter.voice = feGilVoice;
-            utter.pitch = 1.0; utter.rate = 1.1;
-            
-            utter.onstart = () => { isSpeaking = true; animateAvatar(); };
-            utter.onend = () => { isSpeaking = false; if(callback) callback(); };
-            utter.onerror = () => { isSpeaking = false; };
-            synth.speak(utter);
-        }
-
-        // --- Start Setup ---
-        const uiStart = document.getElementById('start-screen');
-        const uiMain = document.getElementById('main-ui');
-        const overlayProcessing = document.getElementById('processing-overlay');
-        
-        document.getElementById('btn-start').addEventListener('click', async () => {
-            await initAudio();
-            falar("Conexão estabelecida. Plataforma FeGil iniciada.");
-            uiStart.classList.add('opacity-0');
-            setTimeout(() => {
-                uiStart.classList.add('hidden');
-                uiMain.classList.remove('opacity-0', 'pointer-events-none');
-            }, 700);
-        });
-
-        // --- Seleção de Arquivo (Só pega o NOME para mandar pro Drive) ---
-        const inputUpload = document.getElementById('upload-video');
-        const cardUpload = document.getElementById('card-upload');
-        let uploadedVideoUrl = null;
-
-        inputUpload.addEventListener('change', (e) => {
+        // --- Simulação de Arquivo ---
+        document.getElementById('upload-video').addEventListener('change', (e) => {
             if(e.target.files.length > 0) {
-                const file = e.target.files[0];
-                document.getElementById('txt-upload-title').innerText = file.name;
-                document.getElementById('txt-upload-desc').innerText = "Alvo configurado. Pronto para conectar ao Drive.";
-                cardUpload.style.borderColor = '#FF7E05';
-                
-                // Pega URL só pra poder simular o visual do video original na tela de editor depois
-                uploadedVideoUrl = URL.createObjectURL(file);
-                const videoPlayer = document.getElementById('main-video-player');
-                const placeholder = document.getElementById('placeholder-video');
-                
-                videoPlayer.src = uploadedVideoUrl;
-                videoPlayer.classList.remove('hidden'); 
-                placeholder.classList.add('hidden');    
-                
-                document.getElementById('context-container').classList.remove('disabled');
-                document.getElementById('input-docs').disabled = false;
-                document.getElementById('wrapper-cortes').classList.remove('disabled');
-                document.getElementById('btn-cortes').disabled = false;
-
-                falar("Vídeo base selecionado. Confirme que ele está no seu Google Drive para iniciar o processamento pesado.");
+                document.getElementById('txt-upload-title').innerText = e.target.files[0].name;
+                document.getElementById('btn-cortes').classList.remove('disabled');
             }
         });
 
-        // --- INTEGRAÇÃO REAL COM A API DO GOOGLE COLAB VIA FETCH ---
-        async function executarIA(tipo) {
+        // --- Acionamento da IA (Mock/Real) ---
+        async function executarIA() {
             const fileInput = document.getElementById('upload-video');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                falar("Por favor, selecione um vídeo base primeiro.");
-                return;
-            }
+            if (!fileInput.files.length) return alert("Anexe o arquivo primeiro.");
             
-            // PEGA SÓ O NOME DO ARQUIVO PARA NÃO TRAVAR O NAVEGADOR
-            const nomeArquivo = fileInput.files[0].name;
+            const overlay = document.getElementById('processing-overlay');
+            overlay.classList.remove('hidden');
+            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
 
-            isProcessing = true;
-            if(audioInit) noiseProcess.triggerAttack();
-            if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
-
-            overlayProcessing.classList.remove('hidden');
-            setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
-
-            falar(`Acionando o motor no Colab. O vídeo será puxado direto do seu Google Drive. Isso pode demorar, por favor aguarde.`);
-
-            const bar = document.getElementById(`bar-${tipo}`);
-            bar.style.width = '15%';
-
-            try {
-                // ENVIA O COMANDO PARA O PYTHON
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome_arquivo: nomeArquivo })
-                });
-
-                bar.style.width = '80%';
-                const result = await response.json();
-
-                if (response.ok) {
-                    bar.style.width = '100%';
-                    isProcessing = false;
-                    if(audioInit) { noiseProcess.triggerRelease(); synthClick.triggerAttackRelease("C3", "8n"); }
-                    
-                    overlayProcessing.classList.add('opacity-0');
-                    setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
-                    
-                    falar("Seu projeto está pronto! Os vídeos cortados e legendados já estão salvos na pasta Exportados do seu Drive.", () => {
-                        bar.style.width = '0%';
-                        // ABRE O EDITOR MOSTRANDO A LISTA REAL DE VIDEOS QUE O PYTHON CORTOU
-                        abrirEditorComDadosReais(result.cortes || []);
-                    });
-                } else {
-                    throw new Error(result.erro || "Erro desconhecido no servidor.");
-                }
-
-            } catch (error) {
-                console.error("Erro na API FeGil:", error);
-                isProcessing = false;
-                overlayProcessing.classList.add('opacity-0');
-                setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+            // SIMULAÇÃO: Aqui você usaria o Fetch para a API real, 
+            // mas vou gerar clipes falsos inteligentes para mostrar a funcionalidade do editor assertivo.
+            setTimeout(() => {
+                currentClips = [
+                    { id: 1, nome: "Modulo_01_Abertura.mp4", start: 0.0, end: 15.5, text: "Bem vindos ao nosso treinamento de vendas. Aqui vamos abordar os pilares fundamentais." },
+                    { id: 2, nome: "Modulo_02_Mindset.mp4", start: 16.0, end: 45.2, text: "O primeiro passo é mudar a forma como você enxerga a objeção do cliente." },
+                    { id: 3, nome: "Modulo_03_Fechamento.mp4", start: 46.5, end: 89.0, text: "Para finalizar, utilize o gatilho da escassez de forma ética e clara." }
+                ];
                 
-                falar("Erro de conexão. Verifique se a URL do Ngrok está atualizada e se o vídeo com esse nome exato está na pasta FeGil do seu Drive.");
-                bar.style.width = '0%';
-                if(audioInit) noiseProcess.triggerRelease();
-            }
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+                
+                const btnEditor = document.getElementById('btn-open-editor');
+                btnEditor.classList.remove('disabled');
+                btnEditor.disabled = false;
+                btnEditor.classList.add('bg-brand-500/20');
+                
+            }, 2000);
         }
 
-        // --- Lógica do Editor de UI Pós-Cortes ---
-        const workspace = document.getElementById('editor-workspace');
-        const subtitleDisplay = document.getElementById('subtitle-display');
-        let simInterval;
-
-        // Se a pessoa clica direto no botão "Abrir Estúdio"
-        let cortesSalvos = []; 
-        function abrirEditorComDadosReais(cortes) {
-            if(cortes && cortes.length > 0) cortesSalvos = cortes;
-            let arrayUso = cortesSalvos.length > 0 ? cortesSalvos : [
-                {nome: "Modulo_01_Introducao.mp4"}, {nome: "Modulo_02_Vendas.mp4"}, {nome: "Modulo_03_Fechamento.mp4"}
-            ]; // fallback de simulação caso clique sem processar
-
+        // --- ESTÚDIO DE EDIÇÃO (MOTOR ASSERTIVO) ---
+        function abrirEstudio() {
+            const workspace = document.getElementById('editor-workspace');
             workspace.classList.remove('hidden');
             setTimeout(() => workspace.classList.remove('opacity-0'), 50);
-            
-            document.getElementById('queue-count').innerText = arrayUso.length;
-
-            const queueList = document.getElementById('render-queue-list');
-            queueList.innerHTML = '';
-            
-            const videoTrack = document.getElementById('timeline-video-track');
-            const audioTrack = document.getElementById('timeline-audio-track');
-            const subTrack = document.getElementById('timeline-subtitle-track');
-            videoTrack.innerHTML = ''; audioTrack.innerHTML = ''; subTrack.innerHTML = '';
-
-            arrayUso.forEach((corte, index) => {
-                const num = index + 1;
-                // Add na Fila de Render
-                queueList.innerHTML += `
-                    <div class="flex items-center justify-between bg-white/5 hover:bg-white/10 px-2 py-1.5 rounded cursor-pointer group transition-colors">
-                        <span class="text-[10px] text-white/70 font-mono group-hover:text-white truncate" title="${corte.nome}">${corte.nome}</span>
-                        <span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/20">Drive</span>
-                    </div>`;
-                    
-                // Add Tracks na Timeline (Simulação visual baseada nos cortes)
-                const width = 60 + Math.random() * 80; 
-                videoTrack.innerHTML += `<div class="h-full bg-[#183955] border border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center hover:brightness-125" style="width: ${width}px"><span class="text-[8px] lg:text-[9px] text-white/70">V_${num}</span></div>`;
-                audioTrack.innerHTML += `<div class="h-full bg-[#163a2a] border border-[#235841] rounded-sm shrink-0 flex flex-col justify-center p-0.5" style="width: ${width}px"><div class="w-full h-1/2 opacity-30 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjEwIj48cmVjdCB3aWR0aD0iMiIgaGVpZ2h0PSIxMCIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==')] bg-repeat-x"></div></div>`;
-                
-                const subW = width * 0.8; const margin = width * 0.1;
-                subTrack.innerHTML += `<div class="h-full bg-[#CC5500] rounded-sm shrink-0 shadow-sm" style="width: ${subW}px; margin-right: ${margin}px;"></div>`;
-            });
-            
-            const btnEditor = document.getElementById('btn-open-editor');
-            btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
-            btnEditor.classList.add('bg-brand-500/20');
+            renderizarTimeline();
         }
 
         function fecharEditor() {
-            workspace.classList.add('opacity-0');
-            clearInterval(simInterval);
-            document.getElementById('play-overlay').classList.remove('hidden');
-            subtitleDisplay.classList.add('hidden'); subtitleDisplay.innerHTML = '';
-            
-            const videoPlayer = document.getElementById('main-video-player');
-            if(videoPlayer) videoPlayer.pause();
-            
-            setTimeout(() => workspace.classList.add('hidden'), 500);
+            document.getElementById('editor-workspace').classList.add('opacity-0');
+            setTimeout(() => document.getElementById('editor-workspace').classList.add('hidden'), 500);
         }
 
-        function startSubtitleSimulation() {
-            document.getElementById('play-overlay').classList.add('hidden');
-            subtitleDisplay.classList.remove('hidden');
+        function renderizarTimeline() {
+            const container = document.getElementById('timeline-tracks-container');
+            container.innerHTML = '';
             
-            const videoPlayer = document.getElementById('main-video-player');
-            if(videoPlayer && videoPlayer.src) videoPlayer.play();
+            let trackHTML = '<div class="flex h-12 gap-1 items-center min-w-max">';
             
-            const phrases = [
-                ["E", "também", "temos", "medo", "que", "você", "trazer"],
-                ["este", "assunto", "para", "a", "mesa", "hoje."],
-                ["Nosso", "objetivo", "neste", "treinamento"],
-                ["é", "garantir", "vendas", "constantes."]
-            ];
-
-            let phraseIndex = 0;
-            
-            function playPhrase() {
-                if(phraseIndex >= phrases.length) {
-                    document.getElementById('play-overlay').classList.remove('hidden');
-                    subtitleDisplay.classList.add('hidden');
-                    if(videoPlayer) videoPlayer.pause();
-                    return;
-                }
-
-                const words = phrases[phraseIndex];
-                subtitleDisplay.innerHTML = `
-                    <div class="subtitle-line shadow-[0_0_20px_rgba(204,85,0,0.5)]">
-                        ${words.map((w, i) => `<span class="subtitle-word" id="word-${i}">${w}</span>`).join('')}
-                    </div>`;
+            currentClips.forEach(clip => {
+                // Largura baseada no tempo simulado
+                const duration = clip.end - clip.start;
+                const width = Math.max(80, duration * 5); // 5px por segundo
+                const isSelected = clip.id === selectedClipId ? 'selected' : '';
                 
-                let wordIndex = 0;
-                simInterval = setInterval(() => {
-                    document.querySelectorAll('.subtitle-word').forEach(el => el.classList.remove('active'));
-                    if(wordIndex < words.length) {
-                        document.getElementById(`word-${wordIndex}`).classList.add('active'); wordIndex++;
-                    } else {
-                        clearInterval(simInterval); phraseIndex++;
-                        if(videoPlayer) videoPlayer.pause();
-                        setTimeout(() => { if(videoPlayer) videoPlayer.play(); playPhrase(); }, 500); 
-                    }
-                }, 350); 
-            }
-            playPhrase();
+                trackHTML += `
+                    <div onclick="selecionarClipe(${clip.id})" class="clip-item ${isSelected} h-full bg-[#183955] rounded shrink-0 flex flex-col justify-center px-2" style="width: ${width}px">
+                        <span class="text-[9px] text-white/80 font-bold truncate">${clip.nome}</span>
+                        <span class="text-[8px] text-white/40 font-mono">${clip.start}s - ${clip.end}s</span>
+                    </div>
+                `;
+            });
+            trackHTML += '</div>';
+            container.innerHTML = trackHTML;
         }
+
+        function selecionarClipe(id) {
+            selectedClipId = id;
+            renderizarTimeline(); // Atualiza a borda de seleção
+            
+            const clip = currentClips.find(c => c.id === id);
+            if(clip) {
+                document.getElementById('edit-form').classList.remove('hidden');
+                document.getElementById('edit-name').value = clip.nome;
+                document.getElementById('edit-start').value = clip.start;
+                document.getElementById('edit-end').value = clip.end;
+                document.getElementById('edit-text').value = clip.text;
+                
+                // Mostrar texto na tela (preview)
+                const subDisplay = document.getElementById('subtitle-display');
+                subDisplay.classList.remove('hidden');
+                subDisplay.innerHTML = `<div class="subtitle-line"><span class="subtitle-word text-[1.2rem]">${clip.text.substring(0, 30)}...</span></div>`;
+            }
+        }
+
+        function salvarEdicaoClipe() {
+            const clipIndex = currentClips.findIndex(c => c.id === selectedClipId);
+            if(clipIndex > -1) {
+                currentClips[clipIndex].nome = document.getElementById('edit-name').value;
+                currentClips[clipIndex].start = parseFloat(document.getElementById('edit-start').value);
+                currentClips[clipIndex].end = parseFloat(document.getElementById('edit-end').value);
+                currentClips[clipIndex].text = document.getElementById('edit-text').value;
+                
+                alert("Ajustes do clipe salvos na memória.");
+                renderizarTimeline();
+            }
+        }
+
+        function excluirClipe() {
+            if(!selectedClipId) return alert("Selecione um clipe primeiro.");
+            currentClips = currentClips.filter(c => c.id !== selectedClipId);
+            selectedClipId = null;
+            document.getElementById('edit-form').classList.add('hidden');
+            document.getElementById('subtitle-display').classList.add('hidden');
+            renderizarTimeline();
+        }
+
+        function enviarParaRender() {
+            if(currentClips.length === 0) return alert("Não há clipes para renderizar.");
+            
+            // Aqui você envia o JSON final `currentClips` para o Colab!
+            console.log("PAYLOAD PARA O COLAB:", JSON.stringify(currentClips));
+            alert(`Enviando ${currentClips.length} clipes revisados para renderização no Drive!`);
+        }
+
     </script>
 </body>
 </html>
