@@ -163,7 +163,7 @@
                 <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
                 <div class="flex items-center gap-2">
                     <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span></span>
-                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">PROGRAMA DE AUTOMAÇÃO EM VÍDEOS</p>
+                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">AUTOMAÇÃO EM VÍDEOS</p>
                 </div>
             </div>
             
@@ -251,97 +251,204 @@
         </div>
     </main>
 
-    <div id="editor-workspace" class="fixed inset-0 z-50 flex flex-col hidden opacity-0 transition-opacity duration-500">
+    <!-- ESTÚDIO DE EDIÇÃO (INSPIRADO NO DAVINCI RESOLVE) -->
+    <div id="editor-workspace" class="fixed inset-0 z-50 flex flex-col hidden opacity-0 transition-opacity duration-500 bg-[#0e0e0e]">
         
-        <!-- Header Editor -->
-        <header class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-black/50">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree">F</span></div>
-                <h2 class="text-white font-bold text-lg">Estúdio FeGil</h2>
-            </div>
+        <!-- Top Menu Bar -->
+        <header class="h-12 border-b border-white/5 flex items-center justify-between px-4 bg-[#141414]">
             <div class="flex items-center gap-4">
-                <button class="text-white/60 hover:text-white text-sm font-medium" onclick="fecharEditor()">FECHAR</button>
-                <button id="btn-export-lote" class="bg-brand-500 hover:bg-brand-400 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-brand-500/30 transition-transform active:scale-95">
-                    EXPORTAR LOTE (15 VÍDEOS)
-                </button>
+                <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree text-xs">F</span></div>
+                <div class="flex space-x-4 text-xs font-medium text-white/50">
+                    <span class="hover:text-white cursor-pointer transition-colors">FeGil</span>
+                    <span class="hover:text-white cursor-pointer transition-colors">File</span>
+                    <span class="hover:text-white cursor-pointer transition-colors">Edit</span>
+                    <span class="hover:text-white cursor-pointer transition-colors">Timeline</span>
+                    <span class="hover:text-white cursor-pointer transition-colors">Workspace</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-xs text-white/40 mr-2">Projeto: Treinamento_Vendas_v1</span>
+                <button class="text-white/60 hover:text-red-500 text-xs font-bold px-3 py-1 rounded hover:bg-white/5 transition-colors" onclick="fecharEditor()">FECHAR ESTÚDIO</button>
             </div>
         </header>
 
-        <div class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
-            <!-- Área do Vídeo e Legenda Simulada -->
-            <div class="flex-1 video-container rounded-2xl relative" id="video-preview-area">
-                <!-- Imagem estática simulando o vídeo (background neutro para ver legenda) -->
-                <img src="https://placehold.co/1280x720/222/444?text=PREVIEW+DO+VÍDEO" class="w-full h-full object-cover opacity-50" alt="Video">
+        <!-- Main Workspace Area -->
+        <div class="flex-1 flex flex-row overflow-hidden">
+            
+            <!-- Left/Center: Viewer (Vídeo) -->
+            <div class="flex-1 flex flex-col bg-[#111111] border-r border-white/5 p-2">
+                <!-- Toolbar do Viewer -->
+                <div class="h-8 flex justify-center items-center text-xs text-white/40 mb-1 font-mono">
+                    <span>1920x1080 - 60 FPS - Render Cache: ON</span>
+                </div>
                 
-                <!-- Overlay de Reprodução -->
-                <div class="absolute inset-0 flex items-center justify-center" id="play-overlay">
-                    <button onclick="startSubtitleSimulation()" class="w-20 h-20 rounded-full bg-brand-500/80 text-white flex items-center justify-center hover:scale-110 transition-transform backdrop-blur-md">
-                        <svg class="w-10 h-10 ml-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
-                    </button>
+                <!-- Tela do Vídeo -->
+                <div class="flex-1 video-container rounded bg-black relative flex items-center justify-center border border-white/5" id="video-preview-area">
+                    <!-- Fallback / Base do Video -->
+                    <div class="absolute inset-0 bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center">
+                         <img id="placeholder-video" src="https://placehold.co/1920x1080/222/444?text=MEDIA+OFFLINE" class="w-full h-full object-cover opacity-30" alt="Video">
+                    </div>
+                    
+                    <!-- Overlay de Reprodução (Botão Play Central) -->
+                    <div class="absolute inset-0 flex items-center justify-center z-20" id="play-overlay">
+                        <button onclick="startSubtitleSimulation()" class="w-16 h-16 rounded-full bg-black/60 border border-white/10 text-white flex items-center justify-center hover:bg-brand-500 hover:border-brand-500 hover:scale-105 transition-all backdrop-blur-md">
+                            <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- Container da Legenda Dinâmica -->
+                    <div id="subtitle-display" class="subtitle-box bottom-12 hidden z-10">
+                        <!-- Palavras serão injetadas aqui -->
+                    </div>
                 </div>
 
-                <!-- Container da Legenda Dinâmica -->
-                <div id="subtitle-display" class="subtitle-box bottom-12 hidden">
-                    <!-- Palavras serão injetadas aqui pelo JS -->
+                <!-- Controles do Player (Transport Controls) -->
+                <div class="h-12 flex items-center justify-between px-4 mt-2">
+                    <span class="text-brand-500 font-mono text-sm" id="timecode">01:00:13:04</span>
+                    <div class="flex gap-4 text-white/70">
+                        <button class="hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg></button>
+                        <button class="hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></button>
+                        <button class="hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg></button>
+                    </div>
+                    <span class="text-white/40 font-mono text-sm">01:33:12:00</span>
                 </div>
             </div>
 
-            <!-- Painel Lateral de Propriedades e Edição -->
-            <div class="w-full md:w-96 bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+            <!-- Right: Inspector & Render Queue -->
+            <div class="w-80 lg:w-96 bg-[#141414] flex flex-col text-sm overflow-hidden">
                 
-                <!-- Área de Correção de Script -->
-                <div class="flex-1 flex flex-col min-h-[250px]">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-white font-bold text-sm flex items-center gap-2">
-                            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                            Corrigir Legendas
-                        </h3>
-                        <span class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-1 rounded">Sincronizado</span>
-                    </div>
-                    <textarea id="script-editor" class="flex-1 w-full bg-black/40 border border-white/10 rounded-lg p-3 text-sm text-white/90 font-mono focus:outline-none focus:border-brand-500 transition-colors resize-none leading-relaxed" spellcheck="false">
-[00:00:01] Bem-vindos ao nosso treinamento oficial.
-[00:00:04] Hoje vamos falar sobre vendas.
-[00:00:07] Os produtos mais vendidos são:
-[00:00:10] Atenção a este detalhe importante.
+                <!-- Abas -->
+                <div class="flex border-b border-white/5 bg-[#0e0e0e]">
+                    <button class="flex-1 py-2 text-white border-t-2 border-brand-500 bg-[#141414] font-medium text-xs">Inspector</button>
+                    <button class="flex-1 py-2 text-white/50 hover:text-white font-medium text-xs">Deliver (Export)</button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto no-scrollbar p-4 flex flex-col gap-6">
+                    
+                    <!-- Correção de Legendas -->
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Script do Módulo 01</h3>
+                            <span class="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">Sync OK</span>
+                        </div>
+                        <textarea id="script-editor" class="w-full h-32 bg-[#0a0a0a] border border-white/5 rounded p-2 text-xs text-white/80 font-mono focus:outline-none focus:border-brand-500 transition-colors resize-none" spellcheck="false">
+[00:00:01] Bem-vindos ao treinamento.
+[00:00:04] Hoje falaremos sobre vendas.
+[00:00:07] Os produtos mais vendidos.
+[00:00:10] Atenção a este detalhe.
 [00:00:13] É assim que se faz.</textarea>
-                    <p class="text-[10px] text-white/40 mt-2 text-right">Altere o texto para atualizar o vídeo.</p>
+                    </div>
+
+                    <hr class="border-white/5">
+
+                    <!-- Estilo Legenda -->
+                    <div>
+                        <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider mb-3">Estilo da Legenda</h3>
+                        <div class="bg-[#0a0a0a] border border-white/5 rounded p-3 flex flex-col gap-3">
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-white/60">Fonte</span>
+                                <span class="text-xs font-figtree font-black text-white">Figtree (900)</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-white/60">Fundo (Background)</span>
+                                <div class="flex items-center gap-2">
+                                    <div class="w-4 h-4 rounded-full bg-[#CC5500]"></div>
+                                    <span class="text-xs text-white uppercase font-mono">#CC5500</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-xs text-white/60">Contorno Texto</span>
+                                <span class="text-xs text-white">Preto (2px)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Posição Y -->
+                    <div>
+                        <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider mb-2">Transformação (Posição)</h3>
+                        <div class="grid grid-cols-3 gap-1 bg-[#0a0a0a] p-1 rounded border border-white/5">
+                            <button onclick="setSubPosition('top')" class="pos-btn py-1.5 text-xs text-white/60 hover:bg-white/5 rounded">Topo</button>
+                            <button onclick="setSubPosition('center')" class="pos-btn py-1.5 text-xs text-white/60 hover:bg-white/5 rounded">Centro</button>
+                            <button onclick="setSubPosition('bottom')" class="pos-btn py-1.5 text-xs text-brand-500 font-bold bg-[#141414] rounded shadow-md border border-white/5">Rodapé</button>
+                        </div>
+                    </div>
+
+                    <hr class="border-white/5">
+
+                    <!-- Configurações de Saída e Render Queue -->
+                    <div class="mt-auto">
+                        <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider mb-2">Render Settings</h3>
+                        
+                        <!-- Destino -->
+                        <div class="mb-4">
+                            <label class="text-[10px] text-white/40 block mb-1">Location (Pasta de Destino):</label>
+                            <div class="flex gap-2">
+                                <input type="text" value="/Projetos/FeGil/Exportacoes" class="flex-1 bg-[#0a0a0a] border border-white/5 rounded px-2 py-1 text-xs text-white/60 font-mono" readonly>
+                                <button class="bg-white/5 border border-white/10 px-2 rounded text-xs text-white hover:bg-white/10">Browse</button>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-[10px] text-white/50 font-mono">Jobs in Queue: <span id="queue-count" class="text-brand-500">15</span></span>
+                        </div>
+                        
+                        <div id="render-queue-list" class="h-24 bg-[#0a0a0a] border border-white/5 rounded p-1 overflow-y-auto no-scrollbar flex flex-col gap-0.5 mb-3">
+                            <!-- Injetado via JS -->
+                        </div>
+
+                        <button id="btn-export-lote" class="w-full bg-brand-500 hover:bg-brand-400 text-white py-2.5 rounded text-xs font-bold shadow-[0_0_15px_rgba(255,126,5,0.2)] transition-transform active:scale-95 uppercase tracking-wide">
+                            Renderizar Todos (15)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom: Timeline -->
+        <div class="h-56 bg-[#141414] border-t border-white/5 flex flex-col">
+            <!-- Timeline Toolbar -->
+            <div class="h-8 bg-[#1a1a1a] flex items-center px-4 border-b border-white/5 justify-between">
+                <div class="flex gap-4">
+                    <span class="text-xs text-white/70 font-medium">Timeline 1</span>
+                    <div class="flex gap-2 text-white/40">
+                        <svg class="w-4 h-4 cursor-pointer hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        <svg class="w-4 h-4 cursor-pointer hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    </div>
+                </div>
+                <!-- Time Ruler Simulado -->
+                <div class="flex-1 ml-10 overflow-hidden h-full">
+                     <div class="w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iMTAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHBhdGggZD0iTTM5IDEwTDM5IDBaIiBzdHJva2U9IiMzMzMiIHN0cm9rZS13aWR0aD0iMSIvPjwvc3ZnPg==')]"></div>
+                </div>
+            </div>
+
+            <!-- Tracks Area -->
+            <div class="flex-1 bg-[#111111] overflow-x-auto overflow-y-hidden flex flex-col relative no-scrollbar py-2">
+                <!-- Playhead (Linha vermelha) -->
+                <div class="absolute top-0 bottom-0 left-[15%] w-[1px] bg-red-500 z-30 shadow-[0_0_4px_red]">
+                    <div class="w-3 h-3 -ml-1.5 -mt-1 bg-red-500 rounded-sm"></div>
                 </div>
 
-                <hr class="border-white/10">
-
-                <div>
-                    <h3 class="text-white font-bold text-sm mb-3">Estilo da Fonte</h3>
-                    <div class="bg-black/50 border border-white/10 rounded-lg p-3 flex items-center justify-between">
-                        <span class="font-figtree font-black text-lg">Figtree</span>
-                        <span class="text-xs bg-white/10 px-2 py-1 rounded text-white/70">Preto (900)</span>
+                <!-- Track Video -->
+                <div class="flex mb-1">
+                    <div class="w-20 shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[10px] text-white/50">V1</div>
+                    <div class="flex-1 relative h-12 flex gap-1 px-2" id="timeline-video-track">
+                        <!-- Clips injetados via JS -->
                     </div>
                 </div>
 
-                <div>
-                    <h3 class="text-white font-bold text-sm mb-3">Estilo do Destaque</h3>
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center bg-[#FF7E05] shadow-[0_0_15px_rgba(255,126,5,0.6)]"></div>
-                        <span class="text-sm text-white/80">Contorno Ativo #FF7E05</span>
+                <!-- Track Audio -->
+                <div class="flex mb-1">
+                    <div class="w-20 shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[10px] text-green-500/50">A1</div>
+                    <div class="flex-1 relative h-10 flex gap-1 px-2" id="timeline-audio-track">
+                        <!-- Clips injetados via JS -->
                     </div>
                 </div>
 
-                <div>
-                    <h3 class="text-white font-bold text-sm mb-3">Posição no Vídeo</h3>
-                    <div class="grid grid-cols-3 gap-2">
-                        <button onclick="setSubPosition('top')" class="pos-btn py-2 bg-white/5 border border-white/10 rounded text-xs hover:bg-brand-500/20 hover:border-brand-500 transition-colors">Topo</button>
-                        <button onclick="setSubPosition('center')" class="pos-btn py-2 bg-white/5 border border-white/10 rounded text-xs hover:bg-brand-500/20 hover:border-brand-500 transition-colors">Meio</button>
-                        <button onclick="setSubPosition('bottom')" class="pos-btn py-2 bg-brand-500/40 border border-brand-500 rounded text-xs font-bold text-white transition-colors">Baixo</button>
-                    </div>
-                </div>
-
-                <!-- NOVA ÁREA: Fila de Renderização -->
-                <div class="mt-auto flex-1 flex flex-col min-h-[120px] max-h-[180px]">
-                    <div class="flex items-center justify-between mb-2">
-                        <h3 class="text-white font-bold text-sm">Fila de Renderização</h3>
-                        <span id="badge-fila" class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-1 rounded">15 na fila</span>
-                    </div>
-                    <div id="render-queue-list" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-2 overflow-y-auto no-scrollbar flex flex-col gap-1">
-                        <!-- Itens injetados via JS -->
+                <!-- Track Subtitles (FeGil) -->
+                <div class="flex">
+                    <div class="w-20 shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 text-[10px] text-brand-500/80 font-bold">FeGil Sub</div>
+                    <div class="flex-1 relative h-6 flex gap-0.5 px-2 items-center" id="timeline-subtitle-track">
+                        <!-- Blocos de legenda -->
                     </div>
                 </div>
             </div>
@@ -530,6 +637,9 @@
         const contextContainer = document.getElementById('context-container');
         const inputDocs = document.getElementById('input-docs');
 
+        // Váriavel para armazenar o vídeo que o usuário subir
+        let uploadedVideoUrl = null;
+
         inputUpload.addEventListener('change', (e) => {
             if(e.target.files.length > 0) {
                 const file = e.target.files[0];
@@ -537,6 +647,11 @@
                 document.getElementById('txt-upload-desc').innerText = "Mídia carregada. Aguardando contexto.";
                 
                 cardUpload.style.borderColor = '#FF7E05';
+                
+                // Transforma o arquivo local em um link URL de vídeo funcional
+                uploadedVideoUrl = URL.createObjectURL(file);
+                // Injeta no player do Estúdio
+                document.getElementById('main-video-player').src = uploadedVideoUrl;
                 
                 // Libera campo do Google Docs e Botões
                 contextContainer.classList.remove('disabled');
@@ -605,21 +720,55 @@
             workspace.classList.remove('hidden');
             setTimeout(() => workspace.classList.remove('opacity-0'), 50);
             
-            // Gerar fila de renderização dinâmica no painel
             const qtdModulos = parseInt(document.getElementById('input-modulos').value) || 15;
+            
+            // 1. Atualizar Botão e Contadores
+            document.getElementById('btn-export-lote').innerText = `RENDERIZAR TODOS (${qtdModulos})`;
+            document.getElementById('queue-count').innerText = qtdModulos;
+
+            // 2. Preencher a Render Queue
             const queueList = document.getElementById('render-queue-list');
             queueList.innerHTML = '';
             for(let i = 1; i <= qtdModulos; i++) {
                 const num = i.toString().padStart(2, '0');
                 queueList.innerHTML += `
-                    <div class="flex items-center justify-between bg-white/5 px-3 py-2 rounded text-xs border border-white/5">
-                        <div class="flex items-center gap-2">
-                            <div class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></div>
-                            <span class="text-white/80 font-mono">Treinamento - Módulo ${num}.mp4</span>
-                        </div>
-                        <span class="text-brand-400 font-bold">Pronto</span>
+                    <div class="flex items-center justify-between hover:bg-white/5 px-2 py-1 rounded cursor-pointer group">
+                        <span class="text-[10px] text-white/60 font-mono group-hover:text-white transition-colors">Job ${num}: Módulo_${num}.mp4</span>
+                        <span class="text-[9px] bg-brand-500/10 text-brand-400 px-1 rounded border border-brand-500/20">Ready</span>
                     </div>
                 `;
+            }
+
+            // 3. Preencher a Timeline Horizontal (Simulando clipes de vídeo e áudio)
+            const videoTrack = document.getElementById('timeline-video-track');
+            const audioTrack = document.getElementById('timeline-audio-track');
+            const subTrack = document.getElementById('timeline-subtitle-track');
+            
+            videoTrack.innerHTML = ''; audioTrack.innerHTML = ''; subTrack.innerHTML = '';
+
+            for(let i = 1; i <= qtdModulos; i++) {
+                // Larguras aleatórias para simular tempos diferentes de vídeos
+                const width = 60 + Math.random() * 80; 
+                const num = i.toString().padStart(2, '0');
+                
+                // Video Clip (Azul DaVinci)
+                videoTrack.innerHTML += `
+                    <div class="h-full bg-[#183955] border border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center overflow-hidden hover:brightness-125 transition-all cursor-pointer" style="width: ${width}px">
+                        <span class="text-[9px] text-white/70 font-mono">V_Mod_${num}</span>
+                    </div>`;
+                
+                // Audio Clip (Verde escuro DaVinci) com waveform simulada
+                audioTrack.innerHTML += `
+                    <div class="h-full bg-[#163a2a] border border-[#235841] rounded-sm shrink-0 flex flex-col justify-center overflow-hidden p-0.5 cursor-pointer" style="width: ${width}px">
+                        <div class="w-full h-1/2 opacity-30 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjEwIj48cmVjdCB3aWR0aD0iMiIgaGVpZ2h0PSIxMCIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==')] bg-repeat-x"></div>
+                    </div>`;
+            }
+
+            // Simular recortes de legenda
+            for(let i = 0; i < 30; i++) {
+                const subW = 20 + Math.random() * 30;
+                const margin = Math.random() * 10;
+                subTrack.innerHTML += `<div class="h-3 bg-[#CC5500] rounded-sm shrink-0 shadow-sm" style="width: ${subW}px; margin-right: ${margin}px;"></div>`;
             }
         }
 
@@ -633,15 +782,13 @@
         }
 
         function setSubPosition(pos) {
-            // Atualiza botões
             document.querySelectorAll('.pos-btn').forEach(btn => {
-                btn.classList.remove('bg-brand-500/40', 'border-brand-500', 'font-bold', 'text-white');
-                btn.classList.add('bg-white/5', 'border-white/10');
+                btn.classList.remove('bg-[#141414]', 'text-brand-500', 'font-bold', 'shadow-md');
+                btn.classList.add('text-white/60', 'hover:bg-white/5');
             });
-            event.target.classList.remove('bg-white/5', 'border-white/10');
-            event.target.classList.add('bg-brand-500/40', 'border-brand-500', 'font-bold', 'text-white');
+            event.target.classList.remove('text-white/60', 'hover:bg-white/5');
+            event.target.classList.add('bg-[#141414]', 'text-brand-500', 'font-bold', 'shadow-md');
 
-            // Move a legenda
             subtitleDisplay.style.top = pos === 'top' ? '10%' : pos === 'center' ? '45%' : 'auto';
             subtitleDisplay.style.bottom = pos === 'bottom' ? '12%' : 'auto';
         }
@@ -649,6 +796,10 @@
         function startSubtitleSimulation() {
             document.getElementById('play-overlay').classList.add('hidden');
             subtitleDisplay.classList.remove('hidden');
+            
+            // Dá o play no vídeo real junto com as legendas
+            const videoPlayer = document.getElementById('main-video-player');
+            videoPlayer.play();
             
             // Frases curtas baseadas na imagem/estilo aprovado
             const phrases = [
@@ -688,7 +839,12 @@
                     } else {
                         clearInterval(simInterval);
                         phraseIndex++;
-                        setTimeout(playPhrase, 500); // pausa de meio segundo entre frases
+                        // Pausa de meio segundo e também pausa o vídeo para sincronizar a demonstração
+                        videoPlayer.pause();
+                        setTimeout(() => {
+                            videoPlayer.play();
+                            playPhrase();
+                        }, 500); 
                     }
                 }, 350); // velocidade de leitura da palavra
             }
