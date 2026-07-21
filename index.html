@@ -5,112 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>FeGil - Inteligência Audiovisual e Treinamentos</title>
     
-    <!-- Ícone/Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔥%3C/text%3E%3C/svg%3E">
-    
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#fff3ec', 100: '#ffe4d3', 200: '#ffc6a5', 300: '#ffa16d',
-                            400: '#ff7332', 500: '#FF7E05', 
-                            600: '#ef3b00', 700: '#c62a00', 800: '#9d2208', 900: '#7e1f0a', 950: '#080605', 
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        figtree: ['Figtree', 'sans-serif'], 
-                    }
-                }
-            }
+            theme: { extend: { colors: { brand: { 400: '#ff7332', 500: '#FF7E05', 600: '#ef3b00', 950: '#080605' } }, fontFamily: { sans: ['Inter', 'sans-serif'], figtree: ['Figtree', 'sans-serif'] } } }
         }
     </script>
-    
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
     <style>
-        body {
-            margin: 0; padding: 0; background-color: #080605; color: #ffffff;
-            overflow-x: hidden; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
-        }
-
+        body { margin: 0; padding: 0; background-color: #080605; color: #ffffff; overflow-x: hidden; touch-action: manipulation; }
         #ai-aura-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-
-        .meta-card {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px;
-            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;
-        }
-
-        .meta-card::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit;
-            background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 126, 5, 0.15), transparent 40%);
-            opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: -1;
-        }
-
-        .meta-card:not(.disabled):hover::before { opacity: 1; }
+        .meta-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; transition: all 0.4s; box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
         .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); }
-        .meta-card:not(.disabled):active { transform: translateY(1px) scale(0.98); }
-
-        .icon-bounce { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .meta-card:not(.disabled):hover .icon-bounce {
-            transform: scale(1.15) translateY(-3px); color: #FF7E05; filter: drop-shadow(0 0 8px rgba(255,126,5,0.6));
-        }
-
+        .icon-bounce { transition: all 0.4s; }
+        .meta-card:not(.disabled):hover .icon-bounce { transform: scale(1.15) translateY(-3px); color: #FF7E05; filter: drop-shadow(0 0 8px rgba(255,126,5,0.6)); }
         .disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white;
-            box-shadow: 0 4px 15px rgba(255, 126, 5, 0.4); border: none; transition: all 0.3s ease;
-            position: relative; overflow: hidden; cursor: pointer;
-        }
+        .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; box-shadow: 0 4px 15px rgba(255, 126, 5, 0.4); border: none; transition: all 0.3s; cursor: pointer; }
         .btn-primary:hover { box-shadow: 0 8px 30px rgba(255, 126, 5, 0.6); transform: translateY(-3px) scale(1.02); }
-
-        input[type="file"] { display: none; }
-        input[type="text"], input[type="url"] { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; }
-        input[type="text"]:focus, input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
+        input[type="url"] { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
         input.success { border-color: #10B981 !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important; }
-
-        .processing-bar {
-            position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05;
-            width: 0%; border-radius: 0 0 20px 20px; transition: width 0.3s ease; box-shadow: 0 0 10px #FF7E05;
-        }
-
-        /* --- STUDIO RESPONSIVO --- */
-        .subtitle-box {
-            position: absolute; width: 90%; text-align: center; transition: bottom 0.5s ease, top 0.5s ease;
-            pointer-events: none; z-index: 30; left: 50%; transform: translateX(-50%);
-        }
-
-        .subtitle-line {
-            background-color: #CC5500; display: inline-block; padding: 6px 20px; border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
-        }
-
-        .subtitle-word {
-            font-family: 'Figtree', sans-serif; font-weight: 900; font-size: clamp(1.2rem, 3vw, 2.2rem); 
-            color: white; display: inline-block; margin: 0 3px;
-            -webkit-text-stroke: 1px black;
-            text-shadow: 2px 2px 0px #000, -1px -1px 0px #000;
-            transition: color 0.1s ease;
-        }
-
+        .processing-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.3s ease; box-shadow: 0 0 10px #FF7E05; }
+        
+        .subtitle-box { position: absolute; width: 90%; text-align: center; pointer-events: none; z-index: 30; left: 50%; transform: translateX(-50%); }
+        .subtitle-line { background-color: #CC5500; display: inline-block; padding: 6px 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
+        .subtitle-word { font-family: 'Figtree', sans-serif; font-weight: 900; font-size: clamp(1.2rem, 3vw, 2.2rem); color: white; display: inline-block; margin: 0 3px; -webkit-text-stroke: 1px black; text-shadow: 2px 2px 0px #000; transition: color 0.1s ease; }
         .subtitle-word.active { color: #FFD700; }
-
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        #toast {
-            position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%);
-            background: #10B981; color: white; padding: 8px 16px; border-radius: 20px;
-            font-size: 12px; font-weight: bold; transition: bottom 0.3s ease; z-index: 999;
-        }
+        #toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: #10B981; color: white; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; transition: bottom 0.3s ease; z-index: 999; }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-[100dvh]">
@@ -123,26 +49,16 @@
         <div class="w-20 h-20 mb-6 relative flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1s;"></div>
             <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.5s; animation-direction: reverse;"></div>
-            <svg class="w-8 h-8 text-white absolute animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
         </div>
-        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4" id="processing-title">MOTOR DE IA TRABALHANDO</h2>
-        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4" id="processing-subtitle">Analisando contexto, removendo silêncios e cortando conversas paralelas...</p>
+        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4">MOTOR DE IA TRABALHANDO</h2>
+        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4">Baixando vídeo, analisando contexto, removendo silêncios e cortando conversas...</p>
     </div>
 
     <!-- Tela Inicial -->
     <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-opacity duration-700">
-        <div class="w-32 h-32 mb-8 relative flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-t-2 border-brand-500 animate-spin" style="animation-duration: 3s;"></div>
-            <div class="absolute inset-4 rounded-full border-b-2 border-brand-400 animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
-            <div class="w-16 h-16 bg-brand-500 rounded-full blur-md animate-pulse"></div>
-            <svg class="w-8 h-8 absolute text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        </div>
-        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 animate-pulse" style="filter: drop-shadow(0 0 15px rgba(255,126,5,0.4));">FeGil<span class="text-white">.</span></h1>
-        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Edição Baseada em Texto (IA Autônoma)</p>
-        
-        <button id="btn-start" class="btn-primary mt-8 px-10 py-4 rounded-full text-sm font-bold tracking-widest">
-            INICIAR PLATAFORMA
-        </button>
+        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700">FeGil<span class="text-white">.</span></h1>
+        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Edição Autônoma de Treinamentos (Link Mode)</p>
+        <button id="btn-start" class="btn-primary mt-8 px-10 py-4 rounded-full text-sm font-bold tracking-widest">INICIAR PLATAFORMA</button>
     </div>
 
     <!-- UI Principal -->
@@ -162,9 +78,9 @@
             </div>
             
             <div class="pointer-events-auto mt-[-2rem] md:mt-[-3rem] relative z-20 w-full max-w-md mx-auto">
-                <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)] transition-all hover:border-brand-500/40">
+                <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)]">
                     <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug transition-opacity duration-300 min-h-[3rem]">
-                        "Olá. Aguardando a indicação da sua mídia bruta."
+                        "Olá. Cole o link do seu vídeo do Google Drive ou YouTube abaixo."
                     </p>
                 </div>
             </div>
@@ -172,13 +88,17 @@
 
         <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 mt-6 lg:mt-0 pb-16 lg:pb-0 pointer-events-auto">
             
-            <div id="card-upload" class="meta-card p-6 flex flex-col items-center justify-center cursor-pointer text-center group">
-                <div class="icon-bounce w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mb-3 text-brand-400">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+            <div id="card-upload" class="meta-card p-6 flex flex-col justify-center w-full">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="icon-bounce w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center text-brand-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-base">Anexar via Link URL</h3>
+                        <p class="text-brand-200/50 text-xs">Drive (Acesso Público) ou YouTube</p>
+                    </div>
                 </div>
-                <h3 class="text-white font-bold text-lg mb-1" id="txt-upload-title">Indicar Vídeo do Drive</h3>
-                <p class="text-brand-200/50 text-sm mb-3">O arquivo já deve estar na pasta "FeGil" do Google Drive.</p>
-                <input type="text" id="input-nome-video" placeholder="Ex: meu_treinamento.mp4" class="w-full max-w-xs text-sm p-3 rounded-lg text-center transition-colors">
+                <input type="url" id="input-link-video" placeholder="Cole o link aqui..." class="w-full text-sm p-3 rounded-lg transition-colors border border-white/10 mt-2">
             </div>
 
             <div class="flex flex-col gap-4 mt-2">
@@ -191,7 +111,6 @@
                             <h3 class="text-white font-semibold text-base mb-1">Limpeza e Cortes (IA Autônoma)</h3>
                             <p class="text-brand-200/60 text-xs pr-2">O motor remove silêncios e erros sozinho usando compreensão semântica.</p>
                         </div>
-                        <span class="hidden md:inline-block bg-brand-500/20 text-brand-400 text-[10px] font-bold px-2 py-1 rounded border border-brand-500/30 uppercase tracking-wide">AUTO IA</span>
                     </button>
                     <div class="processing-bar" id="bar-cortes"></div>
                 </div>
@@ -206,7 +125,6 @@
 
     <!-- ESTÚDIO DE EDIÇÃO RESPONSIVO -->
     <div id="editor-workspace" class="fixed inset-0 z-50 bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 flex flex-col h-[100dvh]">
-        
         <header class="h-12 shrink-0 border-b border-white/5 flex items-center justify-between px-3 md:px-4 bg-[#141414] sticky top-0 z-40">
             <div class="flex items-center gap-3">
                 <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree text-xs">F</span></div>
@@ -219,7 +137,6 @@
         </header>
 
         <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
-            
             <div class="w-full lg:flex-1 flex flex-col bg-[#111111] border-b lg:border-b-0 lg:border-r border-white/5 p-2 md:p-4 min-h-min shrink-0">
                 <div class="w-full aspect-video bg-black relative rounded-lg overflow-hidden border border-white/10 flex items-center justify-center group cursor-pointer shadow-lg" onclick="togglePlay()">
                     <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=RENDERIZAÇÃO+BACKEND" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Video Placeholder">
@@ -248,64 +165,28 @@
             </div>
 
             <div class="w-full lg:w-[380px] bg-[#141414] flex flex-col text-sm shrink-0">
-                <div class="p-4 flex flex-col gap-5">
+                <div class="p-4 flex flex-col gap-5 h-full">
                     <div>
                         <div class="flex justify-between items-center mb-2">
                             <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Módulos Aprovados pela IA</h3>
                             <span class="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">Google Drive Sync</span>
                         </div>
                         <p class="text-xs text-white/50 mb-3 leading-relaxed">Silêncios e erros foram descartados. Abaixo estão os módulos finais salvos no seu Drive.</p>
-                        
-                        <div id="render-queue-list" class="h-40 bg-[#0a0a0a] border border-white/5 rounded p-2 overflow-y-auto no-scrollbar flex flex-col gap-1">
-                            <!-- Populated dynamically by API Response -->
-                        </div>
+                        <div id="render-queue-list" class="h-56 bg-[#0a0a0a] border border-white/5 rounded p-2 overflow-y-auto no-scrollbar flex flex-col gap-1"></div>
                     </div>
-
                     <hr class="border-white/5">
-                    
-                    <button class="w-full bg-brand-500/20 border border-brand-500/50 hover:bg-brand-500/40 text-brand-300 py-3.5 rounded text-xs font-bold transition-all active:scale-95 uppercase tracking-wide cursor-pointer mt-auto">
+                    <button class="w-full bg-brand-500/20 border border-brand-500/50 hover:bg-brand-500/40 text-brand-300 py-3.5 rounded text-xs font-bold transition-all uppercase mt-auto pointer-events-none">
                         Módulos Salvos no Drive
                     </button>
-                </div>
-            </div>
-        </div>
-
-        <div class="w-full h-32 lg:h-48 shrink-0 bg-[#141414] border-t border-white/5 flex flex-col z-30">
-            <div class="h-6 bg-[#1a1a1a] flex items-center px-3 border-b border-white/5 justify-between shrink-0">
-                <span class="text-[9px] text-white/50 font-medium uppercase tracking-wider">Visualização da Linha do Tempo Gerada</span>
-            </div>
-
-            <div class="flex-1 bg-[#111] overflow-x-auto overflow-y-hidden flex flex-col relative no-scrollbar py-2" id="timeline-container">
-                <div id="playhead" class="absolute top-0 bottom-0 left-0 w-[1px] bg-red-500 z-30 shadow-[0_0_4px_red] transition-all duration-75 ml-[60px] md:ml-[80px]">
-                    <div class="w-2 h-2 -ml-1 -mt-0.5 bg-red-500 rounded-sm"></div>
-                </div>
-                
-                <div class="flex mb-1 w-max min-w-full h-8 lg:h-12 relative">
-                    <div class="w-[60px] md:w-[80px] shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[9px] text-white/50 sticky left-0 z-20">V1</div>
-                    <div class="flex-1 relative flex gap-1 px-2" id="timeline-video-track"></div>
-                </div>
-                
-                <div class="flex mb-1 w-max min-w-full h-6 lg:h-8 relative">
-                    <div class="w-[60px] md:w-[80px] shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 border-b border-white/5 text-[9px] text-green-500/50 sticky left-0 z-20">A1</div>
-                    <div class="flex-1 relative flex gap-1 px-2" id="timeline-audio-track"></div>
-                </div>
-                
-                <div class="flex w-max min-w-full h-4 lg:h-6 relative">
-                    <div class="w-[60px] md:w-[80px] shrink-0 flex items-center justify-center bg-[#1a1a1a] border-r border-white/5 text-[8px] text-brand-500/80 font-bold text-center sticky left-0 z-20">SUB</div>
-                    <div class="flex-1 relative flex gap-0.5 px-2 items-center" id="timeline-subtitle-track"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ==============================================================
-        // CONFIGURAÇÕES DA API (SEU ENDPOINT NGROK)
-        // ==============================================================
         const API_URL = "https://suave-unshackle-chug.ngrok-free.dev/processar-video";
-        let modulosGeradosPelaIA = []; // Armazena a resposta real do Python
+        let modulosGeradosPelaIA = []; 
 
-        // Background Animation Setup
         const canvas = document.getElementById('ai-aura-canvas');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [], mouseX = 0, mouseY = 0, isProcessing = false;
@@ -316,23 +197,10 @@
         resize();
 
         class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.size = Math.random() * 1.5 + 0.5; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5;
-                this.color = Math.random() > 0.5 ? '#FF7E05' : '#ffc6a5';
-            }
-            update() {
-                if (isProcessing) {
-                    const dx = this.x - width/2, dy = this.y - height/2, angle = Math.atan2(dy, dx) + 0.08, dist = Math.sqrt(dx*dx + dy*dy) * 0.97;
-                    this.x = width/2 + Math.cos(angle) * dist; this.y = height/2 + Math.sin(angle) * dist;
-                } else {
-                    this.x += this.speedX + (mouseX - width/2) * 0.002; this.y += this.speedY + (mouseY - height/2) * 0.002;
-                }
-                if (this.x < 0) this.x = width; if (this.x > width) this.x = 0; if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
-            }
+            constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.size = Math.random() * 1.5 + 0.5; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5; this.color = Math.random() > 0.5 ? '#FF7E05' : '#ffc6a5'; }
+            update() { if(isProcessing){ const dx = this.x - width/2, dy = this.y - height/2, angle = Math.atan2(dy, dx) + 0.08, dist = Math.sqrt(dx*dx + dy*dy) * 0.97; this.x = width/2 + Math.cos(angle) * dist; this.y = height/2 + Math.sin(angle) * dist; } else { this.x += this.speedX + (mouseX - width/2) * 0.002; this.y += this.speedY + (mouseY - height/2) * 0.002; } if (this.x < 0) this.x = width; if (this.x > width) this.x = 0; if (this.y < 0) this.y = height; if (this.y > height) this.y = 0; }
             draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
         }
-
         for(let i=0; i<150; i++) particles.push(new Particle());
 
         function animateBg() {
@@ -344,17 +212,14 @@
         }
         animateBg();
 
-        // Audio & Tone.js
         let synthHover, synthClick, noiseProcess, audioInit = false;
         async function initAudio() {
-            if(audioInit) return;
-            await Tone.start();
+            if(audioInit) return; await Tone.start();
             synthHover = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.1, release: 0.1 } }).toDestination(); synthHover.volume.value = -30;
             synthClick = new Tone.MembraneSynth().toDestination(); synthClick.volume.value = -15;
             const filter = new Tone.AutoFilter(4).start();
             noiseProcess = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 1, sustain: 1, release: 1 } }).connect(filter).toDestination();
-            noiseProcess.volume.value = -35;
-            audioInit = true;
+            noiseProcess.volume.value = -35; audioInit = true;
         }
 
         document.querySelectorAll('.meta-card, button').forEach(btn => {
@@ -364,118 +229,76 @@
 
         const synth = window.speechSynthesis;
         let feGilVoice = null, isSpeaking = false;
-        function loadVoices() {
-            const voices = synth.getVoices();
-            feGilVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || voices.find(v => v.lang.includes('pt'));
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-        loadVoices(); 
+        function loadVoices() { feGilVoice = synth.getVoices().find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || synth.getVoices().find(v => v.lang.includes('pt')); }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); 
 
         function animateAvatar() {
             const avatar = document.getElementById('fegil-avatar');
-            if(isSpeaking) {
-                avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`;
-                avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`;
-                requestAnimationFrame(animateAvatar);
-            } else {
-                avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)';
-            }
+            if(isSpeaking) { avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`; avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`; requestAnimationFrame(animateAvatar);
+            } else { avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)'; }
         }
 
         function falar(texto, callback) {
-            if(!synth) return;
-            if (synth.speaking) synth.cancel();
-            
+            if(!synth) return; if (synth.speaking) synth.cancel();
             const elStatus = document.getElementById('ai-status-text');
-            if (elStatus) {
-                elStatus.style.opacity = 0;
-                setTimeout(() => { elStatus.innerText = `"${texto}"`; elStatus.style.opacity = 1; }, 300);
-            }
-
+            if (elStatus) { elStatus.style.opacity = 0; setTimeout(() => { elStatus.innerText = `"${texto}"`; elStatus.style.opacity = 1; }, 300); }
             const utter = new SpeechSynthesisUtterance(texto);
-            if(feGilVoice) utter.voice = feGilVoice;
-            utter.pitch = 1.0; utter.rate = 1.1;
+            if(feGilVoice) utter.voice = feGilVoice; utter.pitch = 1.0; utter.rate = 1.1;
             utter.onstart = () => { isSpeaking = true; animateAvatar(); };
-            utter.onend = () => { isSpeaking = false; if(callback) callback(); };
-            utter.onerror = () => { isSpeaking = false; };
-            synth.speak(utter);
+            utter.onend = () => { isSpeaking = false; if(callback) callback(); }; utter.onerror = () => { isSpeaking = false; }; synth.speak(utter);
         }
 
         function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.innerText = message;
-            toast.style.bottom = '20px';
-            setTimeout(() => { toast.style.bottom = '-50px'; }, 3000);
+            const toast = document.getElementById('toast'); toast.innerText = message; toast.style.bottom = '20px'; setTimeout(() => { toast.style.bottom = '-50px'; }, 3000);
         }
 
-        const uiStart = document.getElementById('start-screen');
-        const uiMain = document.getElementById('main-ui');
-        const overlayProcessing = document.getElementById('processing-overlay');
-        const videoPlayer = document.getElementById('main-video-player');
-        
         document.getElementById('btn-start').addEventListener('click', async () => {
-            await initAudio();
-            falar("Sistema ativo. Digite o nome do vídeo bruto que está no Drive.");
-            uiStart.classList.add('opacity-0');
-            setTimeout(() => { uiStart.classList.add('hidden'); uiMain.classList.remove('opacity-0', 'pointer-events-none'); }, 700);
+            await initAudio(); falar("Sistema ativo. Cole o link do seu vídeo abaixo.");
+            document.getElementById('start-screen').classList.add('opacity-0');
+            setTimeout(() => { document.getElementById('start-screen').classList.add('hidden'); document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); }, 700);
         });
 
-        // Habilita botão após digitar o nome
-        document.getElementById('input-nome-video').addEventListener('input', function() {
-            if(this.value.length > 3) {
+        document.getElementById('input-link-video').addEventListener('input', function() {
+            if(this.value.includes('http')) {
                 document.getElementById('wrapper-cortes').classList.remove('disabled');
                 document.getElementById('btn-cortes').disabled = false;
                 this.classList.add('success');
             } else {
-                this.classList.remove('success');
-                document.getElementById('wrapper-cortes').classList.add('disabled');
+                this.classList.remove('success'); document.getElementById('wrapper-cortes').classList.add('disabled');
             }
         });
 
-        // ==============================================================
-        // INTEGRAÇÃO REAL COM O BACKEND FEGIL (PYTHON NO COLAB)
-        // ==============================================================
         async function executarIA(tipo) {
-            const nomeVideoArquivo = document.getElementById('input-nome-video').value.trim();
-            if(!nomeVideoArquivo) {
-                showToast("Por favor, informe o nome do arquivo.");
-                return;
-            }
+            const linkVideo = document.getElementById('input-link-video').value.trim();
+            if(!linkVideo) { showToast("Por favor, informe o link do arquivo."); return; }
 
             isProcessing = true;
             if(audioInit) noiseProcess.triggerAttack();
             if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
 
+            const overlayProcessing = document.getElementById('processing-overlay');
             overlayProcessing.classList.remove('hidden');
             setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
 
-            const bar = document.getElementById(`bar-${tipo}`);
-            bar.style.width = '30%';
-
-            falar("Enviando solicitação para o motor Python. Extraindo áudio e analisando semântica via Inteligência Artificial...");
+            const bar = document.getElementById(`bar-${tipo}`); bar.style.width = '30%';
+            falar("Enviando solicitação para o motor. Baixando vídeo via link e analisando semântica via Inteligência Artificial...");
 
             try {
-                // CHAMA O SEU BACKEND NGROK
                 const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome_arquivo: nomeVideoArquivo })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ link_video: linkVideo })
                 });
                 
                 const data = await response.json();
-                
                 if (!response.ok) throw new Error(data.erro || "Erro no processamento");
                 
-                // Sucesso na resposta real da API
-                bar.style.width = '100%';
-                isProcessing = false;
-                modulosGeradosPelaIA = data.modulos; // Armazena a resposta real
+                bar.style.width = '100%'; isProcessing = false;
+                modulosGeradosPelaIA = data.modulos;
                 
                 if(audioInit) { 
                     noiseProcess.triggerRelease(); 
                     const synthSuccess = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synthSuccess.volume.value = -8;
-                    synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
+                    synthSuccess.volume.value = -8; synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
                 }
                 
                 overlayProcessing.classList.add('opacity-0');
@@ -485,52 +308,32 @@
                 document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Criado(s) pela IA`;
                 document.getElementById('modules-detected').classList.remove('hidden');
 
-                falar(`Sucesso. O motor removeu as conversas paralelas e gerou ${qtd} módulo${qtd > 1 ? 's' : ''}. Acesse o painel.`, () => {
+                falar(`Sucesso. O motor removeu os silêncios e gerou ${qtd} módulo${qtd > 1 ? 's' : ''}. Acesse os resultados.`, () => {
                     bar.style.width = '0%';
                     const btnEditor = document.getElementById('btn-open-editor');
                     btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
                     btnEditor.classList.add('bg-brand-500/20');
                 });
-
             } catch (error) {
-                // Tratamento de Erro de Conexão
-                isProcessing = false;
-                bar.style.width = '0%';
-                if(audioInit) noiseProcess.triggerRelease();
-                overlayProcessing.classList.add('opacity-0');
-                setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
-                
-                falar("Falha de conexão. O motor não está respondendo. Verifique se o Colab está ativo.");
-                console.error(error);
+                isProcessing = false; bar.style.width = '0%'; if(audioInit) noiseProcess.triggerRelease();
+                overlayProcessing.classList.add('opacity-0'); setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+                falar("Falha de conexão. O motor não está respondendo. Verifique o link e se o Colab está ativo.");
                 showToast("Erro: " + error.message);
             }
         }
 
-        // ==============================================================
-        // ESTÚDIO BASEADO NA RESPOSTA DA IA (FRONTEND)
-        // ==============================================================
         const workspace = document.getElementById('editor-workspace');
-        let simInterval;
-
         function abrirEditor() {
-            if(audioInit) {
-                const synthOpen = new Tone.FMSynth().toDestination();
-                synthOpen.volume.value = -12;
-                synthOpen.triggerAttackRelease("A3", "8n");
-            }
+            if(audioInit) { const synthOpen = new Tone.FMSynth().toDestination(); synthOpen.volume.value = -12; synthOpen.triggerAttackRelease("A3", "8n"); }
+            workspace.classList.remove('hidden'); setTimeout(() => workspace.classList.remove('opacity-0'), 50);
 
-            workspace.classList.remove('hidden');
-            setTimeout(() => workspace.classList.remove('opacity-0'), 50);
-
-            // Popula a lista lateral com os Nomes REAIS devolvidos pela IA
-            const queueList = document.getElementById('render-queue-list');
-            queueList.innerHTML = '';
+            const queueList = document.getElementById('render-queue-list'); queueList.innerHTML = '';
             
             if(modulosGeradosPelaIA && modulosGeradosPelaIA.length > 0) {
                 modulosGeradosPelaIA.forEach(mod => {
                     queueList.innerHTML += `
-                        <div class="flex flex-col bg-white/5 p-2 rounded group border border-white/5">
-                            <span class="text-[10px] text-brand-400 font-bold uppercase mb-1">${mod.modulo}</span>
+                        <div class="flex flex-col bg-white/5 p-3 rounded group border border-white/5">
+                            <span class="text-[11px] text-brand-400 font-bold uppercase mb-1">${mod.modulo}</span>
                             <div class="flex items-center justify-between">
                                 <span class="text-[10px] text-white/60 font-mono truncate mr-2">${mod.arquivo}</span>
                                 <span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/30 shrink-0">Drive OK</span>
@@ -540,36 +343,9 @@
             } else {
                 queueList.innerHTML = `<p class="text-xs text-white/40 text-center mt-4">Nenhum módulo detectado.</p>`;
             }
-
-            // Gera a Timeline baseada na quantidade de módulos
-            const videoTrack = document.getElementById('timeline-video-track');
-            const audioTrack = document.getElementById('timeline-audio-track');
-            const subTrack = document.getElementById('timeline-subtitle-track');
-            
-            videoTrack.innerHTML = ''; audioTrack.innerHTML = ''; subTrack.innerHTML = '';
-
-            let qtd = modulosGeradosPelaIA.length || 1;
-            for(let i = 1; i <= qtd; i++) {
-                const width = 100 + Math.random() * 80; 
-                const num = i.toString().padStart(2, '0');
-                videoTrack.innerHTML += `<div class="h-full bg-[#183955] border border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center hover:brightness-125" style="width: ${width}px"><span class="text-[8px] text-white/70">CORTE_${num}</span></div>`;
-                audioTrack.innerHTML += `<div class="h-full bg-[#163a2a] border border-[#235841] rounded-sm shrink-0 flex flex-col justify-center p-0.5" style="width: ${width}px"><div class="w-full h-1/2 opacity-30 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjEwIj48cmVjdCB3aWR0aD0iMiIgaGVpZ2h0PSIxMCIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==')] bg-repeat-x"></div></div>`;
-            }
-            
-            for(let i = 0; i < (qtd * 4); i++) {
-                const subW = 20 + Math.random() * 30; 
-                const margin = Math.random() * 5;
-                subTrack.innerHTML += `<div class="h-full bg-[#CC5500] rounded-sm shrink-0 shadow-sm" style="width: ${subW}px; margin-right: ${margin}px;"></div>`;
-            }
         }
 
-        function fecharEditor() {
-            workspace.classList.add('opacity-0');
-            clearInterval(simInterval);
-            if(videoPlayer) videoPlayer.pause();
-            setTimeout(() => workspace.classList.add('hidden'), 500);
-        }
-
+        function fecharEditor() { workspace.classList.add('opacity-0'); setTimeout(() => workspace.classList.add('hidden'), 500); }
     </script>
 </body>
 </html>
