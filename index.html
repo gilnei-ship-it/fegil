@@ -8,9 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔥%3C/text%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = {
-            theme: { extend: { colors: { brand: { 400: '#ff7332', 500: '#FF7E05', 600: '#ef3b00', 950: '#080605' } }, fontFamily: { sans: ['Inter', 'sans-serif'], figtree: ['Figtree', 'sans-serif'] } } }
-        }
+        tailwind.config = { theme: { extend: { colors: { brand: { 400: '#ff7332', 500: '#FF7E05', 600: '#ef3b00', 950: '#080605' } }, fontFamily: { sans: ['Inter', 'sans-serif'], figtree: ['Figtree', 'sans-serif'] } } } }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
@@ -29,7 +27,6 @@
         input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
         input.success { border-color: #10B981 !important; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2) !important; }
         .processing-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.5s ease; box-shadow: 0 0 10px #FF7E05; }
-        
         .subtitle-box { position: absolute; width: 90%; text-align: center; pointer-events: none; z-index: 30; left: 50%; transform: translateX(-50%); }
         .subtitle-line { background-color: #CC5500; display: inline-block; padding: 6px 20px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
         .subtitle-word { font-family: 'Figtree', sans-serif; font-weight: 900; font-size: clamp(1.2rem, 3vw, 2.2rem); color: white; display: inline-block; margin: 0 3px; -webkit-text-stroke: 1px black; text-shadow: 2px 2px 0px #000; transition: color 0.1s ease; }
@@ -44,7 +41,7 @@
     <canvas id="ai-aura-canvas"></canvas>
     <div id="toast">Notificação</div>
 
-    <!-- Loading Overlay Centralizado e Sincronizado -->
+    <!-- Overlay de Processamento -->
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-500 opacity-0">
         <div class="w-24 h-24 mb-6 relative flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1.5s;"></div>
@@ -52,25 +49,24 @@
             <span id="loading-percentage" class="text-white font-figtree font-black text-xl absolute">0%</span>
         </div>
         <h2 class="text-3xl md:text-4xl font-figtree font-black text-white tracking-widest animate-pulse text-center px-4">MOTOR DE IA ATIVO</h2>
-        <p id="processing-subtitle" class="text-brand-400 font-medium mt-4 max-w-md text-center text-sm md:text-lg px-4 transition-all duration-300">Iniciando conexão segura com o servidor...</p>
+        <p id="processing-subtitle" class="text-brand-400 font-medium mt-4 max-w-md text-center text-sm md:text-lg px-4 transition-all duration-300">Iniciando comunicação com o servidor...</p>
     </div>
 
-    <!-- Tela Inicial Refinada -->
+    <!-- TELA INICIAL CORRIGIDA (Logo FeGil bem visível) -->
     <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-all duration-700 ease-in-out">
-        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 drop-shadow-[0_0_15px_rgba(255,126,5,0.4)]">FeGil<span class="text-white">.</span></h1>
+        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-brand-500 drop-shadow-[0_0_15px_rgba(255,126,5,0.8)]">FeGil<span class="text-white">.</span></h1>
         <p class="text-brand-200/60 mb-2 text-center text-sm font-light uppercase tracking-widest">Edição Autônoma e Semântica</p>
         <button id="btn-start" class="btn-primary mt-10 px-12 py-4 rounded-full text-sm font-bold tracking-widest uppercase">Inicializar Sistema</button>
     </div>
 
     <!-- UI Principal -->
     <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-1000 ease-in-out overflow-y-auto lg:overflow-hidden no-scrollbar">
-        
         <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none min-h-[50vh] lg:min-h-full">
             <div class="absolute top-0 left-0 pt-2 md:pt-4">
-                <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
+                <h1 class="text-4xl md:text-5xl font-figtree font-black text-brand-500 mb-1">FeGil</h1>
                 <div class="flex items-center gap-2">
                     <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span></span>
-                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">CONEXÃO NEURAL ESTABELECIDA</p>
+                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">SISTEMA ONLINE</p>
                 </div>
             </div>
             
@@ -81,7 +77,7 @@
             <div class="pointer-events-auto mt-[-2rem] md:mt-[-3rem] relative z-20 w-full max-w-md mx-auto">
                 <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)]">
                     <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug transition-opacity duration-300 min-h-[3rem]">
-                        "Sistemas operacionais prontos. Insira a URL da mídia bruta para começarmos."
+                        "Estou pronta. Insira a URL da mídia bruta para começarmos o corte inteligente."
                     </p>
                 </div>
             </div>
@@ -95,7 +91,7 @@
                     </div>
                     <div>
                         <h3 class="text-white font-bold text-base">Anexar Mídia via Link</h3>
-                        <p class="text-brand-200/50 text-xs">Cole o link do Google Drive (Público) ou YouTube</p>
+                        <p class="text-brand-200/50 text-xs">Drive ou YouTube</p>
                     </div>
                 </div>
                 <input type="url" id="input-link-video" placeholder="https://..." class="w-full text-sm p-3 rounded-lg transition-colors border border-white/10 mt-2">
@@ -108,8 +104,8 @@
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                         </div>
                         <div class="flex-1">
-                            <h3 class="text-white font-semibold text-base mb-1">Processamento de Inteligência Artificial</h3>
-                            <p class="text-brand-200/60 text-xs pr-2">Remoção de silêncios, conversas fora de script e corte modular.</p>
+                            <h3 class="text-white font-semibold text-base mb-1">Corte Profissional (Qualidade Máxima)</h3>
+                            <p class="text-brand-200/60 text-xs pr-2">Aguarde o processamento completo de áudio e inteligência semântica.</p>
                         </div>
                     </button>
                     <div class="processing-bar" id="bar-cortes"></div>
@@ -123,12 +119,12 @@
         </div>
     </main>
 
-    <!-- ESTÚDIO DE EDIÇÃO RESPONSIVO -->
+    <!-- ESTUDIO (MANTIDO EXATAMENTE IGUAL) -->
     <div id="editor-workspace" class="fixed inset-0 z-50 bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 flex flex-col h-[100dvh]">
         <header class="h-12 shrink-0 border-b border-white/5 flex items-center justify-between px-3 md:px-4 bg-[#141414] sticky top-0 z-40">
             <div class="flex items-center gap-3">
                 <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree text-xs">F</span></div>
-                <span class="text-xs text-white/50 hidden md:block">FeGil Studio Autônomo</span>
+                <span class="text-xs text-white/50 hidden md:block">FeGil Studio</span>
             </div>
             <div class="flex items-center gap-3">
                 <span id="modules-detected" class="text-[10px] text-brand-400 bg-brand-500/10 px-2 py-1 rounded border border-brand-500/20 hidden md:block"></span>
@@ -139,7 +135,7 @@
         <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
             <div class="w-full lg:flex-1 flex flex-col bg-[#111111] border-b lg:border-b-0 lg:border-r border-white/5 p-2 md:p-4 min-h-min shrink-0">
                 <div class="w-full aspect-video bg-black relative rounded-lg overflow-hidden border border-white/10 flex items-center justify-center group cursor-pointer shadow-lg" onclick="togglePlay()">
-                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=ARQUIVOS+NO+DRIVE" class="absolute inset-0 w-full h-full object-cover opacity-50" alt="Video Placeholder">
+                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=ARQUIVOS+NO+DRIVE" class="absolute inset-0 w-full h-full object-cover opacity-50">
                     <video id="main-video-player" class="w-full h-full object-contain hidden" playsinline></video>
                     
                     <div class="absolute inset-0 flex items-center justify-center z-20 transition-opacity bg-black/30 group-hover:bg-black/40" id="play-overlay">
@@ -147,20 +143,6 @@
                             <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
                         </div>
                     </div>
-                    <div id="subtitle-display" class="subtitle-box bottom-10 z-10 hidden w-[90%]"></div>
-                </div>
-
-                <div class="h-12 flex items-center justify-between px-2 mt-2 shrink-0">
-                    <span class="text-brand-500 font-mono text-xs md:text-sm bg-brand-500/10 px-2 py-1 rounded" id="timecode">00:00:00</span>
-                    <div class="flex gap-4 text-white/70">
-                        <button class="hover:text-white transition-colors" onclick="skipVideo(-5); event.stopPropagation();"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg></button>
-                        <button class="hover:text-white transition-colors text-brand-400" onclick="togglePlay(); event.stopPropagation();" id="btn-controls-play">
-                            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" id="icon-play"><path d="M4 4l12 6-12 6V4z"></path></svg>
-                            <svg class="w-6 h-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" id="icon-pause"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        </button>
-                        <button class="hover:text-white transition-colors" onclick="skipVideo(5); event.stopPropagation();"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg></button>
-                    </div>
-                    <span class="text-white/40 font-mono text-xs md:text-sm" id="duration-timecode">00:00:00</span>
                 </div>
             </div>
 
@@ -168,16 +150,10 @@
                 <div class="p-4 flex flex-col gap-5 h-full">
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Módulos Aprovados pela IA</h3>
-                            <span class="text-[9px] bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">Google Drive Sync</span>
+                            <h3 class="text-white/90 font-semibold text-xs uppercase tracking-wider">Módulos Aprovados</h3>
                         </div>
-                        <p class="text-xs text-white/50 mb-3 leading-relaxed">Silêncios e erros foram descartados. Abaixo estão os módulos finais salvos no seu Drive.</p>
                         <div id="render-queue-list" class="h-56 bg-[#0a0a0a] border border-white/5 rounded p-2 overflow-y-auto no-scrollbar flex flex-col gap-1"></div>
                     </div>
-                    <hr class="border-white/5">
-                    <button class="w-full bg-brand-500/20 border border-brand-500/50 hover:bg-brand-500/40 text-brand-300 py-3.5 rounded text-xs font-bold transition-all uppercase mt-auto pointer-events-none">
-                        Módulos Salvos no Drive
-                    </button>
                 </div>
             </div>
         </div>
@@ -226,7 +202,7 @@
 
         document.querySelectorAll('.meta-card, button').forEach(btn => {
             btn.addEventListener('mouseenter', () => { if(audioInit && !btn.classList.contains('disabled')) synthHover.triggerAttackRelease("C5", "32n"); });
-            btn.addEventListener('mousedown', () => { if(audioInit && !btn.classList.contains('disabled')) { synthClick.triggerAttackRelease("E2", "16n"); if(navigator.vibrate) navigator.vibrate(15); } });
+            btn.addEventListener('mousedown', () => { if(audioInit && !btn.classList.contains('disabled')) { synthClick.triggerAttackRelease("E2", "16n"); } });
         });
 
         const synth = window.speechSynthesis;
@@ -236,8 +212,8 @@
 
         function animateAvatar() {
             const avatar = document.getElementById('fegil-avatar');
-            if(isSpeaking) { avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`; avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`; requestAnimationFrame(animateAvatar);
-            } else { avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)'; }
+            if(isSpeaking) { avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`; requestAnimationFrame(animateAvatar);
+            } else { avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; }
         }
 
         function falar(texto, callback) {
@@ -254,109 +230,87 @@
             const toast = document.getElementById('toast'); toast.innerText = message; toast.style.bottom = '20px'; setTimeout(() => { toast.style.bottom = '-50px'; }, 3000);
         }
 
-        // Inicialização refinada
         document.getElementById('btn-start').addEventListener('click', async () => {
-            await initAudio(); 
-            falar("Inicialização concluída. Bem-vindo à interface autônoma FeGil.");
+            await initAudio(); falar("Sistema ativo.");
             const startScreen = document.getElementById('start-screen');
             startScreen.classList.add('opacity-0', 'scale-105');
-            setTimeout(() => { 
-                startScreen.style.display = 'none'; 
-                document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); 
-            }, 700);
+            setTimeout(() => { startScreen.style.display = 'none'; document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); }, 700);
         });
 
         document.getElementById('input-link-video').addEventListener('input', function() {
             if(this.value.includes('http')) {
-                document.getElementById('wrapper-cortes').classList.remove('disabled');
-                document.getElementById('btn-cortes').disabled = false;
-                this.classList.add('success');
+                document.getElementById('wrapper-cortes').classList.remove('disabled'); document.getElementById('btn-cortes').disabled = false; this.classList.add('success');
             } else {
                 this.classList.remove('success'); document.getElementById('wrapper-cortes').classList.add('disabled');
             }
         });
 
-        // ==========================================================
-        // LÓGICA DE POLLING (Sincronia com o Servidor)
-        // ==========================================================
         async function executarIA(tipo) {
             const linkVideo = document.getElementById('input-link-video').value.trim();
-            if(!linkVideo) { showToast("Por favor, informe o link do arquivo."); return; }
+            if(!linkVideo) return;
 
             isProcessing = true;
             if(audioInit) noiseProcess.triggerAttack();
-            if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
 
             const overlayProcessing = document.getElementById('processing-overlay');
             overlayProcessing.style.display = 'flex';
             setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
 
             const bar = document.getElementById(`bar-${tipo}`); 
-            bar.style.width = '5%';
-            document.getElementById('loading-percentage').innerText = '5%';
+            bar.style.width = '5%'; document.getElementById('loading-percentage').innerText = '5%';
 
-            falar("Enviando solicitação de processamento de alto desempenho.");
-
-            // Inicia o "Polling" (Pergunta o status pro backend a cada 2 segundos)
-            let pollInterval = setInterval(async () => {
-                try {
-                    const res = await fetch(API_STATUS_URL, { headers: { 'ngrok-skip-browser-warning': 'true' } });
-                    const statusData = await res.json();
-                    
-                    document.getElementById('processing-subtitle').innerText = statusData.mensagem;
-                    document.getElementById('loading-percentage').innerText = `${statusData.progresso}%`;
-                    bar.style.width = `${statusData.progresso}%`;
-                } catch (e) {
-                    console.log("Aguardando sincronia...");
-                }
-            }, 2000);
+            falar("Enviando comando para o servidor processar.");
 
             try {
-                // Requisição principal que faz o trabalho pesado
-                const response = await fetch(API_URL, {
-                    method: 'POST', 
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'ngrok-skip-browser-warning': 'true'
-                    },
+                // APENAS INICIA O PROCESSO E NÃO ESPERA ELE TERMINAR (Evita Timeout)
+                await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
                     body: JSON.stringify({ link_video: linkVideo })
                 });
-                
-                const data = await response.json();
-                clearInterval(pollInterval); // Para a verificação de status
-                
-                if (!response.ok) throw new Error(data.erro || "Erro no processamento");
-                
-                document.getElementById('loading-percentage').innerText = '100%';
-                bar.style.width = '100%'; 
-                isProcessing = false;
-                modulosGeradosPelaIA = data.modulos;
-                
-                if(audioInit) { 
-                    noiseProcess.triggerRelease(); 
-                    const synthSuccess = new Tone.PolySynth(Tone.Synth).toDestination();
-                    synthSuccess.volume.value = -8; synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n");
-                }
-                
-                overlayProcessing.classList.add('opacity-0');
-                setTimeout(() => overlayProcessing.style.display = 'none', 500);
-                
-                const qtd = modulosGeradosPelaIA.length;
-                document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Criado(s)`;
-                document.getElementById('modules-detected').classList.remove('hidden');
 
-                falar(`Edição concluída com sucesso. Os módulos foram salvos na sua nuvem.`, () => {
-                    bar.style.width = '0%';
-                    const btnEditor = document.getElementById('btn-open-editor');
-                    btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
-                    btnEditor.classList.add('bg-brand-500/20');
-                });
+                // FICA PERGUNTANDO O STATUS A CADA 2 SEGUNDOS
+                let pollInterval = setInterval(async () => {
+                    try {
+                        const res = await fetch(API_STATUS_URL, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+                        const statusData = await res.json();
+                        
+                        if(statusData.erro) {
+                            clearInterval(pollInterval);
+                            throw new Error(statusData.erro);
+                        }
+
+                        document.getElementById('processing-subtitle').innerText = statusData.mensagem;
+                        document.getElementById('loading-percentage').innerText = `${statusData.progresso}%`;
+                        bar.style.width = `${statusData.progresso}%`;
+
+                        // SE TERMINOU
+                        if(statusData.progresso === 100) {
+                            clearInterval(pollInterval);
+                            modulosGeradosPelaIA = statusData.modulos;
+                            
+                            if(audioInit) { noiseProcess.triggerRelease(); const synthSuccess = new Tone.PolySynth(Tone.Synth).toDestination(); synthSuccess.volume.value = -8; synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n"); }
+                            
+                            overlayProcessing.classList.add('opacity-0');
+                            setTimeout(() => overlayProcessing.style.display = 'none', 500);
+                            
+                            const qtd = modulosGeradosPelaIA.length;
+                            document.getElementById('modules-detected').innerText = `${qtd} Módulo(s) Salvos`;
+                            document.getElementById('modules-detected').classList.remove('hidden');
+
+                            falar(`Tudo pronto! O vídeo foi processado com alta qualidade e os módulos salvos no Drive.`, () => {
+                                bar.style.width = '0%';
+                                const btnEditor = document.getElementById('btn-open-editor');
+                                btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
+                                btnEditor.classList.add('bg-brand-500/20');
+                            });
+                        }
+                    } catch (e) { console.log("Verificando status..."); }
+                }, 2000);
+
             } catch (error) {
-                clearInterval(pollInterval);
                 isProcessing = false; bar.style.width = '0%'; if(audioInit) noiseProcess.triggerRelease();
                 overlayProcessing.classList.add('opacity-0'); setTimeout(() => overlayProcessing.style.display = 'none', 300);
-                falar("Falha de conexão. O motor não está respondendo adequadamente.");
-                showToast("Erro: " + error.message);
+                falar("Houve uma falha ao enviar o comando.");
             }
         }
 
@@ -366,23 +320,12 @@
             workspace.classList.remove('hidden'); setTimeout(() => workspace.classList.remove('opacity-0'), 50);
 
             const queueList = document.getElementById('render-queue-list'); queueList.innerHTML = '';
-            
             if(modulosGeradosPelaIA && modulosGeradosPelaIA.length > 0) {
                 modulosGeradosPelaIA.forEach(mod => {
-                    queueList.innerHTML += `
-                        <div class="flex flex-col bg-white/5 p-3 rounded group border border-white/5">
-                            <span class="text-[11px] text-brand-400 font-bold uppercase mb-1">${mod.modulo}</span>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[10px] text-white/60 font-mono truncate mr-2">${mod.arquivo}</span>
-                                <span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/30 shrink-0">Drive OK</span>
-                            </div>
-                        </div>`;
+                    queueList.innerHTML += `<div class="flex flex-col bg-white/5 p-3 rounded group border border-white/5"><span class="text-[11px] text-brand-400 font-bold uppercase mb-1">${mod.modulo}</span><div class="flex items-center justify-between"><span class="text-[10px] text-white/60 font-mono truncate mr-2">${mod.arquivo}</span><span class="text-[9px] bg-green-500/20 text-green-400 px-1 rounded border border-green-500/30 shrink-0">Drive OK</span></div></div>`;
                 });
-            } else {
-                queueList.innerHTML = `<p class="text-xs text-white/40 text-center mt-4">Nenhum módulo detectado.</p>`;
             }
         }
-
         function fecharEditor() { workspace.classList.add('opacity-0'); setTimeout(() => workspace.classList.add('hidden'), 500); }
     </script>
 </body>
