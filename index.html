@@ -1,492 +1,397 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FeGil - Inteligência Audiovisual e Treinamentos</title>
-<!-- Ícone/Favicon -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔥%3C/text%3E%3C/svg%3E">
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>">
-    <script src="https://cdn.tailwindcss.com"></script>    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#fff3ec', 100: '#ffe4d3', 200: '#ffc6a5', 300: '#ffa16d',
-                            400: '#ff7332', 500: '#FF7E05', 
-                            600: '#ef3b00', 700: '#c62a00', 800: '#9d2208', 900: '#7e1f0a', 950: '#080605', 
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', 'sans-serif'],
-                        figtree: ['Figtree', 'sans-serif'], 
-                    }
-                }
-            }
+<!-- SUBSTITUA A TAG <script> PRINCIPAL (a de baixo, com toda a lógica da UI) POR ISTO -->
+<script>
+    const canvas = document.getElementById('ai-aura-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, particles = [], mouseX = 0, mouseY = 0, isProcessing = false;
+
+    function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+    resize();
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width; this.y = Math.random() * height;
+            this.size = Math.random() * 1.5 + 0.5; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5;
+            this.color = Math.random() > 0.5 ? '#FF7E05' : '#ffc6a5';
         }
-    </script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-
-    <style>
-        body { margin: 0; padding: 0; background-color: #080605; color: #ffffff; overflow: hidden; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
-        #ai-aura-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        .meta-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px; transition: all 0.4s ease; box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden; }
-        .meta-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit; background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 126, 5, 0.15), transparent 40%); opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: -1; }
-        .meta-card:not(.disabled):hover::before { opacity: 1; }
-        .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); }
-        .icon-bounce { transition: all 0.4s ease; }
-        .meta-card:not(.disabled):hover .icon-bounce { transform: scale(1.15) translateY(-3px); color: #FF7E05; filter: drop-shadow(0 0 8px rgba(255,126,5,0.6)); }
-        .disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
-        .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; box-shadow: 0 4px 15px rgba(255, 126, 5, 0.4); border: none; transition: all 0.3s ease; }
-        .btn-primary:hover { box-shadow: 0 8px 30px rgba(255, 126, 5, 0.6); transform: translateY(-3px) scale(1.02); }
-        input[type="file"] { display: none; }
-        input[type="text"], input[type="number"], textarea { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; }
-        input[type="text"]:focus, input[type="number"]:focus, textarea:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
-        .processing-bar { position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.3s ease; box-shadow: 0 0 10px #FF7E05; }
-        
-        /* Editor Styles */
-        .video-container { background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.05); }
-        .clip-item { cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent; }
-        .clip-item.selected { border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.5); z-index: 10; filter: brightness(1.3); }
-        .subtitle-box { position: absolute; width: 90%; text-align: center; pointer-events: none; z-index: 30; }
-        .subtitle-line { background-color: #CC5500; display: inline-block; padding: 8px 24px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.6); }
-        .subtitle-word { font-family: 'Figtree', sans-serif; font-weight: 900; font-size: 2.2rem; color: white; display: inline-block; margin: 0 4px; -webkit-text-stroke: 1.5px black; text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000; }
-        
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    </style>
-</head>
-<body class="flex flex-col items-center justify-center min-h-[100dvh]">
-
-    <canvas id="ai-aura-canvas"></canvas>
-
-    <!-- Overlay de Processamento -->
-    <div id="processing-overlay" class="fixed inset-0 z-[100] bg-black/80 backdrop-blur-md hidden flex-col items-center justify-center transition-opacity duration-300 opacity-0">
-        <div class="w-20 h-20 mb-6 relative flex items-center justify-center">
-            <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1s;"></div>
-            <div class="absolute inset-3 rounded-full border-b-4 border-brand-400 animate-spin" style="animation-duration: 0.5s; animation-direction: reverse;"></div>
-            <svg class="w-8 h-8 text-white absolute animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-        </div>
-        <h2 class="text-2xl md:text-3xl font-figtree font-black text-white tracking-widest animate-pulse" id="processing-title">PROCESSANDO NA IA</h2>
-        <p class="text-brand-400 font-medium mt-3 max-w-md text-center text-sm md:text-base px-4">Analisando transcrição e gerando cortes semânticos no Colab...</p>
-    </div>
-
-    <!-- Tela Inicial -->
-    <div id="start-screen" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-opacity duration-700">
-        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 animate-pulse">FeGil<span class="text-white">.</span></h1>
-        <p class="text-brand-200/60 mb-10 text-center text-sm font-light">Inteligência Audiovisual de Alta Performance</p>
-        <button id="btn-start" class="btn-primary px-10 py-4 rounded-full text-sm font-bold tracking-widest">INICIAR PLATAFORMA</button>
-    </div>
-
-    <!-- Interface Principal (Upload) -->
-    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-700 overflow-y-auto no-scrollbar">
-        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10">
-            <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
-            <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase mb-10">PROGRAMA DE AUTOMAÇÃO EM VÍDEOS</p>
-            
-            <div class="relative w-72 h-72 md:w-96 md:h-96 mx-auto flex-shrink-0 mb-6">
-                 <img id="fegil-avatar" src="https://github.com/gilnei-ship-it/fegil/raw/main/fegil.png" alt="FeGil IA" class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(255,126,5,0.3)] transition-all duration-300 opacity-90">
-            </div>
-
-            <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)]">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_8px_#FF7E05]"></div>
-                    <span class="text-[10px] font-bold tracking-widest text-brand-400 uppercase">Conexão Neural Ativa</span>
-                </div>
-                <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug">"Olá. Certifique-se de que o vídeo já está na pasta FeGil do seu Google Drive."</p>
-            </div>
-        </div>
-
-        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10">
-            <label for="upload-video" id="card-upload" class="meta-card p-5 flex flex-col items-start justify-center cursor-pointer">
-                <input type="file" id="upload-video" accept="video/*">
-                <h3 class="text-white font-semibold text-base mb-1" id="txt-upload-title">Anexar Arquivo Base</h3>
-                <p class="text-brand-200/50 text-[10px]" id="txt-upload-desc">Escolha o mesmo vídeo que já está no Drive</p>
-            </label>
-
-            <button id="btn-cortes" onclick="executarIA()" class="meta-card disabled p-5 flex items-center text-left cursor-pointer w-full">
-                <div class="icon-bounce w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mr-4 text-brand-400 flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                </div>
-                <div class="flex-1">
-                    <h3 class="text-white font-semibold text-sm md:text-base mb-1">Analisar com IA</h3>
-                    <p class="text-brand-200/60 text-xs pr-2">A IA puxa do Drive, analisa cortes semânticos e manda para o seu Estúdio.</p>
-                </div>
-                <div class="processing-bar" id="bar-cortes"></div>
-            </button>
-            
-            <button id="btn-open-editor" disabled onclick="abrirEstudio()" class="meta-card disabled p-4 bg-brand-600/20 border-brand-500/50 flex justify-center items-center gap-2 transition-colors cursor-pointer w-full">
-                <span class="text-white font-bold text-sm tracking-wide">ABRIR ESTÚDIO DE EDIÇÃO</span>
-            </button>
-        </div>
-    </main>
-
-    <!-- ESTÚDIO DE EDIÇÃO ASSERTIVO -->
-    <div id="editor-workspace" class="fixed inset-0 z-50 bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 flex flex-col">
-        
-        <header class="h-12 border-b border-white/5 flex items-center justify-between px-4 bg-[#141414] shrink-0">
-            <div class="flex items-center gap-3">
-                <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center text-white font-black text-xs">F</div>
-                <span class="text-xs text-white/50 font-medium">Estúdio de Refinamento FeGil</span>
-            </div>
-            <button class="text-white/60 hover:text-red-500 transition-colors text-xs font-bold px-3 py-1 rounded border border-white/10" onclick="fecharEstudio()">FECHAR</button>
-        </header>
-
-        <div class="flex-1 flex flex-col lg:flex-row overflow-hidden">
-            
-            <!-- Viewer (Video) -->
-            <div class="flex-1 flex flex-col bg-[#111111] border-r border-white/5 p-2 shrink-0 relative">
-                <div class="flex-1 video-container rounded bg-black relative" id="video-preview-area">
-                    <img id="placeholder-video" src="https://placehold.co/1920x1080/222/444?text=PREVIEW+OFFLINE" class="w-full h-full object-cover opacity-20">
-                    <!-- Text Preview Simulado -->
-                    <div id="subtitle-display" class="subtitle-box bottom-12 hidden">
-                        <div class="subtitle-line"><span class="subtitle-word text-[1.5rem]" id="preview-text-content">Texto</span></div>
-                    </div>
-                </div>
-                
-                <div class="h-12 flex items-center justify-center gap-4 text-white/70 mt-2">
-                    <button class="hover:text-white p-2" onclick="alert('Playback completo rodará no render final.')">
-                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Inspector Lateral -->
-            <div class="w-full lg:w-[350px] bg-[#141414] flex flex-col text-sm shrink-0 overflow-y-auto">
-                <div class="p-4 border-b border-white/5 bg-[#1a1a1a]">
-                    <h2 class="text-white font-bold text-sm tracking-wide flex items-center gap-2">
-                        <svg class="w-4 h-4 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                        PROPRIEDADES DO CLIPE
-                    </h2>
-                </div>
-                
-                <div class="p-4 flex flex-col gap-4" id="inspector-panel">
-                    <p class="text-xs text-white/40 italic" id="empty-state">Selecione um clipe na timeline abaixo para editá-lo.</p>
-                    
-                    <div id="edit-form" class="hidden flex-col gap-4">
-                        <div>
-                            <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Nome do Arquivo Exportado</label>
-                            <input type="text" id="edit-name" class="w-full text-xs p-2 rounded font-mono text-brand-400">
-                        </div>
-                        
-                        <div class="flex gap-2">
-                            <div class="flex-1">
-                                <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Início (Segundos)</label>
-                                <input type="number" step="0.1" id="edit-start" class="w-full text-xs p-2 rounded">
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Fim (Segundos)</label>
-                                <input type="number" step="0.1" id="edit-end" class="w-full text-xs p-2 rounded">
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="text-[10px] text-white/50 uppercase tracking-wider mb-1 block">Transcrição (Ajuste a Legenda)</label>
-                            <textarea id="edit-text" class="w-full h-24 text-xs p-2 rounded resize-none font-mono text-white/80"></textarea>
-                        </div>
-                        
-                        <button onclick="salvarEdicaoClipe()" class="bg-white/10 hover:bg-brand-500 text-white text-xs py-2 rounded transition-colors font-bold mt-2">SALVAR AJUSTES NESTE CLIPE</button>
-                    </div>
-                </div>
-
-                <div class="mt-auto p-4 border-t border-white/5 bg-[#1a1a1a]">
-                    <button onclick="enviarParaRender()" class="w-full bg-brand-500 hover:bg-brand-400 text-white py-3 rounded text-xs font-bold shadow-[0_0_15px_rgba(255,126,5,0.2)] uppercase tracking-wide transition-all">
-                        EXPORTAR PARA O DRIVE
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Timeline -->
-        <div class="h-48 shrink-0 bg-[#141414] border-t border-white/5 flex flex-col">
-            <div class="h-8 bg-[#1a1a1a] flex items-center px-4 border-b border-white/5 justify-between">
-                <span class="text-[10px] text-white/70 font-medium">Timeline de Cortes (Base IA)</span>
-                <button onclick="excluirClipe()" class="text-white/40 hover:text-red-500 transition-colors p-1" title="Excluir Selecionado">
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                </button>
-            </div>
-
-            <div class="flex-1 bg-[#111111] overflow-x-auto overflow-y-hidden flex flex-col relative py-3 px-2" id="timeline-tracks-container">
-                <!-- Tracks Injetadas Via JS -->
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // ==========================================
-        // 1. CONFIGURAÇÕES
-        // ==========================================
-        const API_URL = "COLE_A_URL_DO_NGROK_AQUI/processar-video"; 
-        
-        let currentClips = [];
-        let selectedClipId = null;
-
-        // --- Motores Visuais e Áudio (Baseados no seu código original) ---
-        const canvas = document.getElementById('ai-aura-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [], mouseX = 0, mouseY = 0, isProcessing = false;
-
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-        resize();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.size = Math.random() * 1.5 + 0.5; this.speedX = Math.random() * 1 - 0.5; this.speedY = Math.random() * 1 - 0.5;
-                this.color = Math.random() > 0.5 ? '#FF7E05' : '#ffc6a5';
-            }
-            update() {
-                if (isProcessing) {
-                    const dx = this.x - width/2, dy = this.y - height/2, angle = Math.atan2(dy, dx) + 0.08, dist = Math.sqrt(dx*dx + dy*dy) * 0.97;
-                    this.x = width/2 + Math.cos(angle) * dist; this.y = height/2 + Math.sin(angle) * dist;
-                } else {
-                    this.x += this.speedX + (mouseX - width/2) * 0.002; this.y += this.speedY + (mouseY - height/2) * 0.002;
-                }
-                if (this.x < 0) this.x = width; if (this.x > width) this.x = 0; if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
-            }
-            draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
-        }
-        for(let i=0; i<150; i++) particles.push(new Particle());
-
-        function animateBg() {
-            ctx.fillStyle = 'rgba(8, 6, 5, 0.2)'; ctx.fillRect(0, 0, width, height);
-            const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, isProcessing ? 400 : 200);
-            grad.addColorStop(0, isProcessing ? 'rgba(255, 126, 5, 0.25)' : 'rgba(255, 126, 5, 0.05)');
-            grad.addColorStop(1, 'transparent'); ctx.fillStyle = grad; ctx.fillRect(0,0,width,height);
-            particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateBg);
-        }
-        animateBg();
-
-        let synthHover, synthClick, noiseProcess, audioInit = false;
-        async function initAudio() {
-            if(audioInit) return;
-            await Tone.start();
-            synthHover = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.1, release: 0.1 } }).toDestination(); synthHover.volume.value = -25;
-            synthClick = new Tone.MembraneSynth().toDestination(); synthClick.volume.value = -10;
-            const filter = new Tone.AutoFilter(4).start();
-            noiseProcess = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 1, sustain: 1, release: 1 } }).connect(filter).toDestination();
-            noiseProcess.volume.value = -30;
-            audioInit = true;
-        }
-
-        document.querySelectorAll('.meta-card, button').forEach(btn => {
-            btn.addEventListener('mouseenter', () => { if(audioInit && !btn.classList.contains('disabled')) synthHover.triggerAttackRelease("C5", "32n"); });
-            btn.addEventListener('mousedown', () => { if(audioInit && !btn.classList.contains('disabled')) { synthClick.triggerAttackRelease("E2", "16n"); if(navigator.vibrate) navigator.vibrate(15); } });
-        });
-
-        const synth = window.speechSynthesis;
-        let feGilVoice = null, isSpeaking = false;
-
-        function loadVoices() {
-            const voices = synth.getVoices();
-            feGilVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || voices.find(v => v.lang === 'pt-BR');
-        }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-        loadVoices();
-
-        function animateAvatar() {
-            const avatar = document.getElementById('fegil-avatar');
-            if(isSpeaking) {
-                avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`;
-                avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`;
-                requestAnimationFrame(animateAvatar);
+        update() {
+            if (isProcessing) {
+                const dx = this.x - width/2, dy = this.y - height/2, angle = Math.atan2(dy, dx) + 0.08, dist = Math.sqrt(dx*dx + dy*dy) * 0.97;
+                this.x = width/2 + Math.cos(angle) * dist; this.y = height/2 + Math.sin(angle) * dist;
             } else {
-                avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)';
+                this.x += this.speedX + (mouseX - width/2) * 0.002; this.y += this.speedY + (mouseY - height/2) * 0.002;
             }
+            if (this.x < 0) this.x = width; if (this.x > width) this.x = 0; if (this.y < 0) this.y = height; if (this.y > height) this.y = 0;
+        }
+        draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+    }
+
+    for(let i=0; i<150; i++) particles.push(new Particle());
+
+    function animateBg() {
+        ctx.fillStyle = 'rgba(8, 6, 5, 0.2)'; ctx.fillRect(0, 0, width, height);
+        const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, isProcessing ? 400 : 200);
+        grad.addColorStop(0, isProcessing ? 'rgba(255, 126, 5, 0.25)' : 'rgba(255, 126, 5, 0.05)');
+        grad.addColorStop(1, 'transparent'); ctx.fillStyle = grad; ctx.fillRect(0,0,width,height);
+        particles.forEach(p => { p.update(); p.draw(); }); requestAnimationFrame(animateBg);
+    }
+    animateBg();
+
+    let synthHover, synthClick, noiseProcess, audioInit = false;
+
+    async function initAudio() {
+        if(audioInit) return;
+        await Tone.start();
+        synthHover = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.1, release: 0.1 } }).toDestination(); synthHover.volume.value = -25;
+        synthClick = new Tone.MembraneSynth().toDestination(); synthClick.volume.value = -10;
+        const filter = new Tone.AutoFilter(4).start();
+        noiseProcess = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 1, sustain: 1, release: 1 } }).connect(filter).toDestination();
+        noiseProcess.volume.value = -30;
+        audioInit = true;
+    }
+
+    document.querySelectorAll('.meta-card, button').forEach(btn => {
+        btn.addEventListener('mouseenter', () => { if(audioInit && !btn.classList.contains('disabled')) synthHover.triggerAttackRelease("C5", "32n"); });
+        btn.addEventListener('mousedown', () => { if(audioInit && !btn.classList.contains('disabled')) { synthClick.triggerAttackRelease("E2", "16n"); if(navigator.vibrate) navigator.vibrate(15); } });
+    });
+
+    document.querySelectorAll('.meta-card').forEach(card => {
+        card.addEventListener('mousemove', e => {
+            const rect = card.getBoundingClientRect();
+            card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`); card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+        });
+    });
+
+    const synth = window.speechSynthesis;
+    let feGilVoice = null, isSpeaking = false;
+
+    function loadVoices() {
+        const voices = synth.getVoices();
+        feGilVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || voices.find(v => v.lang === 'pt-BR');
+    }
+    if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices(); 
+
+    function animateAvatar() {
+        const avatar = document.getElementById('fegil-avatar');
+        if(isSpeaking) {
+            avatar.style.transform = `scale(${1 + Math.random() * 0.03})`; avatar.style.opacity = `${0.85 + Math.random() * 0.15}`;
+            avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`;
+            requestAnimationFrame(animateAvatar);
+        } else {
+            avatar.style.transform = 'scale(1)'; avatar.style.opacity = '0.9'; avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)';
+        }
+    }
+
+    function falar(texto, callback) {
+        if(!synth) { if(callback) callback(); return; }
+        if (synth.speaking) synth.cancel();
+        
+        const elStatus = document.getElementById('ai-status-text');
+        elStatus.style.opacity = 0;
+        setTimeout(() => { elStatus.innerText = `"${texto}"`; elStatus.style.opacity = 1; }, 300);
+
+        const utter = new SpeechSynthesisUtterance(texto);
+        if(feGilVoice) utter.voice = feGilVoice;
+        utter.pitch = 1.0; utter.rate = 1.1;
+        
+        utter.onstart = () => { isSpeaking = true; animateAvatar(); };
+        utter.onend = () => { isSpeaking = false; if(callback) callback(); };
+        utter.onerror = () => { isSpeaking = false; if(callback) callback(); };
+
+        synth.speak(utter);
+    }
+
+    const uiStart = document.getElementById('start-screen');
+    const uiMain = document.getElementById('main-ui');
+    const overlayProcessing = document.getElementById('processing-overlay');
+    
+    document.getElementById('btn-start').addEventListener('click', async () => {
+        await initAudio();
+        falar("Conexão estabelecida. Plataforma FeGil iniciada.");
+        uiStart.classList.add('opacity-0');
+        setTimeout(() => {
+            uiStart.classList.add('hidden');
+            uiMain.classList.remove('opacity-0', 'pointer-events-none');
+        }, 700);
+    });
+
+    const inputUpload = document.getElementById('upload-video');
+    const cardUpload = document.getElementById('card-upload');
+    let uploadedVideoFile = null;
+    let uploadedVideoUrl = null;
+    let duracaoVideo = 0; // segundos, populado no loadedmetadata
+    let segmentosGerados = []; // resultado real do corte
+
+    inputUpload.addEventListener('change', (e) => {
+        if(e.target.files.length === 0) return;
+        const file = e.target.files[0];
+
+        if(!file.type.startsWith('video/')) {
+            falar("Formato inválido. Por favor, envie um arquivo de vídeo.");
+            return;
         }
 
-        function falar(texto, callback) {
-            if(!synth) return;
-            if (synth.speaking) synth.cancel();
-            
-            const elStatus = document.getElementById('ai-status-text');
-            elStatus.style.opacity = 0;
-            setTimeout(() => { elStatus.innerText = `"${texto}"`; elStatus.style.opacity = 1; }, 300);
+        // evita vazamento de memória se o usuário trocar o arquivo
+        if(uploadedVideoUrl) URL.revokeObjectURL(uploadedVideoUrl);
 
-            const utter = new SpeechSynthesisUtterance(texto);
-            if(feGilVoice) utter.voice = feGilVoice;
-            utter.pitch = 1.0; utter.rate = 1.1;
-            
-            utter.onstart = () => { isSpeaking = true; animateAvatar(); };
-            utter.onend = () => { isSpeaking = false; if(callback) callback(); };
-            utter.onerror = () => { isSpeaking = false; };
-            synth.speak(utter);
+        uploadedVideoFile = file;
+        document.getElementById('txt-upload-title').innerText = file.name;
+        document.getElementById('txt-upload-desc').innerText = "Mídia carregada com sucesso.";
+        cardUpload.style.borderColor = '#FF7E05';
+        
+        uploadedVideoUrl = URL.createObjectURL(file);
+        const videoPlayer = document.getElementById('main-video-player');
+        const placeholder = document.getElementById('placeholder-video');
+        
+        videoPlayer.src = uploadedVideoUrl;
+        videoPlayer.onloadedmetadata = () => { duracaoVideo = videoPlayer.duration || 0; };
+        videoPlayer.classList.remove('hidden'); 
+        placeholder.classList.add('hidden');    
+        
+        document.getElementById('context-container').classList.remove('disabled');
+        document.getElementById('input-docs').disabled = false;
+        document.getElementById('wrapper-cortes').classList.remove('disabled');
+        document.getElementById('btn-cortes').disabled = false;
+        document.getElementById('btn-legendas').classList.remove('disabled');
+        document.getElementById('btn-legendas').disabled = false;
+
+        falar("Vídeo recebido perfeitamente. Insira o contexto semântico ou escolha a automação desejada.");
+    });
+
+    async function executarIA(tipo) {
+        // TODO: backend — o campo "Contexto Semântico" (link do Google Docs) hoje
+        // não é lido nem enviado a lugar nenhum. Para usá-lo de verdade, essa função
+        // precisaria enviar o texto do link + o objetivo do vídeo para uma API (LLM)
+        // que decida ONDE cortar, em vez de dividir em partes iguais.
+
+        if(tipo === 'cortes' && !uploadedVideoFile) {
+            falar("Nenhum vídeo carregado ainda.");
+            return;
         }
 
-        // --- UX Inicial ---
-        document.getElementById('btn-start').addEventListener('click', async () => {
-            await initAudio();
-            falar("Plataforma iniciada. Selecione a mídia bruta.");
-            document.getElementById('start-screen').classList.add('opacity-0');
-            setTimeout(() => {
-                document.getElementById('start-screen').classList.add('hidden');
-                document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none');
-            }, 700);
-        });
+        isProcessing = true;
+        if(audioInit) noiseProcess.triggerAttack();
+        if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
 
-        document.getElementById('upload-video').addEventListener('change', (e) => {
-            if(e.target.files.length > 0) {
-                document.getElementById('txt-upload-title').innerText = e.target.files[0].name;
-                document.getElementById('btn-cortes').classList.remove('disabled');
-                falar("Arquivo base mapeado. Inicie a análise por Inteligência Artificial.");
-            }
-        });
+        overlayProcessing.classList.remove('hidden');
+        document.getElementById('processing-subtitle').innerText = "A inteligência artificial está analisando e aplicando as edições ao seu vídeo...";
+        setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
 
-        // ==========================================
-        // 2. FUNÇÕES DO ESTÚDIO DE EDIÇÃO (ASSERTIVIDADE)
-        // ==========================================
-        async function executarIA() {
-            const fileInput = document.getElementById('upload-video');
-            if (!fileInput.files.length) return alert("Anexe o arquivo primeiro.");
-            
-            isProcessing = true;
-            if(audioInit) noiseProcess.triggerAttack();
+        const bar = document.getElementById(`bar-${tipo}`);
+        bar.style.width = '0%';
 
-            const overlay = document.getElementById('processing-overlay');
-            overlay.classList.remove('hidden');
-            setTimeout(() => overlay.classList.remove('opacity-0'), 10);
-            falar("Enviando solicitação para o motor no Colab. O vídeo será puxado direto do seu Google Drive.");
+        if(tipo === 'cortes') {
+            const qtdModulos = Math.max(1, parseInt(document.getElementById('input-modulos').value) || 15);
+            falar(`Dividindo vídeo em ${qtdModulos} módulos reais. Isso pode levar alguns minutos no navegador.`);
 
-            // MOCK DE SUCESSO (Como a API não tá plugada agora, ele simula a resposta do Colab)
-            // No futuro, coloque o fetch real para a API_URL aqui.
-            setTimeout(() => {
-                // Preenchendo a tela com clipes "retornados" pela IA
-                currentClips = [
-                    { id: 1, nome: "Modulo_01_Abertura.mp4", start: 0.0, end: 15.5, text: "Bem vindos ao nosso treinamento de vendas." },
-                    { id: 2, nome: "Modulo_02_Mindset.mp4", start: 16.0, end: 45.2, text: "O primeiro passo é mudar a forma como você enxerga a objeção do cliente." },
-                    { id: 3, nome: "Modulo_03_Fechamento.mp4", start: 46.5, end: 89.0, text: "Para finalizar, utilize o gatilho da escassez de forma ética e clara." }
-                ];
-                
+            try {
+                segmentosGerados = await window.cortarVideoReal(
+                    uploadedVideoFile,
+                    qtdModulos,
+                    duracaoVideo || 60,
+                    (progress) => {
+                        const pct = Math.min(100, Math.round(progress * 100));
+                        bar.style.width = pct + '%';
+                        document.getElementById('processing-subtitle').innerText =
+                            `Cortando com ffmpeg no navegador... ${pct}%`;
+                    }
+                );
+            } catch (err) {
+                console.error(err);
                 isProcessing = false;
-                if(audioInit) { noiseProcess.triggerRelease(); synthClick.triggerAttackRelease("C3", "8n"); }
-                
-                overlay.classList.add('opacity-0');
-                setTimeout(() => overlay.classList.add('hidden'), 300);
-                
-                falar("Rascunho gerado pela IA. O Estúdio foi liberado para o seu refinamento.");
-                
-                const btnEditor = document.getElementById('btn-open-editor');
-                btnEditor.classList.remove('disabled');
-                btnEditor.disabled = false;
-                btnEditor.classList.add('bg-brand-500/20');
-                
-            }, 3000);
-        }
-
-        function abrirEstudio() {
-            const workspace = document.getElementById('editor-workspace');
-            workspace.classList.remove('hidden');
-            setTimeout(() => workspace.classList.remove('opacity-0'), 50);
-            renderizarTimeline();
-        }
-
-        function fecharEstudio() {
-            const workspace = document.getElementById('editor-workspace');
-            workspace.classList.add('opacity-0');
-            setTimeout(() => workspace.classList.add('hidden'), 500);
-            
-            // Limpa estado
-            selectedClipId = null;
-            document.getElementById('edit-form').classList.add('hidden');
-            document.getElementById('empty-state').classList.remove('hidden');
-            document.getElementById('subtitle-display').classList.add('hidden');
-        }
-
-        function renderizarTimeline() {
-            const container = document.getElementById('timeline-tracks-container');
-            container.innerHTML = '';
-            
-            let trackHTML = '<div class="flex h-12 gap-2 items-center min-w-max">';
-            
-            currentClips.forEach((clip, index) => {
-                const duration = clip.end - clip.start;
-                const width = Math.max(120, duration * 4); // Ajuste visual de largura
-                const isSelected = clip.id === selectedClipId ? 'selected' : '';
-                
-                trackHTML += `
-                    <div onclick="selecionarClipe(${clip.id})" class="clip-item ${isSelected} h-full bg-[#183955] rounded-md shrink-0 flex flex-col justify-center px-3 hover:bg-[#2a5b82]" style="width: ${width}px">
-                        <span class="text-[10px] text-white/90 font-bold truncate">${clip.nome}</span>
-                        <span class="text-[9px] text-white/50 font-mono mt-0.5">${clip.start}s - ${clip.end}s</span>
-                    </div>
-                `;
+                overlayProcessing.classList.add('opacity-0');
+                setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+                falar("Houve um erro ao cortar o vídeo. Verifique o console para detalhes.");
+                return;
+            }
+        } else {
+            // Legendas: TODO: backend — geração real de legendas exige transcrição
+            // de áudio (ex.: Whisper / Google Speech-to-Text) rodando em servidor.
+            // O que roda abaixo é só uma simulação de tempo para não travar a UI.
+            falar("Prévia de estilo de legenda gerada. Atenção: a transcrição real ainda depende de integração com um serviço de IA no servidor.");
+            await new Promise(res => {
+                bar.style.width = '30%';
+                setTimeout(() => { bar.style.width = '80%'; setTimeout(res, 1200); }, 800);
             });
-            trackHTML += '</div>';
-            container.innerHTML = trackHTML;
         }
 
-        function selecionarClipe(id) {
-            selectedClipId = id;
-            renderizarTimeline(); 
-            
-            const clip = currentClips.find(c => c.id === id);
-            if(clip) {
-                document.getElementById('empty-state').classList.add('hidden');
-                document.getElementById('edit-form').classList.remove('hidden');
-                document.getElementById('edit-form').classList.add('flex');
-                
-                document.getElementById('edit-name').value = clip.nome;
-                document.getElementById('edit-start').value = clip.start;
-                document.getElementById('edit-end').value = clip.end;
-                document.getElementById('edit-text').value = clip.text;
-                
-                // Mostrar texto na tela (preview box laranja)
-                const subDisplay = document.getElementById('subtitle-display');
-                const subText = document.getElementById('preview-text-content');
-                subDisplay.classList.remove('hidden');
-                
-                // Trunca texto para caber no preview simulado
-                subText.innerText = clip.text.length > 30 ? clip.text.substring(0, 30) + '...' : clip.text;
+        isProcessing = false;
+        if(audioInit) { noiseProcess.triggerRelease(); synthClick.triggerAttackRelease("C3", "8n"); }
+        bar.style.width = '100%';
+        
+        overlayProcessing.classList.add('opacity-0');
+        setTimeout(() => overlayProcessing.classList.add('hidden'), 300);
+        
+        falar("Seu projeto está pronto. O estúdio foi liberado.", () => {
+            bar.style.width = '0%';
+            const btnEditor = document.getElementById('btn-open-editor');
+            btnEditor.classList.remove('disabled'); btnEditor.disabled = false;
+            btnEditor.classList.add('bg-brand-500/20');
+        });
+    }
+
+    const workspace = document.getElementById('editor-workspace');
+    const subtitleDisplay = document.getElementById('subtitle-display');
+    let simInterval;
+
+    function formatarTimecode(segundos) {
+        if(!isFinite(segundos) || segundos < 0) segundos = 0;
+        const h = Math.floor(segundos / 3600);
+        const m = Math.floor((segundos % 3600) / 60);
+        const s = Math.floor(segundos % 60);
+        const f = Math.floor((segundos % 1) * 60); // pseudo-frames
+        const pad = n => String(n).padStart(2, '0');
+        return `${pad(h)}:${pad(m)}:${pad(s)}:${pad(f)}`;
+    }
+
+    function abrirEditor() {
+        workspace.classList.remove('hidden');
+        setTimeout(() => workspace.classList.remove('opacity-0'), 50);
+
+        const videoPlayer = document.getElementById('main-video-player');
+        const timecodeEl = document.getElementById('timecode');
+
+        // sincroniza o timecode/cabeçote com o vídeo real
+        videoPlayer.ontimeupdate = () => {
+            timecodeEl.innerText = formatarTimecode(videoPlayer.currentTime);
+            const pct = duracaoVideo ? (videoPlayer.currentTime / duracaoVideo) * 100 : 0;
+            const playhead = document.getElementById('playhead-line');
+            if(playhead) playhead.style.left = pct + '%';
+        };
+
+        const qtdModulos = segmentosGerados.length || (parseInt(document.getElementById('input-modulos').value) || 15);
+        document.getElementById('btn-export-lote').innerText = `Renderizar Lote (${qtdModulos})`;
+        document.getElementById('queue-count').innerText = qtdModulos;
+
+        const queueList = document.getElementById('render-queue-list');
+        queueList.innerHTML = '';
+
+        const videoTrack = document.getElementById('timeline-video-track');
+        const audioTrack = document.getElementById('timeline-audio-track');
+        const subTrack = document.getElementById('timeline-subtitle-track');
+        videoTrack.innerHTML = ''; audioTrack.innerHTML = ''; subTrack.innerHTML = '';
+
+        if(segmentosGerados.length > 0) {
+            // dados REAIS vindos do corte com ffmpeg
+            segmentosGerados.forEach((seg, i) => {
+                const num = String(i + 1).padStart(2, '0');
+                queueList.innerHTML += `
+                    <a href="${seg.url}" download="${seg.name}" class="flex items-center justify-between bg-white/5 hover:bg-white/10 px-2 py-1.5 rounded cursor-pointer group transition-colors">
+                        <span class="text-[10px] text-white/70 font-mono group-hover:text-white">${seg.name}</span>
+                        <span class="text-[9px] bg-green-500/10 text-green-400 px-1 rounded border border-green-500/20">Pronto</span>
+                    </a>`;
+
+                const widthPx = Math.max(24, seg.duration * 4); // escala visual simples
+                videoTrack.innerHTML += `<div class="h-full bg-[#183955] border border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center hover:brightness-125" style="width: ${widthPx}px" title="${formatarTimecode(seg.start)} (+${seg.duration.toFixed(1)}s)"><span class="text-[8px] lg:text-[9px] text-white/70">V_${num}</span></div>`;
+                audioTrack.innerHTML += `<div class="h-full bg-[#163a2a] border border-[#235841] rounded-sm shrink-0" style="width: ${widthPx}px"></div>`;
+            });
+        } else {
+            // Nenhum corte real foi executado ainda — placeholder claramente identificado
+            for(let i = 1; i <= qtdModulos; i++) {
+                const num = i.toString().padStart(2, '0');
+                queueList.innerHTML += `
+                    <div class="flex items-center justify-between bg-white/5 px-2 py-1.5 rounded opacity-60">
+                        <span class="text-[10px] text-white/50 font-mono">Job_${num}.mp4</span>
+                        <span class="text-[9px] bg-yellow-500/10 text-yellow-400 px-1 rounded border border-yellow-500/20">Aguardando corte</span>
+                    </div>`;
+                videoTrack.innerHTML += `<div class="h-full bg-[#183955]/40 border border-dashed border-[#2a5b82] rounded-sm shrink-0 flex items-center justify-center" style="width: 60px"><span class="text-[8px] text-white/40">V_${num}</span></div>`;
+                audioTrack.innerHTML += `<div class="h-full bg-[#163a2a]/40 border border-dashed border-[#235841] rounded-sm shrink-0" style="width: 60px"></div>`;
             }
         }
 
-        function salvarEdicaoClipe() {
-            const clipIndex = currentClips.findIndex(c => c.id === selectedClipId);
-            if(clipIndex > -1) {
-                currentClips[clipIndex].nome = document.getElementById('edit-name').value;
-                currentClips[clipIndex].start = parseFloat(document.getElementById('edit-start').value);
-                currentClips[clipIndex].end = parseFloat(document.getElementById('edit-end').value);
-                currentClips[clipIndex].text = document.getElementById('edit-text').value;
-                
-                // Atualiza Preview
-                const subText = document.getElementById('preview-text-content');
-                subText.innerText = currentClips[clipIndex].text.length > 30 ? currentClips[clipIndex].text.substring(0, 30) + '...' : currentClips[clipIndex].text;
+        for(let i = 0; i < 30; i++) {
+            const subW = 20 + Math.random() * 30; const margin = Math.random() * 10;
+            subTrack.innerHTML += `<div class="h-full bg-[#CC5500] rounded-sm shrink-0 shadow-sm" style="width: ${subW}px; margin-right: ${margin}px;"></div>`;
+        }
+    }
 
-                falar("Ajustes salvos na memória.");
-                renderizarTimeline(); // Pra atualizar os tempos no cardzinho embaixo
+    function fecharEditor() {
+        workspace.classList.add('opacity-0');
+        clearInterval(simInterval);
+        document.getElementById('play-overlay').classList.remove('hidden');
+        subtitleDisplay.classList.add('hidden'); subtitleDisplay.innerHTML = '';
+        
+        const videoPlayer = document.getElementById('main-video-player');
+        if(videoPlayer) { videoPlayer.pause(); videoPlayer.ontimeupdate = null; }
+
+        if(synth.speaking) synth.cancel();
+        isSpeaking = false;
+        
+        setTimeout(() => workspace.classList.add('hidden'), 500);
+    }
+
+    function setSubPosition(pos, evt) {
+        document.querySelectorAll('.pos-btn').forEach(btn => {
+            btn.classList.remove('bg-[#141414]', 'text-brand-500', 'font-bold', 'shadow-md'); btn.classList.add('text-white/60', 'hover:bg-white/5');
+        });
+        const target = evt ? evt.target : document.querySelector('.pos-btn');
+        target.classList.remove('text-white/60', 'hover:bg-white/5');
+        target.classList.add('bg-[#141414]', 'text-brand-500', 'font-bold', 'shadow-md');
+
+        subtitleDisplay.style.top = pos === 'top' ? '10%' : pos === 'center' ? '45%' : 'auto';
+        subtitleDisplay.style.bottom = pos === 'bottom' ? '12%' : 'auto';
+    }
+
+    // Prévia de estilo de legenda (NÃO é transcrição real — ver TODO: backend acima)
+    function startSubtitleSimulation() {
+        document.getElementById('play-overlay').classList.add('hidden');
+        subtitleDisplay.classList.remove('hidden');
+        
+        const videoPlayer = document.getElementById('main-video-player');
+        if(videoPlayer && videoPlayer.src) videoPlayer.play();
+        
+        const phrases = [
+            ["E", "também", "temos", "medo", "que", "você", "trazer"],
+            ["este", "assunto", "para", "a", "mesa", "hoje."],
+            ["Nosso", "objetivo", "neste", "treinamento"],
+            ["é", "garantir", "vendas", "constantes."]
+        ];
+
+        let phraseIndex = 0;
+        
+        function playPhrase() {
+            if(phraseIndex >= phrases.length) {
+                document.getElementById('play-overlay').classList.remove('hidden');
+                subtitleDisplay.classList.add('hidden');
+                if(videoPlayer) videoPlayer.pause();
+                return;
             }
-        }
 
-        function excluirClipe() {
-            if(!selectedClipId) return falar("Selecione um clipe primeiro para excluí-lo.");
+            const words = phrases[phraseIndex];
+            subtitleDisplay.innerHTML = `
+                <div class="subtitle-line shadow-[0_0_20px_rgba(204,85,0,0.5)]">
+                    ${words.map((w, i) => `<span class="subtitle-word" id="word-${i}">${w}</span>`).join('')}
+                </div>`;
             
-            currentClips = currentClips.filter(c => c.id !== selectedClipId);
-            selectedClipId = null;
-            
-            document.getElementById('edit-form').classList.add('hidden');
-            document.getElementById('empty-state').classList.remove('hidden');
-            document.getElementById('subtitle-display').classList.add('hidden');
-            
-            renderizarTimeline();
-            falar("Trecho removido da timeline.");
+            let wordIndex = 0;
+            simInterval = setInterval(() => {
+                document.querySelectorAll('.subtitle-word').forEach(el => el.classList.remove('active'));
+                if(wordIndex < words.length) {
+                    document.getElementById(`word-${wordIndex}`).classList.add('active'); wordIndex++;
+                } else {
+                    clearInterval(simInterval); phraseIndex++;
+                    if(videoPlayer) videoPlayer.pause();
+                    setTimeout(() => { if(videoPlayer) videoPlayer.play(); playPhrase(); }, 500); 
+                }
+            }, 350); 
         }
+        playPhrase();
+    }
 
-        function enviarParaRender() {
-            if(currentClips.length === 0) return alert("Não há clipes para renderizar na Timeline.");
-            
-            // Lógica real: Aqui o HTML pegaria a variável `currentClips` e mandaria para o Google Colab 
-            // usar as bibliotecas MoviePy e Whisper para gerar o vídeo de verdade, já com a sua edição!
-            
-            console.log("DADOS REFINADOS ENVIADOS PARA O COLAB:", JSON.stringify(currentClips, null, 2));
-            
-            falar("Dados refinados enviados para o motor de processamento no Drive.");
-            alert(`SISTEMA: Um payload com ${currentClips.length} clipes revisados foi disparado para renderização final.`);
+    // Botão "Renderizar Lote": baixa todos os segmentos reais de uma vez
+    document.getElementById('btn-export-lote').addEventListener('click', () => {
+        if(segmentosGerados.length === 0) {
+            falar("Ainda não há segmentos reais para exportar. Rode a divisão em treinamentos primeiro.");
+            return;
         }
-    </script>
-</body>
-</html>
+        segmentosGerados.forEach((seg, i) => {
+            setTimeout(() => {
+                const a = document.createElement('a');
+                a.href = seg.url; a.download = seg.name;
+                document.body.appendChild(a); a.click(); a.remove();
+            }, i * 300); // espaça os downloads para o navegador não bloquear
+        });
+    });
+</script>
