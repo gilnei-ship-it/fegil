@@ -1,1 +1,701 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FeGil - Inteligência Audiovisual e Treinamentos</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff3ec', 100: '#ffe4d3', 200: '#ffc6a5', 300: '#ffa16d',
+                            400: '#ff7332', 500: '#FF7E05', /* Laranja exato solicitado */
+                            600: '#ef3b00', 700: '#c62a00', 800: '#9d2208', 900: '#7e1f0a', 950: '#080605', 
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        figtree: ['Figtree', 'sans-serif'], /* Fonte solicitada para legendas */
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Importando Inter (UI) e Figtree (Legendas) com peso 900 (Preto) -->
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
+    <style>
+        body {
+            margin: 0; padding: 0; background-color: #080605; color: #ffffff;
+            overflow: hidden; touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+        }
+
+        #ai-aura-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
+        .meta-card {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.5); position: relative; overflow: hidden;
+        }
+
+        /* Efeito Lanterna Dinâmico */
+        .meta-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: inherit;
+            background: radial-gradient(400px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 126, 5, 0.15), transparent 40%);
+            opacity: 0; transition: opacity 0.4s ease; pointer-events: none; z-index: -1;
+        }
+
+        .meta-card:not(.disabled):hover::before { opacity: 1; }
+        .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); }
+        .meta-card:not(.disabled):active { transform: translateY(1px) scale(0.98); }
+
+        .icon-bounce { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .meta-card:not(.disabled):hover .icon-bounce {
+            transform: scale(1.15) translateY(-3px); color: #FF7E05; filter: drop-shadow(0 0 8px rgba(255,126,5,0.6));
+        }
+
+        .disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white;
+            box-shadow: 0 4px 15px rgba(255, 126, 5, 0.4); border: none; transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .btn-primary:hover { box-shadow: 0 8px 30px rgba(255, 126, 5, 0.6); transform: translateY(-3px) scale(1.02); }
+
+        input[type="file"] { display: none; }
+        input[type="text"] {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white;
+        }
+        input[type="text"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 10px rgba(255,126,5,0.2); }
+
+        .processing-bar {
+            position: absolute; bottom: 0; left: 0; height: 3px; background: #FF7E05;
+            width: 0%; border-radius: 0 0 20px 20px; transition: width 0.3s ease; box-shadow: 0 0 10px #FF7E05;
+        }
+
+        /* --- ESTILOS DO ESTÚDIO DE EDIÇÃO E LEGENDAS --- */
+        #editor-workspace {
+            background: #0d0a09;
+        }
+        .video-container {
+            background: #000; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .subtitle-box {
+            position: absolute; width: 90%; text-align: center; transition: bottom 0.5s ease, top 0.5s ease;
+            pointer-events: none;
+        }
+
+        /* NOVO ESTILO: Fundo Laranja Sólido, igual à foto aprovada */
+        .subtitle-line {
+            background-color: #CC5500; /* Laranja da imagem de referência */
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+        }
+
+        .subtitle-word {
+            font-family: 'Figtree', sans-serif;
+            font-weight: 900; /* Preto Extremo */
+            font-size: 2.2rem; /* Ajustável */
+            color: white;
+            display: inline-block;
+            margin: 0 4px;
+            /* Contorno Preto Forte no Texto */
+            -webkit-text-stroke: 1.5px black;
+            text-shadow: 2px 2px 0px #000, -1px -1px 0px #000, 1px -1px 0px #000, -1px 1px 0px #000, 1px 1px 0px #000;
+            transition: color 0.1s ease;
+        }
+
+        /* O EFEITO DE COR NA PALAVRA DITA (Opcional para dar dinamismo dentro do bloco laranja) */
+        .subtitle-word.active {
+            color: #FFD700; /* Amarelo ouro para destacar no laranja */
+        }
+
+        @media (max-width: 768px) {
+            .subtitle-word { font-size: 1.2rem; -webkit-text-stroke: 1px black; }
+            .subtitle-line { padding: 6px 16px; border-radius: 8px; }
+            .meta-card { padding: 1rem; }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-[100dvh]">
+
+    <canvas id="ai-aura-canvas"></canvas>
+
+    <!-- Tela Inicial -->
+    <div id="start-screen" class="absolute inset-0 flex flex-col items-center justify-center z-50 bg-brand-950/95 backdrop-blur-xl transition-opacity duration-700">
+        <div class="w-32 h-32 mb-8 relative flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-t-2 border-brand-500 animate-spin" style="animation-duration: 3s;"></div>
+            <div class="absolute inset-4 rounded-full border-b-2 border-brand-400 animate-spin" style="animation-duration: 1.5s; animation-direction: reverse;"></div>
+            <div class="w-16 h-16 bg-brand-500 rounded-full blur-md animate-pulse"></div>
+            <svg class="w-8 h-8 absolute text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        </div>
+        <h1 class="text-7xl md:text-8xl font-figtree font-black tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-br from-brand-300 via-brand-500 to-brand-700 animate-pulse" style="filter: drop-shadow(0 0 15px rgba(255,126,5,0.4));">FeGil<span class="text-white">.</span></h1>
+        <p class="text-brand-200/60 mb-2 text-center text-sm font-light">Inteligência Audiovisual de Alta Performance</p>
+        <p class="text-white/40 mb-10 text-center max-w-md px-6 text-sm">Otimização semântica, edição de retenção e treinamentos modulares.</p>
+        
+        <button id="btn-start" class="btn-primary px-10 py-4 rounded-full text-sm font-bold tracking-widest">
+            INICIAR PLATAFORMA
+        </button>
+    </div>
+
+    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-700 overflow-y-auto lg:overflow-hidden no-scrollbar">
+        
+        <!-- Lado Esquerdo: IA Status e Imagem -->
+        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none min-h-[60vh] lg:min-h-full">
+            
+            <!-- Logo Topo Fixada à esquerda -->
+            <div class="absolute top-0 left-0 pt-2 md:pt-4">
+                <h1 class="text-4xl md:text-5xl font-figtree font-black text-transparent bg-clip-text bg-gradient-to-r from-brand-400 to-brand-600 mb-1">FeGil</h1>
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-2 w-2"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span></span>
+                    <p class="text-brand-200/70 text-[10px] md:text-xs font-medium tracking-widest uppercase">PROGRAMA DE AUTOMAÇÃO EM VÍDEOS</p>
+                </div>
+            </div>
+            
+            <!-- Imagem da FeGil com animação de fala -->
+            <div class="relative w-72 h-72 md:w-96 md:h-96 mt-16 lg:mt-20 mx-auto flex-shrink-0">
+                 <img id="fegil-avatar" src="https://github.com/gilnei-ship-it/fegil/raw/main/fegil.png" alt="FeGil IA" class="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(255,126,5,0.3)] transition-all duration-300 opacity-90">
+            </div>
+            
+            <!-- Caixa de Status Estratégica (Ancorada à personagem) -->
+            <div class="pointer-events-auto mt-[-2rem] md:mt-[-3rem] relative z-20 w-full max-w-md mx-auto">
+                <div class="bg-[#0f0b09]/85 backdrop-blur-xl border border-brand-500/20 p-5 rounded-2xl shadow-[0_15px_40px_-10px_rgba(255,126,5,0.2)] transition-all hover:border-brand-500/40">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-2 h-2 rounded-full bg-brand-500 animate-pulse shadow-[0_0_8px_#FF7E05]"></div>
+                        <span class="text-[10px] font-bold tracking-widest text-brand-400 uppercase">Conexão Neural Ativa</span>
+                    </div>
+                    <p id="ai-status-text" class="text-base md:text-lg font-medium text-white/95 leading-snug transition-opacity duration-300 min-h-[3rem]">
+                        "Olá. Aguardando a inserção da sua mídia bruta."
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lado Direito: Controles -->
+        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 mt-6 lg:mt-0 pb-8 lg:pb-0">
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Upload de Vídeo -->
+                <label for="upload-video" id="card-upload" class="meta-card p-5 flex flex-col items-start justify-center cursor-pointer">
+                    <input type="file" id="upload-video" accept="video/*">
+                    <div class="icon-bounce w-10 h-10 rounded-xl bg-brand-500/10 flex items-center justify-center mb-3 text-brand-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    </div>
+                    <h3 class="text-white font-semibold text-base mb-1" id="txt-upload-title">Anexar Vídeo Bruto</h3>
+                    <p class="text-brand-200/50 text-xs" id="txt-upload-desc">MP4 ou MOV suportado</p>
+                </label>
+
+                <!-- Input de Contexto (Aparece após upload) -->
+                <div id="context-container" class="meta-card disabled p-5 flex flex-col justify-center">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-4 h-4 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                        <h3 class="text-white font-semibold text-sm">Contexto Semântico (Opcional)</h3>
+                    </div>
+                    <input type="text" id="input-docs" placeholder="Cole o link do Google Docs do script..." class="w-full text-xs p-2 rounded-lg" disabled>
+                    <p class="text-[10px] text-brand-200/40 mt-2 leading-tight">Ajuda a IA a corrigir gírias, pontuação e entender o objetivo do apresentador.</p>
+                </div>
+            </div>
+
+            <!-- Botões de Ação IA -->
+            <div class="flex flex-col gap-3">
+                <!-- CORTES MODULARES COM INPUT DE QUANTIDADE -->
+                <div id="wrapper-cortes" class="meta-card disabled relative transition-all">
+                    <button id="btn-cortes" onclick="executarIA('cortes')" class="w-full p-5 flex items-center text-left bg-transparent border-none">
+                        <div class="icon-bounce w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mr-4 text-brand-400 flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-white font-semibold text-sm md:text-base mb-1">Dividir em Treinamentos</h3>
+                            <p class="text-brand-200/60 text-xs pr-2">Corta módulos, aplica legenda padrão e gera fila.</p>
+                        </div>
+                    </button>
+                    <!-- Input de Fila -->
+                    <div class="px-5 pb-4 flex items-center justify-between border-t border-white/5 pt-3 mt-1 bg-black/20">
+                        <span class="text-[11px] text-brand-200/70 font-medium tracking-wide uppercase">Qtd. Módulos/Vídeos:</span>
+                        <input type="number" id="input-modulos" value="15" min="1" max="100" class="w-16 bg-brand-900/50 text-brand-400 text-center text-sm font-bold rounded border border-brand-500/30 py-1 focus:outline-none focus:border-brand-400 transition-colors">
+                    </div>
+                    <div class="processing-bar" id="bar-cortes"></div>
+                </div>
+
+                <button id="btn-legendas" disabled onclick="executarIA('legendas')" class="meta-card disabled p-5 flex items-center text-left">
+                    <div class="icon-bounce w-12 h-12 rounded-xl bg-brand-500/10 flex items-center justify-center mr-4 text-brand-400 flex-shrink-0">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-semibold text-sm md:text-base mb-1">Gerar Legendas Dinâmicas</h3>
+                        <p class="text-brand-200/60 text-xs pr-2">Max 5 palavras por linha com foco na palavra falada. Pontuação imune a dialetos ruins.</p>
+                    </div>
+                    <div class="processing-bar" id="bar-legendas"></div>
+                </button>
+            </div>
+            
+            <button id="btn-open-editor" disabled onclick="abrirEditor()" class="meta-card disabled mt-2 p-4 bg-brand-600/20 border-brand-500/50 flex justify-center items-center gap-2 hover:bg-brand-500/40 transition-colors">
+                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span class="text-white font-bold text-sm tracking-wide">ABRIR ESTÚDIO DE EDIÇÃO</span>
+            </button>
+        </div>
+    </main>
+
+    <div id="editor-workspace" class="fixed inset-0 z-50 flex flex-col hidden opacity-0 transition-opacity duration-500">
+        
+        <!-- Header Editor -->
+        <header class="h-16 border-b border-white/10 flex items-center justify-between px-6 bg-black/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree">F</span></div>
+                <h2 class="text-white font-bold text-lg">Estúdio FeGil</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="text-white/60 hover:text-white text-sm font-medium" onclick="fecharEditor()">FECHAR</button>
+                <button id="btn-export-lote" class="bg-brand-500 hover:bg-brand-400 text-white px-6 py-2 rounded-lg text-sm font-bold shadow-lg shadow-brand-500/30 transition-transform active:scale-95">
+                    EXPORTAR LOTE (15 VÍDEOS)
+                </button>
+            </div>
+        </header>
+
+        <div class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
+            <!-- Área do Vídeo e Legenda Simulada -->
+            <div class="flex-1 video-container rounded-2xl relative" id="video-preview-area">
+                <!-- Imagem estática simulando o vídeo (background neutro para ver legenda) -->
+                <img src="https://placehold.co/1280x720/222/444?text=PREVIEW+DO+VÍDEO" class="w-full h-full object-cover opacity-50" alt="Video">
+                
+                <!-- Overlay de Reprodução -->
+                <div class="absolute inset-0 flex items-center justify-center" id="play-overlay">
+                    <button onclick="startSubtitleSimulation()" class="w-20 h-20 rounded-full bg-brand-500/80 text-white flex items-center justify-center hover:scale-110 transition-transform backdrop-blur-md">
+                        <svg class="w-10 h-10 ml-2" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Container da Legenda Dinâmica -->
+                <div id="subtitle-display" class="subtitle-box bottom-12 hidden">
+                    <!-- Palavras serão injetadas aqui pelo JS -->
+                </div>
+            </div>
+
+            <!-- Painel Lateral de Propriedades e Edição -->
+            <div class="w-full md:w-96 bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col gap-6 overflow-y-auto no-scrollbar">
+                
+                <!-- Área de Correção de Script -->
+                <div class="flex-1 flex flex-col min-h-[250px]">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-white font-bold text-sm flex items-center gap-2">
+                            <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            Corrigir Legendas
+                        </h3>
+                        <span class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-1 rounded">Sincronizado</span>
+                    </div>
+                    <textarea id="script-editor" class="flex-1 w-full bg-black/40 border border-white/10 rounded-lg p-3 text-sm text-white/90 font-mono focus:outline-none focus:border-brand-500 transition-colors resize-none leading-relaxed" spellcheck="false">
+[00:00:01] Bem-vindos ao nosso treinamento oficial.
+[00:00:04] Hoje vamos falar sobre vendas.
+[00:00:07] Os produtos mais vendidos são:
+[00:00:10] Atenção a este detalhe importante.
+[00:00:13] É assim que se faz.</textarea>
+                    <p class="text-[10px] text-white/40 mt-2 text-right">Altere o texto para atualizar o vídeo.</p>
+                </div>
+
+                <hr class="border-white/10">
+
+                <div>
+                    <h3 class="text-white font-bold text-sm mb-3">Estilo da Fonte</h3>
+                    <div class="bg-black/50 border border-white/10 rounded-lg p-3 flex items-center justify-between">
+                        <span class="font-figtree font-black text-lg">Figtree</span>
+                        <span class="text-xs bg-white/10 px-2 py-1 rounded text-white/70">Preto (900)</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold text-sm mb-3">Estilo do Destaque</h3>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center bg-[#FF7E05] shadow-[0_0_15px_rgba(255,126,5,0.6)]"></div>
+                        <span class="text-sm text-white/80">Contorno Ativo #FF7E05</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-white font-bold text-sm mb-3">Posição no Vídeo</h3>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setSubPosition('top')" class="pos-btn py-2 bg-white/5 border border-white/10 rounded text-xs hover:bg-brand-500/20 hover:border-brand-500 transition-colors">Topo</button>
+                        <button onclick="setSubPosition('center')" class="pos-btn py-2 bg-white/5 border border-white/10 rounded text-xs hover:bg-brand-500/20 hover:border-brand-500 transition-colors">Meio</button>
+                        <button onclick="setSubPosition('bottom')" class="pos-btn py-2 bg-brand-500/40 border border-brand-500 rounded text-xs font-bold text-white transition-colors">Baixo</button>
+                    </div>
+                </div>
+
+                <!-- NOVA ÁREA: Fila de Renderização -->
+                <div class="mt-auto flex-1 flex flex-col min-h-[120px] max-h-[180px]">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-white font-bold text-sm">Fila de Renderização</h3>
+                        <span id="badge-fila" class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-1 rounded">15 na fila</span>
+                    </div>
+                    <div id="render-queue-list" class="flex-1 bg-black/40 border border-white/10 rounded-lg p-2 overflow-y-auto no-scrollbar flex flex-col gap-1">
+                        <!-- Itens injetados via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- MOTOR DE PARTÍCULAS BACKGROUND ---
+        const canvas = document.getElementById('ai-aura-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+        let mouseX = 0, mouseY = 0;
+        let isProcessing = false;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
+        resize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = Math.random() > 0.5 ? '#FF7E05' : '#ffc6a5';
+            }
+            update() {
+                // Se estiver processando, as partículas aceleram em espiral
+                if (isProcessing) {
+                    const dx = this.x - width/2;
+                    const dy = this.y - height/2;
+                    const angle = Math.atan2(dy, dx) + 0.05;
+                    const dist = Math.sqrt(dx*dx + dy*dy) * 0.99; // puxa pro centro
+                    this.x = width/2 + Math.cos(angle) * dist;
+                    this.y = height/2 + Math.sin(angle) * dist;
+                } else {
+                    this.x += this.speedX + (mouseX - width/2) * 0.002;
+                    this.y += this.speedY + (mouseY - height/2) * 0.002;
+                }
+
+                if (this.x < 0) this.x = width;
+                if (this.x > width) this.x = 0;
+                if (this.y < 0) this.y = height;
+                if (this.y > height) this.y = 0;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        for(let i=0; i<150; i++) particles.push(new Particle());
+
+        function animateBg() {
+            ctx.fillStyle = 'rgba(8, 6, 5, 0.2)';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Fundo gradiente reativo no centro
+            const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, isProcessing ? 400 : 200);
+            grad.addColorStop(0, isProcessing ? 'rgba(255, 126, 5, 0.15)' : 'rgba(255, 126, 5, 0.05)');
+            grad.addColorStop(1, 'transparent');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0,0,width,height);
+
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        // --- SISTEMA DE ÁUDIO TONE.JS ---
+        let synthHover, synthClick, noiseProcess;
+        let audioInit = false;
+
+        async function initAudio() {
+            if(audioInit) return;
+            await Tone.start();
+            synthHover = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.1, release: 0.1 } }).toDestination();
+            synthHover.volume.value = -25;
+            
+            synthClick = new Tone.MembraneSynth().toDestination();
+            synthClick.volume.value = -10;
+
+            const filter = new Tone.AutoFilter(4).start();
+            noiseProcess = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 1, sustain: 1, release: 1 } }).connect(filter).toDestination();
+            noiseProcess.volume.value = -30;
+            
+            audioInit = true;
+        }
+
+        document.querySelectorAll('.meta-card, button').forEach(btn => {
+            btn.addEventListener('mouseenter', () => { if(audioInit && !btn.classList.contains('disabled')) synthHover.triggerAttackRelease("C5", "32n"); });
+            btn.addEventListener('mousedown', () => { 
+                if(audioInit && !btn.classList.contains('disabled')) {
+                    synthClick.triggerAttackRelease("E2", "16n");
+                    if(navigator.vibrate) navigator.vibrate(15);
+                }
+            });
+        });
+
+        // --- EFEITO LANTERNA (HOVER) ---
+        document.querySelectorAll('.meta-card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        // --- TTS (TEXT TO SPEECH) VOZ DA FEGIL ---
+        const synth = window.speechSynthesis;
+        let feGilVoice = null;
+        let isSpeaking = false; // Flag para controlar a animação
+
+        function loadVoices() {
+            const voices = synth.getVoices();
+            feGilVoice = voices.find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || voices.find(v => v.lang === 'pt-BR');
+        }
+        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
+
+        function animateAvatar() {
+            const avatar = document.getElementById('fegil-avatar');
+            if(isSpeaking) {
+                // Efeito de pulso rápido e variação de opacidade quando fala
+                avatar.style.transform = `scale(${1 + Math.random() * 0.03})`;
+                avatar.style.opacity = `${0.85 + Math.random() * 0.15}`;
+                avatar.style.filter = `drop-shadow(0 0 ${20 + Math.random() * 20}px rgba(255,126,5,0.5)) brightness(${1 + Math.random() * 0.15})`;
+                requestAnimationFrame(animateAvatar);
+            } else {
+                // Estado normal
+                avatar.style.transform = 'scale(1)';
+                avatar.style.opacity = '0.9';
+                avatar.style.filter = 'drop-shadow(0 0 35px rgba(255,126,5,0.3)) brightness(1)';
+            }
+        }
+
+        function falar(texto, callback) {
+            if (synth.speaking) synth.cancel();
+            
+            const elStatus = document.getElementById('ai-status-text');
+            elStatus.style.opacity = 0;
+            setTimeout(() => { elStatus.innerText = `"${texto}"`; elStatus.style.opacity = 1; }, 300);
+
+            const utter = new SpeechSynthesisUtterance(texto);
+            if(feGilVoice) utter.voice = feGilVoice;
+            utter.pitch = 1.0; utter.rate = 1.1;
+            
+            utter.onstart = () => {
+                isSpeaking = true;
+                animateAvatar();
+            };
+
+            utter.onend = () => {
+                isSpeaking = false;
+                if(callback) callback();
+            };
+            
+            utter.onerror = () => { isSpeaking = false; }
+
+            synth.speak(utter);
+        }
+
+        // --- FLUXO DA UI E GOOGLE DOCS ---
+        const uiStart = document.getElementById('start-screen');
+        const uiMain = document.getElementById('main-ui');
+        
+        document.getElementById('btn-start').addEventListener('click', async () => {
+            await initAudio();
+            uiStart.classList.add('opacity-0');
+            setTimeout(() => {
+                uiStart.classList.add('hidden');
+                uiMain.classList.remove('opacity-0', 'pointer-events-none');
+                // Retirada a fala de conexão inicial conforme solicitado
+            }, 700);
+        });
+
+        const inputUpload = document.getElementById('upload-video');
+        const cardUpload = document.getElementById('card-upload');
+        const contextContainer = document.getElementById('context-container');
+        const inputDocs = document.getElementById('input-docs');
+
+        inputUpload.addEventListener('change', (e) => {
+            if(e.target.files.length > 0) {
+                const file = e.target.files[0];
+                document.getElementById('txt-upload-title').innerText = file.name;
+                document.getElementById('txt-upload-desc').innerText = "Mídia carregada. Aguardando contexto.";
+                
+                cardUpload.style.borderColor = '#FF7E05';
+                
+                // Libera campo do Google Docs e Botões
+                contextContainer.classList.remove('disabled');
+                inputDocs.disabled = false;
+                
+                document.getElementById('wrapper-cortes').classList.remove('disabled');
+                document.getElementById('btn-cortes').disabled = false;
+                document.getElementById('btn-legendas').classList.remove('disabled');
+                document.getElementById('btn-legendas').disabled = false;
+
+                falar("Vídeo recebido. Insira o contexto semântico ou escolha a automação desejada.");
+            }
+        });
+
+        function executarIA(tipo) {
+            isProcessing = true;
+            if(audioInit) noiseProcess.triggerAttack();
+            if(navigator.vibrate) navigator.vibrate([20, 100, 20, 100, 20]);
+
+            const docLink = inputDocs.value;
+            const qtdModulos = document.getElementById('input-modulos').value || 15;
+            
+            let msg = "";
+            if (tipo === 'cortes') {
+                msg = `Análise inteligente iniciada. Detectando temas e pausas. O vídeo longo será dividido em ${qtdModulos} módulos automaticamente. Aplicando legendas no padrão aprovado e organizando a fila de exportação.`;
+                // Atualiza os labels no editor
+                document.getElementById('btn-export-lote').innerText = `EXPORTAR LOTE (${qtdModulos} VÍDEOS)`;
+                document.getElementById('badge-fila').innerText = `${qtdModulos} na fila`;
+            } else {
+                msg = "Aplicando Legendas Dinâmicas da FeGil. Pontuação impecável ativada.";
+            }
+            
+            if(docLink) msg += " Calibrando contexto com Google Docs.";
+            falar(msg);
+
+            // Desabilita tudo
+            document.querySelectorAll('.meta-card').forEach(c => c.classList.add('disabled'));
+            
+            const bar = document.getElementById(`bar-${tipo}`);
+            bar.style.width = '20%';
+            setTimeout(() => bar.style.width = '70%', 2000);
+
+            setTimeout(() => {
+                isProcessing = false;
+                if(audioInit) { noiseProcess.triggerRelease(); synthClick.triggerAttackRelease("C3", "8n"); }
+                bar.style.width = '100%';
+                
+                falar("Seu projeto está pronto. Estúdio liberado.", () => {
+                    bar.style.width = '0%';
+                    document.querySelectorAll('.meta-card').forEach(c => c.classList.remove('disabled'));
+                    
+                    const btnEditor = document.getElementById('btn-open-editor');
+                    btnEditor.classList.remove('disabled');
+                    btnEditor.disabled = false;
+                    btnEditor.classList.add('bg-brand-500/20');
+                });
+            }, 6000); // Simula delay de processamento
+        }
+
+        // --- LÓGICA DO ESTÚDIO DE EDIÇÃO E SIMULAÇÃO DE LEGENDA ---
+        const workspace = document.getElementById('editor-workspace');
+        const subtitleDisplay = document.getElementById('subtitle-display');
+        let simInterval;
+
+        function abrirEditor() {
+            workspace.classList.remove('hidden');
+            setTimeout(() => workspace.classList.remove('opacity-0'), 50);
+            
+            // Gerar fila de renderização dinâmica no painel
+            const qtdModulos = parseInt(document.getElementById('input-modulos').value) || 15;
+            const queueList = document.getElementById('render-queue-list');
+            queueList.innerHTML = '';
+            for(let i = 1; i <= qtdModulos; i++) {
+                const num = i.toString().padStart(2, '0');
+                queueList.innerHTML += `
+                    <div class="flex items-center justify-between bg-white/5 px-3 py-2 rounded text-xs border border-white/5">
+                        <div class="flex items-center gap-2">
+                            <div class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></div>
+                            <span class="text-white/80 font-mono">Treinamento - Módulo ${num}.mp4</span>
+                        </div>
+                        <span class="text-brand-400 font-bold">Pronto</span>
+                    </div>
+                `;
+            }
+        }
+
+        function fecharEditor() {
+            workspace.classList.add('opacity-0');
+            clearInterval(simInterval);
+            document.getElementById('play-overlay').classList.remove('hidden');
+            subtitleDisplay.classList.add('hidden');
+            subtitleDisplay.innerHTML = '';
+            setTimeout(() => workspace.classList.add('hidden'), 500);
+        }
+
+        function setSubPosition(pos) {
+            // Atualiza botões
+            document.querySelectorAll('.pos-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-500/40', 'border-brand-500', 'font-bold', 'text-white');
+                btn.classList.add('bg-white/5', 'border-white/10');
+            });
+            event.target.classList.remove('bg-white/5', 'border-white/10');
+            event.target.classList.add('bg-brand-500/40', 'border-brand-500', 'font-bold', 'text-white');
+
+            // Move a legenda
+            subtitleDisplay.style.top = pos === 'top' ? '10%' : pos === 'center' ? '45%' : 'auto';
+            subtitleDisplay.style.bottom = pos === 'bottom' ? '12%' : 'auto';
+        }
+
+        function startSubtitleSimulation() {
+            document.getElementById('play-overlay').classList.add('hidden');
+            subtitleDisplay.classList.remove('hidden');
+            
+            // Frases curtas baseadas na imagem/estilo aprovado
+            const phrases = [
+                ["E", "também", "temos", "medo", "que", "você", "trazer"],
+                ["este", "assunto", "para", "a", "mesa", "hoje."],
+                ["Nosso", "objetivo", "neste", "treinamento"],
+                ["é", "garantir", "vendas", "constantes."]
+            ];
+
+            let phraseIndex = 0;
+            
+            function playPhrase() {
+                if(phraseIndex >= phrases.length) {
+                    // Reset
+                    document.getElementById('play-overlay').classList.remove('hidden');
+                    subtitleDisplay.classList.add('hidden');
+                    return;
+                }
+
+                const words = phrases[phraseIndex];
+                // NOVA ESTRUTURA: Bloco de fundo único laranja (.subtitle-line) contendo as palavras
+                subtitleDisplay.innerHTML = `
+                    <div class="subtitle-line shadow-[0_0_20px_rgba(204,85,0,0.5)]">
+                        ${words.map((w, i) => `<span class="subtitle-word" id="word-${i}">${w}</span>`).join('')}
+                    </div>
+                `;
+                
+                let wordIndex = 0;
+                simInterval = setInterval(() => {
+                    // Remove destaque amarelo das anteriores
+                    document.querySelectorAll('.subtitle-word').forEach(el => el.classList.remove('active'));
+                    
+                    if(wordIndex < words.length) {
+                        // Ativa a palavra atual (amarelo) dentro da caixa laranja
+                        document.getElementById(`word-${wordIndex}`).classList.add('active');
+                        wordIndex++;
+                    } else {
+                        clearInterval(simInterval);
+                        phraseIndex++;
+                        setTimeout(playPhrase, 500); // pausa de meio segundo entre frases
+                    }
+                }, 350); // velocidade de leitura da palavra
+            }
+            
+            playPhrase();
+        }
+
+    </script>
+</body>
+</html>
