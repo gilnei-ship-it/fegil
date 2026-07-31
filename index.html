@@ -24,11 +24,9 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
     <style>
         body { margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; overflow-x: hidden; touch-action: manipulation; }
-        #ai-aura-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
         .meta-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 20px; transition: all 0.4s; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; }
         .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); box-shadow: 0 15px 35px -5px rgba(255, 126, 5, 0.15); }
         .disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; background: #f9fafb; }
@@ -45,7 +43,6 @@
 <body class="flex flex-col items-center justify-center min-h-[100dvh] pl-6 md:pl-10">
 
     <div id="left-stripe"></div>
-    <canvas id="ai-aura-canvas"></canvas>
 
     <!-- Overlay de Processamento -->
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-6 md:pl-10">
@@ -127,7 +124,6 @@
                 <div class="processing-bar" id="bar-cortes"></div>
             </div>
 
-            <!-- ÁREA DE DOWNLOADS DOS ARQUIVOS DA LEGENDA -->
             <div id="download-zone" class="hidden flex flex-col gap-3 mt-2">
                 <h4 class="text-gray-900 font-bold text-sm uppercase tracking-wider">Downloads Disponíveis:</h4>
                 <div id="download-buttons-list" class="flex flex-col gap-2"></div>
@@ -140,12 +136,6 @@
         const API_BASE = "https://suave-unshackle-chug.ngrok-free.dev";
         const API_URL = `${API_BASE}/processar-video`;
         const API_STATUS_URL = `${API_BASE}/status`;
-
-        const canvas = document.getElementById('ai-aura-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height;
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
 
         document.getElementById('btn-start').addEventListener('click', () => {
             const startScreen = document.getElementById('start-screen');
@@ -171,19 +161,20 @@
         });
 
         // ==========================================
-        // FUNÇÃO QUE FORÇA O DOWNLOAD (Pula o Ngrok e salva .srt)
+        // NOVA FUNÇÃO DE DOWNLOAD APROVA DE BUGS
         // ==========================================
-        async function forcarDownload(url, nomeArquivo) {
-            try {
-                // Notifica que o download iniciou
-                const btnOriginal = event.currentTarget.innerHTML;
-                event.currentTarget.innerHTML = `<span>⏳ Baixando...</span>`;
+        async function forcarDownload(botao, url, nomeArquivo) {
+            const textoOriginal = botao.innerHTML; // Salva o HTML original do botão
+            botao.innerHTML = `<span>⏳ Baixando...</span>`; // Muda o texto
+            botao.classList.add('opacity-70', 'pointer-events-none'); // Desativa cliques duplos
 
+            try {
+                // Tenta fazer o download saltando a tela do Ngrok
                 const resposta = await fetch(url, {
                     headers: { 'ngrok-skip-browser-warning': 'true' }
                 });
                 
-                if (!resposta.ok) throw new Error("Falha no download");
+                if (!resposta.ok) throw new Error("Erro na rede");
                 
                 const blob = await resposta.blob();
                 const urlBlob = window.URL.createObjectURL(blob);
@@ -191,19 +182,22 @@
                 const linkInvisivel = document.createElement('a');
                 linkInvisivel.style.display = 'none';
                 linkInvisivel.href = urlBlob;
-                linkInvisivel.download = nomeArquivo; // Garante a extensão correta (.srt ou .docx)
+                linkInvisivel.download = nomeArquivo; 
                 
                 document.body.appendChild(linkInvisivel);
-                linkInvisivel.click();
+                linkInvisivel.click(); // Força o clique invisível
                 
                 window.URL.revokeObjectURL(urlBlob);
                 document.body.removeChild(linkInvisivel);
 
-                // Restaura o botão
-                setTimeout(() => event.target.closest('button').innerHTML = btnOriginal, 1000);
             } catch (erro) {
-                alert("Erro ao tentar baixar o arquivo. Tente novamente.");
-                console.error(erro);
+                // PLANO B: Se o Ngrok bloquear de qualquer jeito, ele abre uma nova aba!
+                console.error("Tentando via link direto...", erro);
+                window.open(url, '_blank');
+            } finally {
+                // GARANTIA DE QUE O BOTÃO VAI VOLTAR AO NORMAL SEMPRE!
+                botao.innerHTML = textoOriginal;
+                botao.classList.remove('opacity-70', 'pointer-events-none');
             }
         }
 
@@ -243,11 +237,11 @@
                         const downloadList = document.getElementById('download-buttons-list');
                         downloadList.innerHTML = '';
 
-                        // CRIA OS BOTÕES INJETANDO A FUNÇÃO forcarDownload
+                        // CRIA OS BOTÕES PASSANDO O "this" PARA ELE NÃO SE PERDER
                         statusData.modulos.forEach(item => {
                             const linkDownload = `${API_BASE}${item.url_video}`;
                             downloadList.innerHTML += `
-                                <button onclick="forcarDownload('${linkDownload}', '${item.arquivo}')" class="w-full p-4 bg-brisa-blue text-white rounded-xl font-bold flex items-center justify-between hover:bg-blue-800 transition-colors shadow-lg cursor-pointer border-none text-left">
+                                <button onclick="forcarDownload(this, '${linkDownload}', '${item.arquivo}')" class="w-full p-4 bg-brisa-blue text-white rounded-xl font-bold flex items-center justify-between hover:bg-blue-800 transition-colors shadow-lg cursor-pointer border-none text-left">
                                     <span>📥 ${item.modulo}</span>
                                     <span class="text-xs bg-white/20 px-3 py-1 rounded">BAIXAR ARQUIVO</span>
                                 </button>`;
