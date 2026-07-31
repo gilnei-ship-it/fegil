@@ -38,7 +38,6 @@
         input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 0 3px rgba(255,126,5,0.1); }
         input.success { border-color: #10B981 !important; }
         .processing-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.5s ease; }
-        #toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: #10B981; color: white; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; transition: bottom 0.3s ease; z-index: 999; }
         #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 24px; background-color: #0022cc; z-index: 100; }
         @media (min-width: 768px) { #left-stripe { width: 40px; } }
     </style>
@@ -47,7 +46,6 @@
 
     <div id="left-stripe"></div>
     <canvas id="ai-aura-canvas"></canvas>
-    <div id="toast">Notificação</div>
 
     <!-- Overlay de Processamento -->
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-6 md:pl-10">
@@ -172,6 +170,43 @@
             }
         });
 
+        // ==========================================
+        // FUNÇÃO QUE FORÇA O DOWNLOAD (Pula o Ngrok e salva .srt)
+        // ==========================================
+        async function forcarDownload(url, nomeArquivo) {
+            try {
+                // Notifica que o download iniciou
+                const btnOriginal = event.currentTarget.innerHTML;
+                event.currentTarget.innerHTML = `<span>⏳ Baixando...</span>`;
+
+                const resposta = await fetch(url, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
+                
+                if (!resposta.ok) throw new Error("Falha no download");
+                
+                const blob = await resposta.blob();
+                const urlBlob = window.URL.createObjectURL(blob);
+                
+                const linkInvisivel = document.createElement('a');
+                linkInvisivel.style.display = 'none';
+                linkInvisivel.href = urlBlob;
+                linkInvisivel.download = nomeArquivo; // Garante a extensão correta (.srt ou .docx)
+                
+                document.body.appendChild(linkInvisivel);
+                linkInvisivel.click();
+                
+                window.URL.revokeObjectURL(urlBlob);
+                document.body.removeChild(linkInvisivel);
+
+                // Restaura o botão
+                setTimeout(() => event.target.closest('button').innerHTML = btnOriginal, 1000);
+            } catch (erro) {
+                alert("Erro ao tentar baixar o arquivo. Tente novamente.");
+                console.error(erro);
+            }
+        }
+
         async function executarIA() {
             const linkVideo = document.getElementById('input-link-video').value.trim();
             const fileInput = document.getElementById('input-file-video');
@@ -204,18 +239,18 @@
                         overlayProcessing.classList.add('opacity-0');
                         setTimeout(() => overlayProcessing.style.display = 'none', 500);
 
-                        // Exibe os botões de download direto para SRT e DOCX
                         const downloadZone = document.getElementById('download-zone');
                         const downloadList = document.getElementById('download-buttons-list');
                         downloadList.innerHTML = '';
 
+                        // CRIA OS BOTÕES INJETANDO A FUNÇÃO forcarDownload
                         statusData.modulos.forEach(item => {
                             const linkDownload = `${API_BASE}${item.url_video}`;
                             downloadList.innerHTML += `
-                                <a href="${linkDownload}" target="_blank" download class="p-4 bg-brisa-blue text-white rounded-xl font-bold flex items-center justify-between hover:bg-blue-800 transition-colors shadow-lg">
+                                <button onclick="forcarDownload('${linkDownload}', '${item.arquivo}')" class="w-full p-4 bg-brisa-blue text-white rounded-xl font-bold flex items-center justify-between hover:bg-blue-800 transition-colors shadow-lg cursor-pointer border-none text-left">
                                     <span>📥 ${item.modulo}</span>
-                                    <span class="text-xs bg-white/20 px-3 py-1 rounded">BAIXAR FILE</span>
-                                </a>`;
+                                    <span class="text-xs bg-white/20 px-3 py-1 rounded">BAIXAR ARQUIVO</span>
+                                </button>`;
                         });
 
                         downloadZone.classList.remove('hidden');
