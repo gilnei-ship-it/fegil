@@ -1,4 +1,84 @@
-<script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fábrica de Conteúdos - Legendas Assertivas</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤖%3C/text%3E%3C/svg%3E">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { brand: { 400: '#ff7332', 500: '#FF7E05', 600: '#ef3b00', 950: '#f5f5f5' }, brisa: { blue: '#0022cc' } }, fontFamily: { sans: ['Inter', 'sans-serif'], figtree: ['Figtree', 'sans-serif'] } } } }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; overflow-x: hidden; }
+        .meta-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 20px; transition: all 0.4s; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; }
+        .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); box-shadow: 0 15px 35px -5px rgba(255, 126, 5, 0.15); }
+        .disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; background: #f9fafb; }
+        .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; box-shadow: 0 4px 15px rgba(255, 126, 5, 0.3); border: none; transition: all 0.3s; cursor: pointer; }
+        .btn-primary:hover { box-shadow: 0 8px 25px rgba(255, 126, 5, 0.4); transform: translateY(-3px) scale(1.02); }
+        input[type="url"] { background: #f9fafb; border: 1px solid #e5e7eb; color: #1f2937; }
+        input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 0 3px rgba(255,126,5,0.1); }
+        .processing-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.5s ease; }
+        #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 24px; background-color: #0022cc; z-index: 100; }
+        @media (min-width: 768px) { #left-stripe { width: 40px; } }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-[100dvh] pl-6 md:pl-10">
+    <div id="left-stripe"></div>
+
+    <!-- Overlay Processamento -->
+    <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-6 md:pl-10">
+        <div class="w-24 h-24 mb-6 relative flex items-center justify-center">
+            <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1.5s;"></div>
+            <span id="loading-percentage" class="text-gray-900 font-figtree font-black text-xl absolute">0%</span>
+        </div>
+        <h2 class="text-3xl md:text-4xl font-figtree font-black text-brand-500 tracking-widest animate-pulse text-center px-4">ANALISANDO O ASSUNTO...</h2>
+        <p id="processing-subtitle" class="text-gray-600 font-medium mt-4 max-w-md text-center text-sm md:text-lg px-4 transition-all duration-300">Aplicando contexto Brisanet para máxima assertividade.</p>
+    </div>
+
+    <!-- Tela Inicial -->
+    <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-[#f3f4f6]/95 backdrop-blur-xl transition-all duration-700 ease-in-out pl-6 md:pl-10">
+        <img src="https://raw.githubusercontent.com/gilnei-ship-it/fegil/main/Logo%20(3).png" alt="Logo" class="w-64 md:w-80 mb-6 drop-shadow-lg">
+        <button id="btn-start" class="btn-primary mt-12 px-12 py-4 rounded-full text-sm font-bold tracking-widest uppercase">Ativar Gerador de Legendas</button>
+    </div>
+
+    <!-- Interface Principal -->
+    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-1000 ease-in-out">
+        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none">
+            <img src="https://raw.githubusercontent.com/gilnei-ship-it/fegil/main/Logo%20(3).png" class="w-48 md:w-56 drop-shadow-md mb-2 absolute top-0 left-0 pt-2 md:pt-4">
+            <div class="relative w-64 h-64 md:w-80 md:h-80 mt-24 mx-auto flex-shrink-0">
+                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alegria&mouth=smile01,smile02&eyes=happy,glow&baseColor=FF7E05&primaryColor=0022cc" class="w-full h-full object-contain">
+            </div>
+        </div>
+
+        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 pointer-events-auto">
+            <div class="meta-card p-6 flex flex-col justify-center w-full border-t-4 border-t-brand-500">
+                <h3 class="text-gray-900 font-black text-lg mb-1">1. Selecione o Vídeo</h3>
+                <input type="url" id="input-link-video" placeholder="Cole a URL do vídeo aqui..." class="w-full text-sm p-4 rounded-xl shadow-sm font-medium mb-4">
+                <label class="w-full flex flex-col items-center px-4 py-6 bg-gray-50 text-gray-600 rounded-xl border-2 border-gray-300 border-dashed cursor-pointer hover:bg-brand-50 hover:border-brand-500 transition-all">
+                    <span id="file-name-display" class="text-sm font-bold">Selecionar arquivo do dispositivo</span>
+                    <input type='file' id="input-file-video" accept="video/mp4,video/*" class="hidden" />
+                </label>
+            </div>
+
+            <div id="wrapper-cortes" class="meta-card disabled relative transition-all">
+                <button onclick="executarIA()" class="w-full p-6 flex items-center text-left bg-transparent border-none cursor-pointer">
+                    <div>
+                        <h3 class="text-gray-900 font-black text-lg mb-1">2. Gerar Legenda Assertiva</h3>
+                        <p class="text-gray-600 text-xs">Transcreve com foco em ortografia, marcas e tempo.</p>
+                    </div>
+                </button>
+            </div>
+
+            <div id="download-zone" class="hidden flex flex-col gap-3 mt-2">
+                <h4 class="text-gray-900 font-bold text-sm uppercase tracking-wider">Downloads Disponíveis:</h4>
+                <div id="download-buttons-list" class="flex flex-col gap-2"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
         const API_BASE = "https://suave-unshackle-chug.ngrok-free.dev";
         window.arquivosGerados = {}; 
 
@@ -114,3 +194,5 @@
             }
         }
     </script>
+</body>
+</html>
