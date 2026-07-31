@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fábrica de Conteúdos - Legendas Inteligentes</title>
+    <title>Fábrica de Conteúdos - Legendas Assertivas</title>
     
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤖%3C/text%3E%3C/svg%3E">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -29,48 +29,18 @@
     <style>
         body { margin: 0; padding: 0; background-color: #f3f4f6; color: #1f2937; overflow-x: hidden; touch-action: manipulation; }
         #ai-aura-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        
         .meta-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.05); border-radius: 20px; transition: all 0.4s; box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; }
         .meta-card:not(.disabled):hover { border: 1px solid rgba(255, 126, 5, 0.3); transform: translateY(-3px); box-shadow: 0 15px 35px -5px rgba(255, 126, 5, 0.15); }
-        .icon-bounce { transition: all 0.4s; }
-        .meta-card:not(.disabled):hover .icon-bounce { transform: scale(1.15) translateY(-3px); color: #FF7E05; }
         .disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; background: #f9fafb; }
-        
         .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; box-shadow: 0 4px 15px rgba(255, 126, 5, 0.3); border: none; transition: all 0.3s; cursor: pointer; }
         .btn-primary:hover { box-shadow: 0 8px 25px rgba(255, 126, 5, 0.4); transform: translateY(-3px) scale(1.02); }
-        
         input[type="url"] { background: #f9fafb; border: 1px solid #e5e7eb; color: #1f2937; }
         input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 0 3px rgba(255,126,5,0.1); }
-        input.success { border-color: #10B981 !important; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1) !important; }
-        
+        input.success { border-color: #10B981 !important; }
         .processing-bar { position: absolute; bottom: 0; left: 0; height: 4px; background: #FF7E05; width: 0%; border-radius: 0 0 20px 20px; transition: width 0.5s ease; }
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        #toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: #10B981; color: white; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; transition: bottom 0.3s ease; z-index: 999; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 24px; background-color: #0022cc; z-index: 100; transition: transform 0.5s; }
+        #toast { position: fixed; bottom: -50px; left: 50%; transform: translateX(-50%); background: #10B981; color: white; padding: 10px 24px; border-radius: 30px; font-size: 14px; font-weight: bold; transition: bottom 0.3s ease; z-index: 999; }
+        #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 24px; background-color: #0022cc; z-index: 100; }
         @media (min-width: 768px) { #left-stripe { width: 40px; } }
-
-        /* Animações Flutuantes, Engrenagens e Balões */
-        @keyframes float-gentle { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        @keyframes float-fast { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-8px) scale(1.05); } }
-        @keyframes spin-gear { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes spin-gear-reverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
-        
-        .float-anim { animation: float-gentle 4s ease-in-out infinite; }
-        
-        .gear, .bubble { position: absolute; opacity: 0; transition: all 0.5s ease; z-index: 5; }
-        .agent-active .gear, .agent-active .bubble { opacity: 1; }
-        
-        /* Engrenagens */
-        .agent-active .gear-1 { animation: spin-gear 3s linear infinite; top: 10%; right: 5%; transform: scale(1.2); color: #FF7E05; filter: drop-shadow(0 4px 6px rgba(255,126,5,0.3)); }
-        .agent-active .gear-2 { animation: spin-gear-reverse 4s linear infinite; bottom: 15%; left: 0%; transform: scale(0.9); color: #0022cc; filter: drop-shadow(0 4px 6px rgba(0,34,204,0.3)); }
-        
-        /* Balões de Fala (Comunicação/Legenda) */
-        .agent-active .bubble-1 { animation: float-fast 3s ease-in-out infinite; top: 15%; left: 5%; color: #0022cc; filter: drop-shadow(0 4px 6px rgba(0,34,204,0.2)); }
-        .agent-active .bubble-2 { animation: float-fast 3.5s ease-in-out infinite 1s; bottom: 25%; right: -5%; color: #FF7E05; filter: drop-shadow(0 4px 6px rgba(255,126,5,0.2)); transform: scale(0.8); }
-        
-        .agent-active #fegil-avatar { transform: scale(1.05); filter: drop-shadow(0 0 25px rgba(255,126,5,0.4)); }
     </style>
 </head>
 <body class="flex flex-col items-center justify-center min-h-[100dvh] pl-6 md:pl-10">
@@ -79,6 +49,7 @@
     <canvas id="ai-aura-canvas"></canvas>
     <div id="toast">Notificação</div>
 
+    <!-- Overlay de Processamento -->
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/95 backdrop-blur-md flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-6 md:pl-10">
         <div class="w-24 h-24 mb-6 relative flex items-center justify-center">
             <div class="absolute inset-0 rounded-full border-t-4 border-brand-500 animate-spin" style="animation-duration: 1.5s;"></div>
@@ -86,258 +57,99 @@
             <span id="loading-percentage" class="text-gray-900 font-figtree font-black text-xl absolute">0%</span>
         </div>
         <h2 class="text-3xl md:text-4xl font-figtree font-black text-brand-500 tracking-widest animate-pulse text-center px-4">ANALISANDO O ASSUNTO...</h2>
-        <p id="processing-subtitle" class="text-gray-600 font-medium mt-4 max-w-md text-center text-sm md:text-lg px-4 transition-all duration-300">Sincronizando áudio e gerando legendas precisas e semânticas.</p>
+        <p id="processing-subtitle" class="text-gray-600 font-medium mt-4 max-w-md text-center text-sm md:text-lg px-4 transition-all duration-300">Aplicando contexto Brisanet/PCB para máxima assertividade em nomes e pontuação.</p>
     </div>
 
+    <!-- Tela Inicial -->
     <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-[#f3f4f6]/95 backdrop-blur-xl transition-all duration-700 ease-in-out pl-6 md:pl-10">
         <div class="flex flex-col items-center relative">
-            
             <img src="https://raw.githubusercontent.com/gilnei-ship-it/fegil/main/Logo%20(3).png" alt="Fábrica de Conteúdo" class="w-64 md:w-80 mb-6 drop-shadow-lg">
-
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alegria&mouth=smile01,smile02&eyes=happy,glow&baseColor=FF7E05&primaryColor=0022cc" alt="Agente Robô Feliz" class="w-40 h-40 mb-8 drop-shadow-xl float-anim">
-            
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alegria&mouth=smile01,smile02&eyes=happy,glow&baseColor=FF7E05&primaryColor=0022cc" alt="Agente Robô" class="w-40 h-40 mb-8 drop-shadow-xl">
             <div class="mt-2 border-2 border-brand-500 bg-white/50 px-6 md:px-10 py-3 rounded-xl shadow-sm">
-                <p class="text-brisa-blue font-black text-sm md:text-xl tracking-wide text-center">IA focada em Legendas Assertivas e Entendimento do Assunto.</p>
+                <p class="text-brisa-blue font-black text-sm md:text-xl tracking-wide text-center">IA para Legendas Assertivas (.SRT / .DOCX)</p>
             </div>
         </div>
-        <button id="btn-start" class="btn-primary mt-12 px-12 py-4 rounded-full text-sm font-bold tracking-widest uppercase">Ativar Agente Semântico</button>
+        <button id="btn-start" class="btn-primary mt-12 px-12 py-4 rounded-full text-sm font-bold tracking-widest uppercase">Ativar Gerador de Legendas</button>
     </div>
 
-    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-1000 ease-in-out overflow-y-auto lg:overflow-hidden no-scrollbar">
+    <!-- UI Principal -->
+    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-1000 ease-in-out">
         
-        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none min-h-[50vh] lg:min-h-full">
-            
+        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none">
             <div class="absolute top-0 left-0 pt-2 md:pt-4">
                 <img src="https://raw.githubusercontent.com/gilnei-ship-it/fegil/main/Logo%20(3).png" alt="Fábrica de Conteúdo" class="w-48 md:w-56 drop-shadow-md mb-2">
                 <div class="border border-gray-300 bg-white/50 px-3 py-1 inline-block rounded">
-                    <p class="text-brisa-blue text-[10px] md:text-xs font-bold tracking-wide">Agente de Legendagem Assertiva.</p>
+                    <p class="text-brisa-blue text-[10px] md:text-xs font-bold tracking-wide">Gerador de SRT para Premiere & DaVinci</p>
                 </div>
             </div>
             
-            <div id="avatar-container" class="relative w-64 h-64 md:w-80 md:h-80 mt-24 mx-auto flex-shrink-0 float-anim">
-                
-                <svg class="gear gear-1 w-14 h-14" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zm7.29-2.31c.14-.54.21-1.1.21-1.69s-.07-1.15-.21-1.69l2.42-1.9c.21-.17.27-.47.13-.71l-2.29-3.96c-.14-.24-.44-.33-.69-.24l-2.85 1.15c-.59-.45-1.24-.82-1.94-1.11L13.64.63A.75.75 0 0012.92 0h-1.84a.75.75 0 00-.72.63l-.43 3.03c-.7.29-1.35.66-1.94 1.11L5.14 3.62c-.25-.09-.55 0-.69.24L2.16 7.82c-.14.24-.08.54.13.71l2.42 1.9c-.14.54-.21 1.1-.21 1.69s.07 1.15.21 1.69l-2.42 1.9c-.21.17-.27.47-.13.71l2.29 3.96c.14.24.44.33.69.24l2.85-1.15c.59.45 1.24.82 1.94 1.11l.43 3.03c.06.35.36.62.72.62h1.84c.36 0 .66-.27.72-.63l.43-3.03c.7-.29 1.35-.66 1.94-1.11l2.85 1.15c.25.09.55 0 .69-.24l2.29-3.96c.14-.24.08-.54-.13-.71l-2.42-1.9z"/></svg>
-                
-                <svg class="gear gear-2 w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 15a3 3 0 100-6 3 3 0 000 6zm7.29-2.31c.14-.54.21-1.1.21-1.69s-.07-1.15-.21-1.69l2.42-1.9c.21-.17.27-.47.13-.71l-2.29-3.96c-.14-.24-.44-.33-.69-.24l-2.85 1.15c-.59-.45-1.24-.82-1.94-1.11L13.64.63A.75.75 0 0012.92 0h-1.84a.75.75 0 00-.72.63l-.43 3.03c-.7.29-1.35.66-1.94 1.11L5.14 3.62c-.25-.09-.55 0-.69.24L2.16 7.82c-.14.24-.08.54.13.71l2.42 1.9c-.14.54-.21 1.1-.21 1.69s.07 1.15.21 1.69l-2.42 1.9c-.21.17-.27.47-.13.71l2.29 3.96c.14.24.44.33.69.24l2.85-1.15c.59.45 1.24.82 1.94 1.11l.43 3.03c.06.35.36.62.72.62h1.84c.36 0 .66-.27.72-.63l.43-3.03c.7-.29 1.35-.66 1.94-1.11l2.85 1.15c.25.09.55 0 .69-.24l2.29-3.96c.14-.24.08-.54-.13-.71l-2.42-1.9z"/></svg>
-                
-                <svg class="bubble bubble-1 w-12 h-12" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"></path></svg>
-                
-                <svg class="bubble bubble-2 w-10 h-10" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 10H7v-2h10v2zm0-3H7V7h10v2z"></path></svg>
-
-                <img id="fegil-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Alegria&mouth=smile01,smile02&eyes=happy,glow&baseColor=FF7E05&primaryColor=0022cc" alt="Agente Inteligente Feliz" class="relative z-10 w-full h-full object-contain transition-all duration-500 opacity-95">
+            <div class="relative w-64 h-64 md:w-80 md:h-80 mt-24 mx-auto flex-shrink-0">
+                <img id="fegil-avatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=Alegria&mouth=smile01,smile02&eyes=happy,glow&baseColor=FF7E05&primaryColor=0022cc" alt="Agente" class="w-full h-full object-contain">
             </div>
             
-            <div class="pointer-events-auto mt-[-1rem] md:mt-[-2rem] relative z-20 w-full max-w-md mx-auto">
-                <div class="bg-white/95 backdrop-blur-xl border-l-4 border-brand-500 p-5 rounded-r-2xl shadow-[0_10px_40px_-10px_rgba(255,126,5,0.2)]">
-                    <p id="ai-status-text" class="text-base md:text-lg font-medium text-gray-800 leading-snug transition-opacity duration-300 min-h-[3.5rem]">
-                        "Olá! Envie seu vídeo. Meu foco principal é entender o assunto e gerar legendas altamente assertivas para o seu conteúdo."
+            <div class="pointer-events-auto mt-[-1rem] relative z-20 w-full max-w-md mx-auto">
+                <div class="bg-white/95 backdrop-blur-xl border-l-4 border-brand-500 p-5 rounded-r-2xl shadow-lg">
+                    <p id="ai-status-text" class="text-base font-medium text-gray-800 leading-snug">
+                        "Envie seu vídeo. Vou gerar arquivos .SRT (prontos para o Premiere) e .DOCX com pontuação perfeita e nomes próprios ajustados."
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 mt-6 lg:mt-0 pb-16 lg:pb-0 pointer-events-auto">
+        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10">
             
             <div id="card-upload" class="meta-card p-6 flex flex-col justify-center w-full border-t-4 border-t-brand-500">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="icon-bounce w-12 h-12 rounded-full bg-brand-50 flex items-center justify-center text-brand-500">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-gray-900 font-black text-lg">Alimentar o Agente</h3>
-                        <p class="text-gray-500 text-sm">Forneça o vídeo para análise de legendagem</p>
-                    </div>
-                </div>
+                <h3 class="text-gray-900 font-black text-lg mb-1">1. Selecione o Vídeo</h3>
+                <p class="text-gray-500 text-sm mb-4">Envie o arquivo ou cole a URL do Drive/YouTube</p>
                 
-                <input type="url" id="input-link-video" placeholder="Cole a URL do vídeo aqui..." class="w-full text-sm p-4 rounded-xl transition-colors mt-2 shadow-sm font-medium">
+                <input type="url" id="input-link-video" placeholder="Cole a URL do vídeo aqui..." class="w-full text-sm p-4 rounded-xl shadow-sm font-medium">
                 
                 <div class="flex items-center my-4">
                     <div class="flex-grow border-t border-gray-200"></div>
-                    <span class="px-3 text-xs text-gray-400 font-bold uppercase tracking-wider">OU ENVIE UM ARQUIVO</span>
+                    <span class="px-3 text-xs text-gray-400 font-bold uppercase">OU</span>
                     <div class="flex-grow border-t border-gray-200"></div>
                 </div>
 
-                <label class="w-full flex flex-col items-center px-4 py-6 bg-gray-50 text-gray-600 rounded-xl tracking-wide border-2 border-gray-300 border-dashed cursor-pointer hover:bg-brand-50 hover:border-brand-500 hover:text-brand-600 transition-all">
-                    <svg class="w-8 h-8 mb-2 text-brand-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    <span id="file-name-display" class="mt-1 text-sm font-bold">Selecionar arquivo do dispositivo</span>
+                <label class="w-full flex flex-col items-center px-4 py-6 bg-gray-50 text-gray-600 rounded-xl border-2 border-gray-300 border-dashed cursor-pointer hover:bg-brand-50 hover:border-brand-500 transition-all">
+                    <span id="file-name-display" class="text-sm font-bold">Selecionar arquivo do dispositivo</span>
                     <input type='file' id="input-file-video" accept="video/mp4,video/x-m4v,video/*" class="hidden" />
                 </label>
             </div>
 
-            <div class="flex flex-col gap-4 mt-2">
-                <div id="wrapper-cortes" class="meta-card disabled relative transition-all shadow-lg hover:shadow-xl">
-                    <button id="btn-cortes" onclick="executarIA('cortes')" class="w-full p-6 flex items-center text-left bg-transparent border-none cursor-pointer">
-                        <div class="icon-bounce w-14 h-14 rounded-full bg-brisa-blue/10 flex items-center justify-center mr-5 text-brisa-blue flex-shrink-0">
-                            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
-                        </div>
-                        <div class="flex-1">
-                            <h3 class="text-gray-900 font-black text-lg mb-1">Gerar Legenda Assertiva</h3>
-                            <p class="text-gray-600 text-xs pr-2 leading-relaxed">O agente vai escutar seu vídeo, interpretar o contexto do assunto e gerar transcrições perfeitamente sincronizadas.</p>
-                        </div>
-                    </button>
-                    <div class="processing-bar" id="bar-cortes"></div>
-                </div>
+            <div id="wrapper-cortes" class="meta-card disabled relative transition-all">
+                <button id="btn-cortes" onclick="executarIA()" class="w-full p-6 flex items-center text-left bg-transparent border-none cursor-pointer">
+                    <div class="w-14 h-14 rounded-full bg-brisa-blue/10 flex items-center justify-center mr-5 text-brisa-blue shrink-0">
+                        <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-gray-900 font-black text-lg mb-1">2. Gerar Legenda Assertiva</h3>
+                        <p class="text-gray-600 text-xs">A IA transcreverá focando na ortografia correta, nomes de marcas e marcas de tempo exatas.</p>
+                    </div>
+                </button>
+                <div class="processing-bar" id="bar-cortes"></div>
             </div>
-            
-            <button id="btn-open-editor" disabled onclick="abrirEditor()" class="meta-card disabled mt-4 p-5 bg-gray-100 flex justify-center items-center gap-3 hover:bg-brand-50 hover:text-brand-600 transition-colors cursor-pointer w-full border border-gray-200">
-                <svg class="w-6 h-6 text-gray-500 group-hover:text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                <span class="text-gray-700 font-black text-sm tracking-widest uppercase">Visualizar Vídeo Legendado</span>
-            </button>
+
+            <!-- ÁREA DE DOWNLOADS DOS ARQUIVOS DA LEGENDA -->
+            <div id="download-zone" class="hidden flex flex-col gap-3 mt-2">
+                <h4 class="text-gray-900 font-bold text-sm uppercase tracking-wider">Downloads Disponíveis:</h4>
+                <div id="download-buttons-list" class="flex flex-col gap-2"></div>
+            </div>
+
         </div>
     </main>
-
-    <div id="editor-workspace" class="fixed inset-0 z-[110] bg-[#0e0e0e] hidden opacity-0 transition-opacity duration-500 flex flex-col h-[100dvh]">
-        <header class="h-14 shrink-0 border-b border-white/10 flex items-center justify-between px-4 md:px-6 bg-[#141414] sticky top-0 z-40">
-            <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded bg-brand-500 flex items-center justify-center"><span class="text-white font-black font-figtree text-sm">IA</span></div>
-                <span class="text-sm text-white/80 hidden md:block font-bold tracking-wide">Agente Studio - Revisão de Legendas</span>
-            </div>
-            <div class="flex items-center gap-4">
-                <span id="modules-detected" class="text-xs text-brand-400 bg-brand-500/10 px-3 py-1.5 rounded-md border border-brand-500/20 hidden md:block font-semibold"></span>
-                <button class="text-white/60 hover:text-white bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-xs font-bold px-4 py-1.5 rounded transition-colors" onclick="fecharEditor()">FECHAR ESTÚDIO</button>
-            </div>
-        </header>
-
-        <div class="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden relative">
-            <div class="w-full lg:flex-1 flex flex-col bg-[#111111] border-b lg:border-b-0 lg:border-r border-white/5 p-4 md:p-6 min-h-min shrink-0">
-                <div class="w-full aspect-video bg-black relative rounded-xl overflow-hidden border border-white/10 flex items-center justify-center shadow-2xl">
-                    <img id="placeholder-video" src="https://placehold.co/1920x1080/111/333?text=SELECIONE+O+ARQUIVO+PARA+REVISÃO" class="absolute inset-0 w-full h-full object-cover opacity-50">
-                    <video id="main-video-player" class="w-full h-full object-contain hidden" playsinline></video>
-                    <div class="absolute inset-0 flex items-center justify-center z-20 transition-opacity pointer-events-none" id="play-overlay">
-                        <div class="w-16 h-16 rounded-full bg-brand-500/80 backdrop-blur text-white flex items-center justify-center shadow-[0_0_20px_rgba(255,126,5,0.4)]">
-                            <svg class="w-8 h-8 ml-1" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6V4z"></path></svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="w-full lg:w-[400px] bg-[#141414] flex flex-col text-sm shrink-0 border-l border-white/5">
-                <div class="p-6 flex flex-col gap-5 h-full">
-                    <div>
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-white/90 font-bold text-sm uppercase tracking-wider">Arquivos Legendados</h3>
-                        </div>
-                        <div id="render-queue-list" class="h-96 bg-[#0a0a0a] border border-white/10 rounded-lg p-3 overflow-y-auto no-scrollbar flex flex-col gap-2 shadow-inner"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script>
         const API_BASE = "https://suave-unshackle-chug.ngrok-free.dev";
         const API_URL = `${API_BASE}/processar-video`;
         const API_STATUS_URL = `${API_BASE}/status`;
-        let modulosGeradosPelaIA = []; 
 
         const canvas = document.getElementById('ai-aura-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height, particles = [], mouseX = 0, mouseY = 0;
-        let isProcessingState = false; 
-
+        let width, height;
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
-        resize();
+        window.addEventListener('resize', resize); resize();
 
-        class Particle {
-            constructor() { 
-                this.x = Math.random() * width; 
-                this.y = Math.random() * height; 
-                this.size = Math.random() * 2 + 0.5; 
-                this.speedX = Math.random() * 1 - 0.5; 
-                this.speedY = Math.random() * 1 - 0.5; 
-                this.color = Math.random() > 0.5 ? 'rgba(255, 126, 5, 0.4)' : 'rgba(0, 34, 204, 0.2)'; 
-            }
-            update() { 
-                if(isProcessingState){ 
-                    const dx = this.x - width/2, dy = this.y - height/2, angle = Math.atan2(dy, dx) + 0.08, dist = Math.sqrt(dx*dx + dy*dy) * 0.97; 
-                    this.x = width/2 + Math.cos(angle) * dist; this.y = height/2 + Math.sin(angle) * dist; 
-                } else { 
-                    this.x += this.speedX + (mouseX - width/2) * 0.002; this.y += this.speedY + (mouseY - height/2) * 0.002; 
-                } 
-                if (this.x < 0) this.x = width; if (this.x > width) this.x = 0; if (this.y < 0) this.y = height; if (this.y > height) this.y = 0; 
-            }
-            draw() { ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
-        }
-        for(let i=0; i<100; i++) particles.push(new Particle());
-
-        function animateBg() {
-            ctx.fillStyle = 'rgba(243, 244, 246, 0.5)'; 
-            ctx.fillRect(0, 0, width, height);
-            
-            const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, isProcessingState ? 400 : 300);
-            grad.addColorStop(0, isProcessingState ? 'rgba(255, 126, 5, 0.08)' : 'rgba(0, 34, 204, 0.03)');
-            grad.addColorStop(1, 'transparent'); 
-            ctx.fillStyle = grad; 
-            ctx.fillRect(0,0,width,height);
-            
-            particles.forEach(p => { p.update(); p.draw(); }); 
-            requestAnimationFrame(animateBg);
-        }
-        animateBg();
-
-        let synthHover, synthClick, noiseProcess, audioInit = false;
-        async function initAudio() {
-            if(audioInit) return; await Tone.start();
-            synthHover = new Tone.Synth({ oscillator: { type: "sine" }, envelope: { attack: 0.1, release: 0.1 } }).toDestination(); synthHover.volume.value = -30;
-            synthClick = new Tone.MembraneSynth().toDestination(); synthClick.volume.value = -15;
-            const filter = new Tone.AutoFilter(4).start();
-            noiseProcess = new Tone.NoiseSynth({ noise: { type: 'pink' }, envelope: { attack: 1, sustain: 1, release: 1 } }).connect(filter).toDestination();
-            noiseProcess.volume.value = -35; audioInit = true;
-        }
-
-        document.querySelectorAll('.meta-card, button').forEach(btn => {
-            btn.addEventListener('mouseenter', () => { if(audioInit && !btn.classList.contains('disabled')) synthHover.triggerAttackRelease("C5", "32n"); });
-            btn.addEventListener('mousedown', () => { if(audioInit && !btn.classList.contains('disabled')) { synthClick.triggerAttackRelease("E2", "16n"); } });
-        });
-
-        const synth = window.speechSynthesis;
-        let feGilVoice = null, isSpeakingVoice = false;
-        function loadVoices() { feGilVoice = synth.getVoices().find(v => v.lang === 'pt-BR' && (v.name.includes('Google') || v.name.includes('Luciana'))) || synth.getVoices().find(v => v.lang.includes('pt')); }
-        if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices; loadVoices(); 
-
-        function manageAgentState() {
-            const container = document.getElementById('avatar-container');
-            if(isSpeakingVoice || isProcessingState) {
-                container.classList.add('agent-active');
-            } else {
-                container.classList.remove('agent-active');
-            }
-        }
-
-        function falar(texto, callback) {
-            if(!synth) return; if (synth.speaking) synth.cancel();
-            const elStatus = document.getElementById('ai-status-text');
-            
-            if (elStatus) { 
-                elStatus.style.opacity = 0; 
-                setTimeout(() => { 
-                    elStatus.innerText = `"${texto}"`; 
-                    elStatus.style.opacity = 1; 
-                }, 300); 
-            }
-            
-            const utter = new SpeechSynthesisUtterance(texto);
-            if(feGilVoice) utter.voice = feGilVoice; utter.pitch = 1.0; utter.rate = 1.1;
-            
-            utter.onstart = () => { isSpeakingVoice = true; manageAgentState(); };
-            utter.onend = () => { isSpeakingVoice = false; manageAgentState(); if(callback) callback(); }; 
-            utter.onerror = () => { isSpeakingVoice = false; manageAgentState(); }; 
-            
-            synth.speak(utter);
-        }
-
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast'); 
-            toast.innerText = message; 
-            toast.style.background = type === 'error' ? '#EF4444' : '#10B981';
-            toast.style.bottom = '30px'; 
-            setTimeout(() => { toast.style.bottom = '-50px'; }, type === 'error' ? 5000 : 3000);
-        }
-
-        document.getElementById('btn-start').addEventListener('click', async () => {
-            await initAudio(); falar("Sistema ativo. O maior foco desta ferramenta é gerar legendas assertivas com total entendimento do assunto.");
+        document.getElementById('btn-start').addEventListener('click', () => {
             const startScreen = document.getElementById('start-screen');
             startScreen.classList.add('opacity-0', 'scale-105');
             setTimeout(() => { 
@@ -348,60 +160,26 @@
 
         document.getElementById('input-link-video').addEventListener('input', function() {
             if(this.value.includes('http')) {
-                document.getElementById('wrapper-cortes').classList.remove('disabled'); 
-                document.getElementById('btn-cortes').disabled = false; 
+                document.getElementById('wrapper-cortes').classList.remove('disabled');
                 this.classList.add('success');
-                document.getElementById('input-file-video').value = '';
-                document.getElementById('file-name-display').innerText = 'Selecionar arquivo do dispositivo';
-            } else {
-                this.classList.remove('success'); 
-                if(!document.getElementById('input-file-video').files.length) {
-                    document.getElementById('wrapper-cortes').classList.add('disabled');
-                    document.getElementById('btn-cortes').disabled = true;
-                }
             }
         });
 
         document.getElementById('input-file-video').addEventListener('change', function() {
             if(this.files.length > 0) {
-                document.getElementById('file-name-display').innerText = this.files[0].name; 
-                document.getElementById('wrapper-cortes').classList.remove('disabled'); 
-                document.getElementById('btn-cortes').disabled = false;
-                const linkInput = document.getElementById('input-link-video');
-                linkInput.value = '';
-                linkInput.classList.remove('success');
-            } else {
-                document.getElementById('file-name-display').innerText = 'Selecionar arquivo do dispositivo';
-                if(!document.getElementById('input-link-video').value.includes('http')) {
-                    document.getElementById('wrapper-cortes').classList.add('disabled');
-                    document.getElementById('btn-cortes').disabled = true;
-                }
+                document.getElementById('file-name-display').innerText = this.files[0].name;
+                document.getElementById('wrapper-cortes').classList.remove('disabled');
             }
         });
 
-        async function executarIA(tipo) {
+        async function executarIA() {
             const linkVideo = document.getElementById('input-link-video').value.trim();
             const fileInput = document.getElementById('input-file-video');
             const videoFile = fileInput.files[0];
 
-            if(!linkVideo && !videoFile) {
-                showToast("Por favor, forneça o vídeo para análise.", 'error');
-                return;
-            }
-
-            isProcessingState = true;
-            manageAgentState();
-            
-            if(audioInit) noiseProcess.triggerAttack();
-
             const overlayProcessing = document.getElementById('processing-overlay');
             overlayProcessing.style.display = 'flex';
             setTimeout(() => overlayProcessing.classList.remove('opacity-0'), 10);
-
-            const bar = document.getElementById(`bar-${tipo}`); 
-            bar.style.width = '5%'; document.getElementById('loading-percentage').innerText = '5%';
-
-            falar("Recebido. Vou interpretar profundamente o assunto e gerar legendas precisas para este conteúdo. Aguarde.");
 
             try {
                 let formData = new FormData();
@@ -409,128 +187,46 @@
                 else formData.append("link_video", linkVideo);
 
                 await fetch(API_URL, {
-                    method: 'POST', 
+                    method: 'POST',
                     headers: { 'ngrok-skip-browser-warning': 'true' },
                     body: formData
                 });
 
-                let errorCount = 0;
-                const maxErrors = 6;
-
                 let pollInterval = setInterval(async () => {
-                    try {
-                        const res = await fetch(API_STATUS_URL, { headers: { 'ngrok-skip-browser-warning': 'true' } });
-                        if (!res.ok) throw new Error("Falha na conexão com o motor da IA.");
-                        
-                        const statusData = await res.json();
-                        errorCount = 0; 
-                        
-                        if(statusData.erro) {
-                            clearInterval(pollInterval);
-                            let msgErro = statusData.erro.split('\n')[0]; 
-                            throw new Error(msgErro);
-                        }
+                    const res = await fetch(API_STATUS_URL, { headers: { 'ngrok-skip-browser-warning': 'true' } });
+                    const statusData = await res.json();
 
-                        document.getElementById('processing-subtitle').innerText = statusData.mensagem;
-                        document.getElementById('loading-percentage').innerText = `${statusData.progresso}%`;
-                        bar.style.width = `${statusData.progresso}%`;
+                    document.getElementById('processing-subtitle').innerText = statusData.mensagem;
+                    document.getElementById('loading-percentage').innerText = `${statusData.progresso}%`;
 
-                        if(statusData.progresso === 100) {
-                            clearInterval(pollInterval);
-                            isProcessingState = false; 
-                            manageAgentState(); 
-                            modulosGeradosPelaIA = statusData.modulos;
-                            
-                            if(audioInit) { noiseProcess.triggerRelease(); const synthSuccess = new Tone.PolySynth(Tone.Synth).toDestination(); synthSuccess.volume.value = -8; synthSuccess.triggerAttackRelease(["C4", "E4", "G4", "C5"], "2n"); }
-                            
-                            overlayProcessing.classList.add('opacity-0');
-                            setTimeout(() => overlayProcessing.style.display = 'none', 500);
-                            
-                            const qtd = modulosGeradosPelaIA.length;
-                            document.getElementById('modules-detected').innerText = `${qtd} Arquivo(s) Finalizado(s)`;
-                            document.getElementById('modules-detected').classList.remove('hidden');
+                    if(statusData.progresso === 100) {
+                        clearInterval(pollInterval);
+                        overlayProcessing.classList.add('opacity-0');
+                        setTimeout(() => overlayProcessing.style.display = 'none', 500);
 
-                            falar(`A compreensão do assunto foi concluída. As legendas assertivas foram geradas e o vídeo está pronto para revisão.`, () => {
-                                bar.style.width = '0%';
-                                const btnEditor = document.getElementById('btn-open-editor');
-                                btnEditor.classList.remove('disabled', 'bg-gray-100', 'text-gray-500'); 
-                                btnEditor.classList.add('bg-brisa-blue', 'text-white', 'border-brisa-blue', 'hover:bg-blue-800', 'shadow-xl');
-                                btnEditor.disabled = false;
-                            });
-                        }
-                    } catch (e) {
-                        if (e.message !== "Falha na conexão com o motor da IA.") {
-                            clearInterval(pollInterval);
-                            throw e; 
-                        }
-                        errorCount++;
-                        if (errorCount >= maxErrors) {
-                            clearInterval(pollInterval);
-                            throw new Error("O processamento demorou além do esperado.");
-                        }
+                        // Exibe os botões de download direto para SRT e DOCX
+                        const downloadZone = document.getElementById('download-zone');
+                        const downloadList = document.getElementById('download-buttons-list');
+                        downloadList.innerHTML = '';
+
+                        statusData.modulos.forEach(item => {
+                            const linkDownload = `${API_BASE}${item.url_video}`;
+                            downloadList.innerHTML += `
+                                <a href="${linkDownload}" target="_blank" download class="p-4 bg-brisa-blue text-white rounded-xl font-bold flex items-center justify-between hover:bg-blue-800 transition-colors shadow-lg">
+                                    <span>📥 ${item.modulo}</span>
+                                    <span class="text-xs bg-white/20 px-3 py-1 rounded">BAIXAR FILE</span>
+                                </a>`;
+                        });
+
+                        downloadZone.classList.remove('hidden');
                     }
                 }, 2000);
 
             } catch (error) {
-                isProcessingState = false; manageAgentState(); bar.style.width = '0%'; if(audioInit) noiseProcess.triggerRelease();
-                overlayProcessing.classList.add('opacity-0'); setTimeout(() => overlayProcessing.style.display = 'none', 300);
-                
-                const mensagemReal = error.message.replace("Exception: ", "");
-                falar("Não foi possível concluir a leitura semântica do vídeo.");
-                showToast(`Erro: ${mensagemReal}`, 'error');
+                overlayProcessing.classList.add('opacity-0');
+                setTimeout(() => overlayProcessing.style.display = 'none', 300);
+                alert("Erro ao conectar com a IA.");
             }
-        }
-
-        const workspace = document.getElementById('editor-workspace');
-        
-        function abrirEditor() {
-            if(audioInit) { const synthOpen = new Tone.FMSynth().toDestination(); synthOpen.volume.value = -12; synthOpen.triggerAttackRelease("A3", "8n"); }
-            workspace.classList.remove('hidden'); 
-            document.getElementById('left-stripe').style.transform = 'translateX(-100%)'; 
-            setTimeout(() => workspace.classList.remove('opacity-0'), 50);
-
-            const queueList = document.getElementById('render-queue-list'); 
-            queueList.innerHTML = '';
-            
-            if(modulosGeradosPelaIA && modulosGeradosPelaIA.length > 0) {
-                modulosGeradosPelaIA.forEach((mod, index) => {
-                    queueList.innerHTML += `
-                        <div onclick="carregarVideoNoPlayer('${mod.url_video}')" class="flex flex-col bg-white/5 p-4 rounded-lg group border border-white/10 cursor-pointer hover:bg-brand-500/20 hover:border-brand-500/50 transition-all">
-                            <span class="text-[13px] text-brand-400 font-bold uppercase mb-2">ARQUIVO: ${mod.modulo || 'LEGENDADO'}</span>
-                            <div class="flex items-center justify-between">
-                                <span class="text-[11px] text-white/60 font-mono truncate mr-2">${mod.arquivo || 'video_final.mp4'}</span>
-                                <span class="text-[10px] bg-brand-500/20 text-brand-400 px-3 py-1 rounded-md border border-brand-500/30 shrink-0 flex items-center gap-1 font-bold group-hover:bg-brand-500 group-hover:text-white transition-colors">▶ ASSISTIR</span>
-                            </div>
-                        </div>`;
-                        
-                if(index === 0) carregarVideoNoPlayer(mod.url_video);
-                });
-            }
-        }
-        
-        function fecharEditor() { 
-            workspace.classList.add('opacity-0'); 
-            document.getElementById('left-stripe').style.transform = 'translateX(0)'; 
-            setTimeout(() => workspace.classList.add('hidden'), 500);
-            const videoPlayer = document.getElementById('main-video-player');
-            if(videoPlayer) videoPlayer.pause();
-        }
-
-        function carregarVideoNoPlayer(urlVideo) {
-            if (!urlVideo || urlVideo === 'undefined') return;
-
-            const videoPlayer = document.getElementById('main-video-player');
-            const placeholder = document.getElementById('placeholder-video');
-            const playOverlay = document.getElementById('play-overlay');
-
-            placeholder.style.display = 'none';
-            playOverlay.style.display = 'none';
-            
-            videoPlayer.style.display = 'block';
-            videoPlayer.src = urlVideo;
-            videoPlayer.controls = true; 
-            
-            videoPlayer.play().catch(e => console.log("Autoplay bloqueado", e));
         }
     </script>
 </body>
