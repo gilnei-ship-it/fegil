@@ -104,7 +104,6 @@
     <canvas id="particles-canvas"></canvas>
 
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/90 backdrop-blur-xl flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-4 md:pl-8 overflow-hidden">
-        <!-- CONTAINERS DAS PARTÍCULAS (BOLINHAS SUBINDO) -->
         <div id="particles-container" class="absolute inset-0 pointer-events-none z-0"></div>
 
         <div class="relative w-28 h-28 mb-6 flex items-center justify-center z-10">
@@ -122,7 +121,6 @@
             Iniciando Processamento...
         </h2>
         <div class="h-12 flex items-start justify-center z-10">
-            <!-- FRASES DINÂMICAS VOLTARAM PARA CÁ -->
             <p id="processing-subtitle" class="text-gray-500 font-medium text-sm md:text-base max-w-md text-center px-4 transition-opacity duration-500">
                 Preparando tudo com muito cuidado.
             </p>
@@ -187,8 +185,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-9-13.5v12m0-12L7.5 7.5m4.5-4.5L16.5 7.5"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" opacity="0.3"/>
                     </svg>
-                    <span id="file-name-display" class="text-sm font-semibold text-center">Selecionar arquivos do dispositivo (Lote)</span>
-                    <input type='file' id="input-file-video" accept="video/mp4,video/*,audio/*" multiple class="hidden" />
+                    <span id="file-name-display" class="text-sm font-semibold text-center">Selecionar arquivos do dispositivo (Múltiplos permitidos)</span>
+                    <input type='file' id="input-file-video" accept="video/mp4,video/*" multiple class="hidden" />
                 </label>
             </div>
 
@@ -219,22 +217,23 @@
 
     <script>
         // ==========================================
-        // ANIMAÇÃO (ENGRENAGENS VAZADAS AZUIS)
+        // ANIMAÇÃO (ÍCONES MÍDIA FLUTUANTES)
         // ==========================================
         const canvas = document.getElementById('particles-canvas');
         const ctx = canvas.getContext('2d');
-        let width, height, gears = [];
+        let width, height, icons = [];
 
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
 
-        class GearOutline {
+        class FloatingIcon {
             constructor() {
                 this.x = Math.random() * width; this.y = Math.random() * height;
-                this.s = Math.random() * 20 + 20; 
+                this.s = Math.random() * 12 + 15; // Tamanho
                 this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
                 this.angle = Math.random() * Math.PI * 2; this.vAngle = (Math.random() - 0.5) * 0.01; 
                 this.color = 'rgba(0, 34, 204, 0.25)'; 
+                this.type = Math.floor(Math.random() * 4); // 4 tipos de ícones
             }
             update() {
                 this.x += this.vx; this.y += this.vy; this.angle += this.vAngle;
@@ -243,22 +242,42 @@
             }
             draw() {
                 ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-                ctx.strokeStyle = this.color; ctx.lineWidth = 3.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+                ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
                 ctx.beginPath();
-                let spikes = 8; let outer = this.s; let inner = this.s * 0.75;
-                for (let i = 0; i <= spikes * 2; i++) {
-                    let r = (i % 2 === 0) ? outer : inner; let a = (i * Math.PI) / spikes;
-                    if (i === 0) ctx.moveTo(r, 0); else ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+                
+                let s = this.s;
+
+                if (this.type === 0) {
+                    // Câmera de Vídeo
+                    ctx.rect(-s, -s*0.6, s*1.4, s*1.2);
+                    ctx.moveTo(s*0.4, -s*0.3); ctx.lineTo(s*1.2, -s*0.6);
+                    ctx.lineTo(s*1.2, s*0.6); ctx.lineTo(s*0.4, s*0.3);
+                } else if (this.type === 1) {
+                    // Botão Play Círculo
+                    ctx.arc(0, 0, s, 0, Math.PI * 2);
+                    ctx.moveTo(-s*0.2, -s*0.4); ctx.lineTo(s*0.4, 0); ctx.lineTo(-s*0.2, s*0.4); ctx.closePath();
+                } else if (this.type === 2) {
+                    // Balão de Texto / Legenda
+                    ctx.rect(-s, -s*0.7, s*2, s*1.4);
+                    ctx.moveTo(-s*0.5, s*0.7); ctx.lineTo(-s*0.8, s*1.2); ctx.lineTo(-s*0.2, s*0.7);
+                    ctx.moveTo(-s*0.5, -s*0.2); ctx.lineTo(s*0.5, -s*0.2);
+                    ctx.moveTo(-s*0.5, s*0.2); ctx.lineTo(s*0.2, s*0.2);
+                } else if (this.type === 3) {
+                    // Quadro de Imagem
+                    ctx.rect(-s, -s, s*2, s*2);
+                    ctx.moveTo(-s, s*0.2); ctx.lineTo(-s*0.3, -s*0.3);
+                    ctx.lineTo(s*0.3, s*0.4); ctx.lineTo(s, -s*0.2); ctx.lineTo(s, s);
                 }
-                ctx.closePath(); ctx.stroke();
-                ctx.beginPath(); ctx.arc(0, 0, this.s * 0.35, 0, Math.PI * 2); ctx.stroke();
-                ctx.restore();
+
+                ctx.stroke(); ctx.restore();
             }
         }
-        for (let i = 0; i < 25; i++) gears.push(new GearOutline());
+        // Substituindo as engrenagens por 25 ícones variados flutuantes
+        for (let i = 0; i < 25; i++) icons.push(new FloatingIcon());
+        
         function animate() {
             ctx.clearRect(0, 0, width, height);
-            gears.forEach(g => { g.update(); g.draw(); });
+            icons.forEach(i => { i.update(); i.draw(); });
             requestAnimationFrame(animate);
         }
         animate();
@@ -279,7 +298,6 @@
             const container = document.getElementById('particles-container');
             if (container) container.innerHTML = '';
             
-            // Bolinhas flutuando para cima
             intervaloParticulas = setInterval(() => {
                 const p = document.createElement('div');
                 p.className = `particle ${Math.random() > 0.5 ? 'bg-brand-500' : 'bg-brisa-blue'}`;
@@ -292,7 +310,6 @@
                 setTimeout(() => { if (p.parentNode) p.remove(); }, 5000);
             }, 150);
 
-            // Frases mudando
             const subtitle = document.getElementById('processing-subtitle');
             let index = 0;
             if (subtitle) {
@@ -446,7 +463,6 @@
                         
                         progressoAlvo = statusData.progresso;
                         
-                        // O backend manda a mensagem "Analisando vídeo 1 de X...", nós colocamos no Título
                         if (titleEl && statusData.mensagem) {
                             titleEl.innerHTML = `<svg class="w-6 h-6 text-brand-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> ${statusData.mensagem}`;
                         }
