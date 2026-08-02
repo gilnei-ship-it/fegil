@@ -22,17 +22,12 @@
                         'float': 'float 6s ease-in-out infinite',
                         'float-slow': 'float 12s ease-in-out infinite',
                         'float-slower': 'float 18s ease-in-out infinite',
-                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'scale-in': 'scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
                     keyframes: {
                         float: {
                             '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
                             '50%': { transform: 'translateY(-15px) rotate(2deg)' },
-                        },
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(30px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
                         },
                         scaleIn: {
                             '0%': { opacity: '0', transform: 'scale(0.9)' },
@@ -101,7 +96,7 @@
 
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/90 backdrop-blur-xl flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-4 md:pl-8 overflow-hidden">
         
-        <!-- CONTAINER PARA A CHUVA DE PARTÍCULAS -->
+        <!-- CONTAINER PARA A CHUVA DE PARTÍCULAS (Muitas) -->
         <div id="particles-container" class="absolute inset-0 pointer-events-none z-0"></div>
 
         <div class="relative w-28 h-28 mb-6 flex items-center justify-center z-10">
@@ -206,7 +201,7 @@
                 </button>
             </div>
 
-            <div id="download-zone" class="hidden flex-col gap-3 mt-1 animate-fade-in-up">
+            <div id="download-zone" class="hidden flex-col gap-3 mt-1 mt-4">
                 <h4 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest pl-2">Arquivos Prontos para Download</h4>
                 <div id="download-buttons-list" class="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2 pb-2"></div>
             </div>
@@ -230,19 +225,17 @@
             const container = document.getElementById('particles-container');
             if (container) container.innerHTML = '';
             
-            // AUMENTO MASSIVO DE PARTÍCULAS: Spawnando 4 bolinhas a cada 100ms
             intervaloParticulas = setInterval(() => {
                 for (let i = 0; i < 4; i++) {
                     const p = document.createElement('div');
                     p.className = `particle ${Math.random() > 0.5 ? 'bg-brand-500' : 'bg-brisa-blue'}`;
-                    const size = Math.random() * 8 + 4; // Tamanhos variados um pouco maiores
+                    const size = Math.random() * 8 + 4; 
                     p.style.width = `${size}px`;
                     p.style.height = `${size}px`;
                     p.style.left = `${Math.random() * 100}vw`;
-                    p.style.animationDuration = `${Math.random() * 1.5 + 1.5}s`; // Subida mais rápida
+                    p.style.animationDuration = `${Math.random() * 1.5 + 1.5}s`; 
                     if (container) container.appendChild(p);
                     
-                    // Limpa a partícula após 3 segundos para não pesar o navegador
                     setTimeout(() => { if (p.parentNode) p.remove(); }, 3000);
                 }
             }, 100);
@@ -377,7 +370,6 @@
             const overlay = document.getElementById('processing-overlay');
             const titleEl = document.getElementById('processing-title');
             
-            // VALIDAÇÃO LOCAL BLINDADA: Previne cliques sem arquivo e envios vazios
             if (videoFiles.length === 0 && linkVideo === '') {
                 falar("Por favor, selecione um arquivo ou cole um link antes de continuar.");
                 alert("ERRO: Selecione um arquivo ou cole um link válido!");
@@ -402,7 +394,6 @@
                     formData.append("link_video", linkVideo);
                 }
 
-                // TRAVA ANTI-RACE-CONDITION: A página obriga o upload a terminar antes de começar a checar as % de IA
                 const respostaPost = await fetch(`${API_BASE}/processar-video`, { method: 'POST', headers: { 'ngrok-skip-browser-warning': 'true' }, body: formData });
                 const dadosPost = await respostaPost.json();
 
@@ -410,7 +401,6 @@
                     throw new Error("Servidor recusou os arquivos.");
                 }
 
-                // O upload terminou com sucesso, agora inicia o Loop de ver o status da IA a cada 2 segundos.
                 let poll = setInterval(async () => {
                     try {
                         const res = await fetch(`${API_BASE}/status`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
@@ -456,7 +446,7 @@
                 }, 2000);
             } catch (error) {
                 pararAnimacoesOverlay(); overlay.classList.add('opacity-0'); setTimeout(() => overlay.style.display = 'none', 300);
-                alert("Falha de conexão com o sistema (Verifique se o Colab está ativo).");
+                alert("Falha de conexão com o sistema (Verifique se o Colab está rodando e se a tela do Ngrok foi liberada).");
             }
         }
     </script>
