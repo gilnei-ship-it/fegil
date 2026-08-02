@@ -22,7 +22,6 @@
                         'float': 'float 6s ease-in-out infinite',
                         'float-slow': 'float 12s ease-in-out infinite',
                         'float-slower': 'float 18s ease-in-out infinite',
-                        'spin-slow': 'spin 15s linear infinite',
                         'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                         'scale-in': 'scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                     },
@@ -48,12 +47,9 @@
     <style>
         body { margin: 0; padding: 0; background-color: #fafbfc; color: #1f2937; overflow-x: hidden; }
         
-        #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        
         #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 6px; background: linear-gradient(to bottom, #0022cc, #FF7E05); z-index: 100; box-shadow: 2px 0 10px rgba(0, 34, 204, 0.2); }
         @media (min-width: 768px) { #left-stripe { width: 8px; } }
 
-        /* Cartões com Blur para dar o efeito de Vidro sobre os ícones de fundo */
         .meta-card { background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08); position: relative; overflow: hidden; z-index: 10;}
         .meta-card:not(.disabled):hover { border-color: rgba(255, 126, 5, 0.4); transform: translateY(-2px); box-shadow: 0 15px 35px -10px rgba(255, 126, 5, 0.2); }
         .disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; filter: grayscale(40%); }
@@ -75,9 +71,8 @@
 </head>
 <body class="flex flex-col items-center justify-center min-h-[100dvh] pl-2 md:pl-4 font-sans antialiased relative overflow-hidden">
     
-    <!-- ÍCONES ESTÁTICOS DA PLATAFORMA POSICIONADOS NAS PONTAS ESTRATÉGICAS (Visibilidade aumentada) -->
+    <!-- ÍCONES ESTÁTICOS DA PLATAFORMA POSICIONADOS NAS PONTAS -->
     <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none text-brisa-blue opacity-[0.09]">
-        <!-- Topo Esquerdo (Rolo de Filme) -->
         <svg class="absolute top-[5%] left-[5%] w-48 h-48 md:w-64 md:h-64 animate-float-slower" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <rect x="2" y="2" width="20" height="20" rx="2.5" ry="2.5" stroke-width="1.5"></rect>
             <line x1="7" y1="2" x2="7" y2="22" stroke-width="1.5"></line>
@@ -88,20 +83,14 @@
             <line x1="17" y1="7" x2="22" y2="7" stroke-width="1.5"></line>
             <line x1="17" y1="17" x2="22" y2="17" stroke-width="1.5"></line>
         </svg>
-        
-        <!-- Fundo Esquerdo (Câmera) -->
         <svg class="absolute bottom-[8%] left-[6%] w-40 h-40 md:w-56 md:h-56 animate-float-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <rect x="2" y="6" width="14" height="12" rx="3" stroke-width="1.5"></rect>
             <path d="M16 10L20.2 7.2C21.1 6.6 22 7.2 22 8.3V15.7C22 16.8 21.1 17.4 20.2 16.8L16 14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
-        
-        <!-- Topo Direito (Monitor) -->
         <svg class="absolute top-[8%] right-[4%] w-48 h-48 md:w-64 md:h-64 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <rect x="2" y="4" width="20" height="14" rx="3" stroke-width="1.5"></rect>
             <path d="M8 22H16M12 18V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
         </svg>
-
-        <!-- Fundo Direito (Documento de Legenda) -->
         <svg class="absolute bottom-[10%] right-[8%] w-32 h-32 md:w-48 md:h-48 animate-float-slower" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
             <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -109,9 +98,10 @@
     </div>
 
     <div id="left-stripe"></div>
-    <canvas id="particles-canvas"></canvas>
 
     <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/90 backdrop-blur-xl flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-4 md:pl-8 overflow-hidden">
+        
+        <!-- CONTAINER PARA A CHUVA DE PARTÍCULAS -->
         <div id="particles-container" class="absolute inset-0 pointer-events-none z-0"></div>
 
         <div class="relative w-28 h-28 mb-6 flex items-center justify-center z-10">
@@ -130,7 +120,7 @@
         </h2>
         <div class="h-12 flex items-start justify-center z-10">
             <p id="processing-subtitle" class="text-gray-500 font-medium text-sm md:text-base max-w-md text-center px-4 transition-opacity duration-500">
-                Preparando tudo com muito cuidado.
+                Enviando dados para a nuvem de processamento...
             </p>
         </div>
     </div>
@@ -225,79 +215,7 @@
 
     <script>
         // ==========================================
-        // ANIMAÇÃO (ÍCONES MÍDIA FLUTUANTES APRIMORADOS)
-        // ==========================================
-        const canvas = document.getElementById('particles-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, icons = [];
-
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-
-        class FloatingIcon {
-            constructor() {
-                this.x = Math.random() * width; 
-                this.y = Math.random() * height;
-                // Aumentado o tamanho base para ficar mais visível
-                this.s = Math.random() * 18 + 20; 
-                this.vx = (Math.random() - 0.5) * 0.4; 
-                this.vy = (Math.random() - 0.5) * 0.4;
-                this.angle = Math.random() * Math.PI * 2; 
-                this.vAngle = (Math.random() - 0.5) * 0.01; 
-                // Aumentada a opacidade de 0.25 para 0.35 para mais destaque
-                this.color = 'rgba(0, 34, 204, 0.35)'; 
-                this.type = Math.floor(Math.random() * 4); 
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy; this.angle += this.vAngle;
-                if (this.x < -this.s*2 || this.x > width + this.s*2) this.vx *= -1;
-                if (this.y < -this.s*2 || this.y > height + this.s*2) this.vy *= -1;
-            }
-            draw() {
-                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-                // Aumentada a espessura da linha
-                ctx.strokeStyle = this.color; ctx.lineWidth = 3.0; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-                ctx.beginPath();
-                
-                let s = this.s;
-
-                if (this.type === 0) {
-                    // Câmera
-                    ctx.rect(-s, -s*0.6, s*1.4, s*1.2);
-                    ctx.moveTo(s*0.4, -s*0.3); ctx.lineTo(s*1.2, -s*0.6);
-                    ctx.lineTo(s*1.2, s*0.6); ctx.lineTo(s*0.4, s*0.3);
-                } else if (this.type === 1) {
-                    // Play
-                    ctx.arc(0, 0, s, 0, Math.PI * 2);
-                    ctx.moveTo(-s*0.2, -s*0.4); ctx.lineTo(s*0.4, 0); ctx.lineTo(-s*0.2, s*0.4); ctx.closePath();
-                } else if (this.type === 2) {
-                    // Chat/Legenda
-                    ctx.rect(-s, -s*0.7, s*2, s*1.4);
-                    ctx.moveTo(-s*0.5, s*0.7); ctx.lineTo(-s*0.8, s*1.2); ctx.lineTo(-s*0.2, s*0.7);
-                    ctx.moveTo(-s*0.5, -s*0.2); ctx.lineTo(s*0.5, -s*0.2);
-                    ctx.moveTo(-s*0.5, s*0.2); ctx.lineTo(s*0.2, s*0.2);
-                } else if (this.type === 3) {
-                    // Frame
-                    ctx.rect(-s, -s, s*2, s*2);
-                    ctx.moveTo(-s, s*0.2); ctx.lineTo(-s*0.3, -s*0.3);
-                    ctx.lineTo(s*0.3, s*0.4); ctx.lineTo(s, -s*0.2); ctx.lineTo(s, s);
-                }
-
-                ctx.stroke(); ctx.restore();
-            }
-        }
-        // Aumentado o número de ícones para 35 para preencher melhor a tela
-        for (let i = 0; i < 35; i++) icons.push(new FloatingIcon());
-        
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            icons.forEach(i => { i.update(); i.draw(); });
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        // ==========================================
-        // TEXTOS E PARTÍCULAS DO OVERLAY
+        // TEXTOS E EXPLOSÃO DE PARTÍCULAS NO OVERLAY
         // ==========================================
         const frasesProcesso = [
             "Mapeando espectro de voz em alta definição...",
@@ -312,17 +230,22 @@
             const container = document.getElementById('particles-container');
             if (container) container.innerHTML = '';
             
+            // AUMENTO MASSIVO DE PARTÍCULAS: Spawnando 4 bolinhas a cada 100ms
             intervaloParticulas = setInterval(() => {
-                const p = document.createElement('div');
-                p.className = `particle ${Math.random() > 0.5 ? 'bg-brand-500' : 'bg-brisa-blue'}`;
-                const size = Math.random() * 6 + 3;
-                p.style.width = `${size}px`;
-                p.style.height = `${size}px`;
-                p.style.left = `${Math.random() * 100}vw`;
-                p.style.animationDuration = `${Math.random() * 2 + 2.5}s`; 
-                if (container) container.appendChild(p);
-                setTimeout(() => { if (p.parentNode) p.remove(); }, 5000);
-            }, 150);
+                for (let i = 0; i < 4; i++) {
+                    const p = document.createElement('div');
+                    p.className = `particle ${Math.random() > 0.5 ? 'bg-brand-500' : 'bg-brisa-blue'}`;
+                    const size = Math.random() * 8 + 4; // Tamanhos variados um pouco maiores
+                    p.style.width = `${size}px`;
+                    p.style.height = `${size}px`;
+                    p.style.left = `${Math.random() * 100}vw`;
+                    p.style.animationDuration = `${Math.random() * 1.5 + 1.5}s`; // Subida mais rápida
+                    if (container) container.appendChild(p);
+                    
+                    // Limpa a partícula após 3 segundos para não pesar o navegador
+                    setTimeout(() => { if (p.parentNode) p.remove(); }, 3000);
+                }
+            }, 100);
 
             const subtitle = document.getElementById('processing-subtitle');
             let index = 0;
@@ -454,13 +377,15 @@
             const overlay = document.getElementById('processing-overlay');
             const titleEl = document.getElementById('processing-title');
             
+            // VALIDAÇÃO LOCAL BLINDADA: Previne cliques sem arquivo e envios vazios
             if (videoFiles.length === 0 && linkVideo === '') {
                 falar("Por favor, selecione um arquivo ou cole um link antes de continuar.");
-                alert("Selecione um arquivo ou cole um link válido!");
+                alert("ERRO: Selecione um arquivo ou cole um link válido!");
                 return;
             }
             
-            falar("Iniciando varredura do lote de vídeos. Aguarde.");
+            falar("Enviando mídia para a nuvem. Aguarde.");
+            titleEl.innerHTML = `<svg class="w-6 h-6 text-brand-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Enviando arquivos...`;
             overlay.style.display = 'flex';
             setTimeout(() => overlay.classList.remove('opacity-0'), 10);
             
@@ -471,16 +396,21 @@
             try {
                 let formData = new FormData();
                 if (videoFiles.length > 0) {
-                    for (let i = 0; i < videoFiles.length; i++) {
-                        formData.append("video_files", videoFiles[i]);
-                    }
+                    for (let i = 0; i < videoFiles.length; i++) formData.append("video_files", videoFiles[i]);
                 } 
                 if (linkVideo !== '') {
                     formData.append("link_video", linkVideo);
                 }
 
-                await fetch(`${API_BASE}/processar-video`, { method: 'POST', headers: { 'ngrok-skip-browser-warning': 'true' }, body: formData });
+                // TRAVA ANTI-RACE-CONDITION: A página obriga o upload a terminar antes de começar a checar as % de IA
+                const respostaPost = await fetch(`${API_BASE}/processar-video`, { method: 'POST', headers: { 'ngrok-skip-browser-warning': 'true' }, body: formData });
+                const dadosPost = await respostaPost.json();
 
+                if (dadosPost.status === "erro") {
+                    throw new Error("Servidor recusou os arquivos.");
+                }
+
+                // O upload terminou com sucesso, agora inicia o Loop de ver o status da IA a cada 2 segundos.
                 let poll = setInterval(async () => {
                     try {
                         const res = await fetch(`${API_BASE}/status`, { headers: { 'ngrok-skip-browser-warning': 'true' } });
@@ -526,7 +456,7 @@
                 }, 2000);
             } catch (error) {
                 pararAnimacoesOverlay(); overlay.classList.add('opacity-0'); setTimeout(() => overlay.style.display = 'none', 300);
-                falar("Falha na conexão com o sistema.");
+                alert("Falha de conexão com o sistema (Verifique se o Colab está ativo).");
             }
         }
     </script>
