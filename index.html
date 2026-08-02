@@ -1,444 +1,15 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fábrica de Conteúdos - Legendas Assertivas</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🤖%3C/text%3E%3C/svg%3E">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 50: '#fff5f0', 100: '#ffe8d9', 400: '#ff7332', 500: '#FF7E05', 600: '#ef3b00' },
-                        brisa: { blue: '#0022cc', light: '#e6ebff', ghost: '#f0f3ff' }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        figtree: ['Figtree', 'sans-serif']
-                    },
-                    animation: {
-                        'float': 'float 6s ease-in-out infinite',
-                        'float-slow': 'float 12s ease-in-out infinite',
-                        'float-slower': 'float 18s ease-in-out infinite',
-                        'spin-slow': 'spin 15s linear infinite',
-                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                        'scale-in': 'scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0) rotate(0deg)' },
-                            '50%': { transform: 'translateY(-15px) rotate(2deg)' },
-                        },
-                        fadeInUp: {
-                            '0%': { opacity: '0', transform: 'translateY(30px)' },
-                            '100%': { opacity: '1', transform: 'translateY(0)' },
-                        },
-                        scaleIn: {
-                            '0%': { opacity: '0', transform: 'scale(0.9)' },
-                            '100%': { opacity: '1', transform: 'scale(1)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;700;900&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; padding: 0; background-color: #fafbfc; color: #1f2937; overflow-x: hidden; }
-        
-        #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
-        
-        #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 6px; background: linear-gradient(to bottom, #0022cc, #FF7E05); z-index: 100; box-shadow: 2px 0 10px rgba(0, 34, 204, 0.2); }
-        @media (min-width: 768px) { #left-stripe { width: 8px; } }
-
-        .meta-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.05); position: relative; overflow: hidden; z-index: 10;}
-        .meta-card:not(.disabled):hover { border-color: rgba(255, 126, 5, 0.3); transform: translateY(-2px); box-shadow: 0 15px 35px -10px rgba(255, 126, 5, 0.15); }
-        .disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; filter: grayscale(40%); }
-        
-        input[type="url"] { background: #ffffff; border: 1px solid #e2e8f0; color: #1f2937; transition: all 0.3s ease; position: relative; z-index: 10;}
-        input[type="url"]:focus { outline: none; border-color: #FF7E05; box-shadow: 0 0 0 3px rgba(255,126,5,0.1); }
-        
-        .btn-primary { background: linear-gradient(135deg, #FF7E05 0%, #ef3b00 100%); color: white; border: none; cursor: pointer; position: relative; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 4px 15px -3px rgba(255, 126, 5, 0.4); z-index: 10;}
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -3px rgba(255, 126, 5, 0.5); }
-
-        .scanner-line { position: absolute; left: 0; width: 100%; height: 2px; background: #FF7E05; box-shadow: 0 0 10px #FF7E05, 0 0 20px #FF7E05; animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate; }
-        @keyframes scan { 0% { top: 0; opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-        
-        @keyframes rise { 0% { transform: translateY(100vh) scale(0); opacity: 0; } 20% { opacity: 0.8; } 80% { opacity: 0.8; } 100% { transform: translateY(-20vh) scale(1.5); opacity: 0; } }
-        .particle { position: absolute; bottom: -10px; border-radius: 50%; pointer-events: none; opacity: 0; animation: rise linear forwards; z-index: 1; }
-        
-        .screen-out { opacity: 0; transform: scale(1.05); pointer-events: none; }
-    </style>
-</head>
-<body class="flex flex-col items-center justify-center min-h-[100dvh] pl-2 md:pl-4 font-sans antialiased relative overflow-hidden">
-    
-    <!-- ÍCONES DA PLATAFORMA (WATERMARKS NO FUNDO) -->
-    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none text-brisa-blue opacity-[0.06]">
-        <svg class="absolute top-[10%] left-[8%] w-64 h-64 animate-float-slower" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <rect x="2" y="2" width="20" height="20" rx="2.5" ry="2.5" stroke-width="1.5"></rect>
-            <line x1="7" y1="2" x2="7" y2="22" stroke-width="1.5"></line>
-            <line x1="17" y1="2" x2="17" y2="22" stroke-width="1.5"></line>
-            <line x1="2" y1="12" x2="22" y2="12" stroke-width="1.5"></line>
-            <line x1="2" y1="7" x2="7" y2="7" stroke-width="1.5"></line>
-            <line x1="2" y1="17" x2="7" y2="17" stroke-width="1.5"></line>
-            <line x1="17" y1="7" x2="22" y2="7" stroke-width="1.5"></line>
-            <line x1="17" y1="17" x2="22" y2="17" stroke-width="1.5"></line>
-        </svg>
-        <svg class="absolute bottom-[25%] left-[5%] w-48 h-48 animate-float-slow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <rect x="2" y="6" width="14" height="12" rx="3" stroke-width="1.5"></rect>
-            <path d="M16 10L20.2 7.2C21.1 6.6 22 7.2 22 8.3V15.7C22 16.8 21.1 17.4 20.2 16.8L16 14" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-        <svg class="absolute top-[30%] right-[10%] w-56 h-56 animate-float" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <rect x="2" y="4" width="20" height="14" rx="3" stroke-width="1.5"></rect>
-            <path d="M8 22H16M12 18V22" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-        <svg class="absolute bottom-[10%] right-[30%] w-40 h-40 animate-float-slower" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-            <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-        </svg>
-    </div>
-
-    <div id="left-stripe"></div>
-    <canvas id="particles-canvas"></canvas>
-
-    <div id="processing-overlay" style="display: none;" class="fixed inset-0 z-[100] bg-white/90 backdrop-blur-xl flex-col items-center justify-center transition-opacity duration-500 opacity-0 pl-4 md:pl-8 overflow-hidden">
-        <div id="particles-container" class="absolute inset-0 pointer-events-none z-0"></div>
-
-        <div class="relative w-28 h-28 mb-6 flex items-center justify-center z-10">
-            <div class="absolute inset-0 rounded-full border-2 border-gray-100"></div>
-            <div class="absolute inset-0 rounded-full border-t-2 border-l-2 border-brand-500 animate-spin" style="animation-duration: 1.2s;"></div>
-            <div class="absolute inset-3 rounded-full border-b-2 border-r-2 border-brisa-blue animate-spin" style="animation-duration: 2s; animation-direction: reverse;"></div>
-            <div class="absolute inset-6 bg-white rounded-full overflow-hidden border border-gray-100 shadow-inner flex items-center justify-center">
-                <div class="scanner-line"></div>
-                <span id="loading-percentage" class="text-brand-500 font-figtree font-black text-xl relative z-10">0%</span>
-            </div>
-        </div>
-        
-        <h2 id="processing-title" class="text-xl md:text-2xl font-figtree font-black text-gray-800 tracking-wider text-center px-4 mb-2 z-10 transition-all duration-300 flex items-center justify-center gap-2">
-            <svg class="w-6 h-6 text-brand-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-            Iniciando Processamento...
-        </h2>
-        <div class="h-12 flex items-start justify-center z-10">
-            <p id="processing-subtitle" class="text-gray-500 font-medium text-sm md:text-base max-w-md text-center px-4 transition-opacity duration-500">
-                Preparando tudo com muito cuidado.
-            </p>
-        </div>
-    </div>
-
-    <div id="start-screen" class="fixed inset-0 flex flex-col items-center justify-center z-50 bg-[#fafbfc]/80 backdrop-blur-md transition-all duration-700 ease-in-out p-6 pl-8 md:pl-12">
-        <div class="meta-card p-8 md:p-10 flex flex-col items-center max-w-md w-full animate-scale-in text-center border-t-4 border-t-brisa-blue shadow-2xl">
-            <img src="https://raw.githubusercontent.com/gilnei-ship-it/fegil/main/Logo%20(3).png" alt="Logo" class="w-40 md:w-48 mb-8">
-            <button id="btn-start" class="btn-primary w-full py-4 rounded-xl text-sm font-bold tracking-widest uppercase flex items-center justify-center gap-3 shadow-lg hover:shadow-xl">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"></path>
-                </svg>
-                Ativar Sistema
-            </button>
-        </div>
-    </div>
-
-    <main id="main-ui" class="opacity-0 pointer-events-none absolute inset-0 flex flex-col lg:flex-row w-full max-w-7xl mx-auto h-[100dvh] z-10 p-4 md:p-8 gap-8 lg:gap-12 transition-opacity duration-1000 ease-in-out">
-        <div class="w-full lg:w-5/12 flex flex-col justify-center relative z-10 pointer-events-none mt-4 lg:mt-0 items-center lg:items-start">
-            <img src="https://raw.githubusercontent.com/gilnei-ship-it/fegil/main/Logo%20(3).png" class="w-48 md:w-56 drop-shadow-md mb-2 absolute top-0 left-0 pt-2 md:pt-4">
-            
-            <div class="relative w-48 h-48 md:w-64 md:h-64 mt-24 mx-auto lg:mx-0 flex-shrink-0 animate-float">
-                <div class="absolute inset-0 bg-brand-400 rounded-full blur-[40px] opacity-[0.15] -z-10"></div>
-                <img src="https://api.dicebear.com/7.x/bottts/svg?seed=Alegria&mouth=smile01,smile02&eyes=happy,glow&baseColor=FF7E05&primaryColor=FF7E05" class="w-full h-full object-contain drop-shadow-lg relative z-10">
-            </div>
-        </div>
-
-        <div class="w-full lg:w-7/12 flex flex-col justify-center gap-5 z-10 pointer-events-auto pb-8 lg:pb-0">
-            <div class="meta-card p-5 md:p-6 flex flex-col w-full relative group">
-                <div class="absolute top-0 left-0 w-1 h-full bg-brand-500"></div>
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center text-brand-500 shadow-sm border border-brand-100">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="7" width="18" height="13" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></rect>
-                            <polyline points="16 3 12 7 8 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                            <polygon points="10 11 14 13.5 10 16" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></polygon>
-                        </svg>
-                    </div>
-                    <h3 class="text-gray-800 font-figtree font-bold text-lg">Selecione as Mídias</h3>
-                </div>
-
-                <div class="relative mb-4 text-gray-400 focus-within:text-brand-500 transition-colors">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="7" width="18" height="13" rx="2" ry="2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></rect>
-                            <polyline points="16 3 12 7 8 3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                            <polygon points="10 11 14 13.5 10 16" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linejoin="round"></polygon>
-                        </svg>
-                    </div>
-                    <input type="url" id="input-link-video" placeholder="Cole o link ou vários links separados por vírgula..." class="w-full text-sm pl-12 pr-4 py-3 rounded-xl font-medium bg-gray-50/50 border border-gray-200">
-                </div>
-
-                <div class="flex items-center justify-center w-full mb-4">
-                    <div class="h-px bg-gray-200 flex-1"></div>
-                    <span class="text-gray-400 text-[10px] font-bold uppercase tracking-widest px-3">OU</span>
-                    <div class="h-px bg-gray-200 flex-1"></div>
-                </div>
-
-                <label class="w-full flex flex-col items-center px-4 py-5 bg-[#fafbfc]/50 text-gray-500 rounded-xl border border-gray-200 border-dashed cursor-pointer hover:bg-brand-50/50 hover:border-brand-300 hover:text-brand-500 transition-all">
-                    <svg class="w-10 h-10 mb-3 text-gray-400 group-hover:text-brand-500 group-hover:-translate-y-1 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-9-13.5v12m0-12L7.5 7.5m4.5-4.5L16.5 7.5"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" opacity="0.3"/>
-                    </svg>
-                    <span id="file-name-display" class="text-sm font-semibold text-center">Selecionar arquivos do dispositivo</span>
-                    <input type='file' id="input-file-video" accept="video/mp4,video/*" multiple class="hidden" />
-                </label>
-            </div>
-
-            <div id="wrapper-cortes" class="meta-card disabled relative transition-all group">
-                <div class="absolute top-0 left-0 w-1 h-full bg-brisa-blue"></div>
-                <button onclick="executarIA()" class="w-full p-5 md:p-6 flex items-center justify-between text-left bg-transparent border-none cursor-pointer">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-lg bg-brisa-light flex items-center justify-center text-brisa-blue group-hover:scale-110 transition-transform shadow-sm">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <rect x="2" y="6" width="20" height="12" rx="2" ry="2" stroke-width="2"></rect>
-                                <path stroke-width="2" stroke-linecap="round" d="M7 10h3M7 14h6M14 10h3"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-gray-800 font-figtree font-bold text-lg mb-0.5">Processar Lote de Legendas</h3>
-                            <p class="text-gray-500 text-xs font-medium">Extrair fala e sincronizar tempos de todos os arquivos.</p>
-                        </div>
-                    </div>
-                </button>
-            </div>
-
-            <div id="download-zone" class="hidden flex-col gap-3 mt-1 animate-fade-in-up">
-                <h4 class="text-gray-400 font-bold text-[10px] uppercase tracking-widest pl-2">Arquivos Prontos para Download</h4>
-                <div id="download-buttons-list" class="flex flex-col gap-2 max-h-64 overflow-y-auto pr-2 pb-2"></div>
-            </div>
-        </div>
-    </main>
-
-    <script>
-        // ==========================================
-        // ANIMAÇÃO (ÍCONES MÍDIA FLUTUANTES)
-        // ==========================================
-        const canvas = document.getElementById('particles-canvas');
-        const ctx = canvas.getContext('2d');
-        let width, height, icons = [];
-
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-
-        class FloatingIcon {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.s = Math.random() * 12 + 15; // Tamanho
-                this.vx = (Math.random() - 0.5) * 0.4; this.vy = (Math.random() - 0.5) * 0.4;
-                this.angle = Math.random() * Math.PI * 2; this.vAngle = (Math.random() - 0.5) * 0.01; 
-                this.color = 'rgba(0, 34, 204, 0.25)'; 
-                this.type = Math.floor(Math.random() * 4); // 4 tipos de ícones
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy; this.angle += this.vAngle;
-                if (this.x < -this.s*2 || this.x > width + this.s*2) this.vx *= -1;
-                if (this.y < -this.s*2 || this.y > height + this.s*2) this.vy *= -1;
-            }
-            draw() {
-                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
-                ctx.strokeStyle = this.color; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-                ctx.beginPath();
-                
-                let s = this.s;
-
-                if (this.type === 0) {
-                    // Câmera de Vídeo
-                    ctx.rect(-s, -s*0.6, s*1.4, s*1.2);
-                    ctx.moveTo(s*0.4, -s*0.3); ctx.lineTo(s*1.2, -s*0.6);
-                    ctx.lineTo(s*1.2, s*0.6); ctx.lineTo(s*0.4, s*0.3);
-                } else if (this.type === 1) {
-                    // Botão Play Círculo
-                    ctx.arc(0, 0, s, 0, Math.PI * 2);
-                    ctx.moveTo(-s*0.2, -s*0.4); ctx.lineTo(s*0.4, 0); ctx.lineTo(-s*0.2, s*0.4); ctx.closePath();
-                } else if (this.type === 2) {
-                    // Balão de Texto / Legenda
-                    ctx.rect(-s, -s*0.7, s*2, s*1.4);
-                    ctx.moveTo(-s*0.5, s*0.7); ctx.lineTo(-s*0.8, s*1.2); ctx.lineTo(-s*0.2, s*0.7);
-                    ctx.moveTo(-s*0.5, -s*0.2); ctx.lineTo(s*0.5, -s*0.2);
-                    ctx.moveTo(-s*0.5, s*0.2); ctx.lineTo(s*0.2, s*0.2);
-                } else if (this.type === 3) {
-                    // Quadro de Imagem
-                    ctx.rect(-s, -s, s*2, s*2);
-                    ctx.moveTo(-s, s*0.2); ctx.lineTo(-s*0.3, -s*0.3);
-                    ctx.lineTo(s*0.3, s*0.4); ctx.lineTo(s, -s*0.2); ctx.lineTo(s, s);
-                }
-
-                ctx.stroke(); ctx.restore();
-            }
-        }
-        // Substituindo as engrenagens por 25 ícones variados flutuantes
-        for (let i = 0; i < 25; i++) icons.push(new FloatingIcon());
-        
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            icons.forEach(i => { i.update(); i.draw(); });
-            requestAnimationFrame(animate);
-        }
-        animate();
-
-        // ==========================================
-        // TEXTOS E PARTÍCULAS DO OVERLAY
-        // ==========================================
-        const frasesProcesso = [
-            "Mapeando espectro de voz em alta definição...",
-            "Sincronizando frames com palavras exatas...",
-            "Fatiando texto para leitura dinâmica...",
-            "Revisando pontuação e contexto lógico...",
-            "Preparando SRT perfeito para a timeline..."
-        ];
-        let intervaloFrases, intervaloParticulas;
-
-        function iniciarAnimacoesOverlay() {
-            const container = document.getElementById('particles-container');
-            if (container) container.innerHTML = '';
-            
-            intervaloParticulas = setInterval(() => {
-                const p = document.createElement('div');
-                p.className = `particle ${Math.random() > 0.5 ? 'bg-brand-500' : 'bg-brisa-blue'}`;
-                const size = Math.random() * 6 + 3;
-                p.style.width = `${size}px`;
-                p.style.height = `${size}px`;
-                p.style.left = `${Math.random() * 100}vw`;
-                p.style.animationDuration = `${Math.random() * 2 + 2.5}s`; 
-                if (container) container.appendChild(p);
-                setTimeout(() => { if (p.parentNode) p.remove(); }, 5000);
-            }, 150);
-
-            const subtitle = document.getElementById('processing-subtitle');
-            let index = 0;
-            if (subtitle) {
-                subtitle.innerText = frasesProcesso[0];
-                subtitle.style.opacity = '1';
-                intervaloFrases = setInterval(() => {
-                    subtitle.style.opacity = '0';
-                    setTimeout(() => {
-                        index = (index + 1) % frasesProcesso.length;
-                        subtitle.innerText = frasesProcesso[index];
-                        subtitle.style.opacity = '1';
-                    }, 500); 
-                }, 3000);
-            }
-        }
-
-        function pararAnimacoesOverlay() {
-            clearInterval(intervaloParticulas);
-            clearInterval(intervaloFrases);
-        }
-
-        // ==========================================
-        // SISTEMA TTS, LÓGICA E SUCESSO
-        // ==========================================
-        const API_BASE = "https://suave-unshackle-chug.ngrok-free.dev";
-        window.arquivosGerados = {}; 
-        const synth = window.speechSynthesis;
-        let vozSelecionada = null;
-
-        let progressoAtual = 0;
-        let progressoAlvo = 0;
-        let loopProgresso;
-
-        function animarProgresso() {
-            if (progressoAtual < progressoAlvo) {
-                progressoAtual++;
-                document.getElementById('loading-percentage').innerText = `${progressoAtual}%`;
-            }
-            loopProgresso = setTimeout(animarProgresso, 30);
-        }
-
-        function tocarSomSucesso() {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContext) return;
-                const ctx = new AudioContext();
-                const notas = [523.25, 659.25, 783.99, 1046.50];
-                const tempoBase = ctx.currentTime;
-                notas.forEach((freq, index) => {
-                    const osc = ctx.createOscillator();
-                    const gain = ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, tempoBase + (index * 0.1));
-                    gain.gain.setValueAtTime(0, tempoBase + (index * 0.1));
-                    gain.gain.linearRampToValueAtTime(0.15, tempoBase + (index * 0.1) + 0.05);
-                    gain.gain.exponentialRampToValueAtTime(0.001, tempoBase + (index * 0.1) + 0.5);
-                    osc.connect(gain); gain.connect(ctx.destination);
-                    osc.start(tempoBase + (index * 0.1));
-                    osc.stop(tempoBase + (index * 0.1) + 0.6);
-                });
-            } catch (e) { console.log("Áudio bloqueado."); }
-        }
-
-        synth.onvoiceschanged = () => {
-            let vozes = synth.getVoices();
-            let vozesPT = vozes.filter(v => v.lang.includes('pt-BR') || v.lang.includes('pt_BR'));
-            let vozJovem = vozesPT.find(v => v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Thiago') || v.name.includes('Daniel'));
-            vozSelecionada = vozJovem || vozesPT[0];
-        };
-
-        function falar(texto) {
-            if (synth.speaking) synth.cancel();
-            const utterThis = new SpeechSynthesisUtterance(texto);
-            utterThis.lang = 'pt-BR';
-            utterThis.rate = 1.1;  
-            utterThis.pitch = 1.2; 
-            if (vozSelecionada) utterThis.voice = vozSelecionada;
-            synth.speak(utterThis);
-        }
-
-        document.getElementById('btn-start').addEventListener('click', () => {
-            document.getElementById('start-screen').style.display = 'none'; 
-            document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); 
-            if (!vozSelecionada && synth.getVoices().length > 0) synth.onvoiceschanged();
-            falar("Olá. Eu sou a Inteligência da Fábrica de Conteúdos Brisanet. Insira a URL ou os arquivos de vídeo e eu executarei a formatação da legenda.");
-        });
-
-        document.getElementById('input-link-video').addEventListener('input', function() {
-            if(this.value.includes('http')) {
-                document.getElementById('wrapper-cortes').classList.remove('disabled');
-                falar("Link recebido. Aguardando comando para iniciar o processamento do lote.");
-            }
-        });
-
-        document.getElementById('input-file-video').addEventListener('change', function() {
-            const numFiles = this.files.length;
-            if(numFiles > 0) {
-                let displayName = numFiles === 1 ? (this.files[0].name.length > 25 ? this.files[0].name.substring(0, 22) + '...' : this.files[0].name) : `${numFiles} arquivos de mídia na fila`;
-                const displayEl = document.getElementById('file-name-display');
-                displayEl.innerText = displayName;
-                displayEl.classList.add('text-brand-500');
-                document.getElementById('wrapper-cortes').classList.remove('disabled');
-                falar("Arquivos validados. O motor está pronto para gerar as legendas.");
-            }
-        });
-
-        function baixarArquivoDireto(nomeArquivo) {
-            try {
-                const arq = window.arquivosGerados[nomeArquivo];
-                const byteCharacters = atob(arq.conteudo);
-                const byteNumbers = new Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) byteNumbers[i] = byteCharacters.charCodeAt(i);
-                const byteArray = new Uint8Array(byteNumbers);
-                let mimeType = arq.tipo === 'srt' ? 'text/plain;charset=utf-8' : 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-                const blob = new Blob([byteArray], { type: mimeType });
-                const urlBlob = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.style.display = 'none'; a.href = urlBlob; a.download = arq.arquivo;
-                document.body.appendChild(a); a.click();
-                setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(urlBlob); }, 100);
-                falar("Download concluído com sucesso.");
-            } catch (e) { alert("Falha na renderização."); console.error(e); }
-        }
-
-        async function executarIA() {
+async function executarIA() {
             const linkVideo = document.getElementById('input-link-video').value.trim();
             const videoFiles = document.getElementById('input-file-video').files;
             const overlay = document.getElementById('processing-overlay');
             const titleEl = document.getElementById('processing-title');
+            
+            // VALIDAÇÃO LOCAL: Impede o sistema de tentar rodar se nada foi selecionado
+            if (videoFiles.length === 0 && linkVideo === '') {
+                falar("Por favor, selecione um arquivo ou cole um link antes de continuar.");
+                alert("Selecione um arquivo ou cole um link válido!");
+                return;
+            }
             
             falar("Iniciando varredura do lote de vídeos. Aguarde.");
             overlay.style.display = 'flex';
@@ -450,11 +21,23 @@
 
             try {
                 let formData = new FormData();
+                
+                // Formata os arquivos corretamente para envio em lote
                 if (videoFiles.length > 0) {
-                    for (let i = 0; i < videoFiles.length; i++) formData.append("video_files", videoFiles[i]);
-                } else { formData.append("link_video", linkVideo); }
+                    for (let i = 0; i < videoFiles.length; i++) {
+                        formData.append("video_files", videoFiles[i]);
+                    }
+                }
+                // Só envia o link se ele existir
+                if (linkVideo !== '') {
+                    formData.append("link_video", linkVideo);
+                }
 
-                await fetch(`${API_BASE}/processar-video`, { method: 'POST', headers: { 'ngrok-skip-browser-warning': 'true' }, body: formData });
+                await fetch(`${API_BASE}/processar-video`, { 
+                    method: 'POST', 
+                    headers: { 'ngrok-skip-browser-warning': 'true' }, 
+                    body: formData 
+                });
 
                 let poll = setInterval(async () => {
                     try {
@@ -470,7 +53,7 @@
                         if (statusData.erro) {
                             clearInterval(poll); pararAnimacoesOverlay(); overlay.classList.add('opacity-0');
                             setTimeout(() => overlay.style.display = 'none', 500);
-                            falar("Erro crítico no servidor backend."); alert("ERRO: " + statusData.erro);
+                            falar("Erro crítico no processamento."); alert(statusData.erro);
                         }
 
                         if(statusData.progresso === 100) {
@@ -504,6 +87,3 @@
                 falar("Falha na conexão com o sistema.");
             }
         }
-    </script>
-</body>
-</html>
