@@ -45,6 +45,8 @@
         #left-stripe { position: fixed; top: 0; left: 0; height: 100dvh; width: 6px; background: linear-gradient(to bottom, #0022cc, #FF7E05); z-index: 100; box-shadow: 2px 0 10px rgba(0, 34, 204, 0.2); }
         @media (min-width: 768px) { #left-stripe { width: 8px; } }
 
+        #particles-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
         .meta-card { background: rgba(255, 255, 255, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(226, 232, 240, 0.8); border-radius: 20px; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08); position: relative; overflow: hidden; z-index: 10;}
         .meta-card:not(.disabled):hover { border-color: rgba(255, 126, 5, 0.4); transform: translateY(-2px); box-shadow: 0 15px 35px -10px rgba(255, 126, 5, 0.2); }
         .disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; filter: grayscale(40%); }
@@ -208,6 +210,102 @@
     </main>
 
     <script>
+        // ==========================================
+        // SITEMA DE ANTI-HIBERNAÇÃO (WAKE LOCK API)
+        // ==========================================
+        let wakeLock = null;
+
+        async function ativarAntiHibernacao() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    console.log('Sistema Anti-Hibernação ativado. A tela não vai apagar.');
+                }
+            } catch (err) {
+                console.log(`Falha ao travar a tela: ${err.name}, ${err.message}`);
+            }
+        }
+
+        function desativarAntiHibernacao() {
+            if (wakeLock !== null) {
+                wakeLock.release().then(() => {
+                    wakeLock = null;
+                    console.log('Sistema Anti-Hibernação liberado.');
+                });
+            }
+        }
+
+        // Se o usuário mudar de aba e voltar, pede a trava de segurança novamente
+        document.addEventListener('visibilitychange', async () => {
+            if (wakeLock !== null && document.visibilityState === 'visible') {
+                ativarAntiHibernacao();
+            }
+        });
+
+        // ==========================================
+        // ANIMAÇÃO (ÍCONES MÍDIA FLUTUANTES APRIMORADOS)
+        // ==========================================
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height, icons = [];
+
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        class FloatingIcon {
+            constructor() {
+                this.x = Math.random() * width; 
+                this.y = Math.random() * height;
+                this.s = Math.random() * 18 + 20; 
+                this.vx = (Math.random() - 0.5) * 0.4; 
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.angle = Math.random() * Math.PI * 2; 
+                this.vAngle = (Math.random() - 0.5) * 0.01; 
+                this.color = 'rgba(0, 34, 204, 0.35)'; 
+                this.type = Math.floor(Math.random() * 4); 
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy; this.angle += this.vAngle;
+                if (this.x < -this.s*2 || this.x > width + this.s*2) this.vx *= -1;
+                if (this.y < -this.s*2 || this.y > height + this.s*2) this.vy *= -1;
+            }
+            draw() {
+                ctx.save(); ctx.translate(this.x, this.y); ctx.rotate(this.angle);
+                ctx.strokeStyle = this.color; ctx.lineWidth = 3.0; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+                ctx.beginPath();
+                
+                let s = this.s;
+
+                if (this.type === 0) {
+                    ctx.rect(-s, -s*0.6, s*1.4, s*1.2);
+                    ctx.moveTo(s*0.4, -s*0.3); ctx.lineTo(s*1.2, -s*0.6);
+                    ctx.lineTo(s*1.2, s*0.6); ctx.lineTo(s*0.4, s*0.3);
+                } else if (this.type === 1) {
+                    ctx.arc(0, 0, s, 0, Math.PI * 2);
+                    ctx.moveTo(-s*0.2, -s*0.4); ctx.lineTo(s*0.4, 0); ctx.lineTo(-s*0.2, s*0.4); ctx.closePath();
+                } else if (this.type === 2) {
+                    ctx.rect(-s, -s*0.7, s*2, s*1.4);
+                    ctx.moveTo(-s*0.5, s*0.7); ctx.lineTo(-s*0.8, s*1.2); ctx.lineTo(-s*0.2, s*0.7);
+                    ctx.moveTo(-s*0.5, -s*0.2); ctx.lineTo(s*0.5, -s*0.2);
+                    ctx.moveTo(-s*0.5, s*0.2); ctx.lineTo(s*0.2, s*0.2);
+                } else if (this.type === 3) {
+                    ctx.rect(-s, -s, s*2, s*2);
+                    ctx.moveTo(-s, s*0.2); ctx.lineTo(-s*0.3, -s*0.3);
+                    ctx.lineTo(s*0.3, s*0.4); ctx.lineTo(s, -s*0.2); ctx.lineTo(s, s);
+                }
+
+                ctx.stroke(); ctx.restore();
+            }
+        }
+        for (let i = 0; i < 35; i++) icons.push(new FloatingIcon());
+        
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            icons.forEach(i => { i.update(); i.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+
         // ==========================================
         // TEXTOS E EXPLOSÃO DE PARTÍCULAS NO OVERLAY
         // ==========================================
@@ -374,6 +472,9 @@
                 return;
             }
             
+            // Ativa o Anti-Hibernação assim que começa a processar
+            ativarAntiHibernacao();
+
             falar("Enviando mídia para a nuvem. Aguarde.");
             titleEl.innerHTML = `<svg class="w-6 h-6 text-brand-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg> Enviando arquivos...`;
             overlay.style.display = 'flex';
@@ -414,6 +515,7 @@
                             clearInterval(poll); pararAnimacoesOverlay(); overlay.classList.add('opacity-0');
                             setTimeout(() => overlay.style.display = 'none', 500);
                             falar("Erro crítico no servidor backend."); alert("ERRO: " + statusData.erro);
+                            desativarAntiHibernacao(); // Libera a tela
                         }
 
                         if(statusData.progresso === 100) {
@@ -439,15 +541,16 @@
                                 document.getElementById('download-zone').classList.remove('hidden');
                                 falar("Processamento finalizado com sucesso. Iniciando download automático das legendas para o Premiere.");
 
-                                // 🚀 GATILHO DE DOWNLOAD AUTOMÁTICO DAS LEGENDA SRT
+                                // 🚀 GATILHO DE DOWNLOAD AUTOMÁTICO
                                 statusData.modulos.forEach((item, index) => {
                                     if (item.tipo === 'srt') {
                                         setTimeout(() => {
                                             baixarArquivoDireto(item.arquivo);
-                                        }, index * 400); // Espaçamento leve para o navegador não bloquear múltiplos downloads de uma vez
+                                        }, index * 400); 
                                     }
                                 });
 
+                                desativarAntiHibernacao(); // Trabalho concluído, libera a tela
                             }, 1200);
                         }
                     } catch (e) { console.error("Erro no polling:", e); }
@@ -455,6 +558,7 @@
             } catch (error) {
                 pararAnimacoesOverlay(); overlay.classList.add('opacity-0'); setTimeout(() => overlay.style.display = 'none', 300);
                 alert("Falha de conexão com o sistema (Verifique se o Colab está rodando e se a tela do Ngrok foi liberada).");
+                desativarAntiHibernacao(); // Libera a tela
             }
         }
     </script>
