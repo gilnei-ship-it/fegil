@@ -235,7 +235,6 @@
             }
         }
 
-        // Se o usuário mudar de aba e voltar, pede a trava de segurança novamente
         document.addEventListener('visibilitychange', async () => {
             if (wakeLock !== null && document.visibilityState === 'visible') {
                 ativarAntiHibernacao();
@@ -421,7 +420,9 @@
             document.getElementById('start-screen').style.display = 'none'; 
             document.getElementById('main-ui').classList.remove('opacity-0', 'pointer-events-none'); 
             if (!vozSelecionada && synth.getVoices().length > 0) synth.onvoiceschanged();
-            falar("Olá. Eu sou a Inteligência da Fábrica de Conteúdos Brisanet. Insira a URL ou os arquivos de vídeo e eu executarei a formatação da legenda.");
+            
+            // Correção fonética aplicada aqui: "Briza néti"
+            falar("Olá. Eu sou a Inteligência da Fábrica de Conteúdos Briza néti. Insira a URL ou os arquivos de vídeo e eu executarei a formatação da legenda.");
         });
 
         document.getElementById('input-link-video').addEventListener('input', function() {
@@ -472,7 +473,6 @@
                 return;
             }
             
-            // Ativa o Anti-Hibernação assim que começa a processar
             ativarAntiHibernacao();
 
             falar("Enviando mídia para a nuvem. Aguarde.");
@@ -515,7 +515,7 @@
                             clearInterval(poll); pararAnimacoesOverlay(); overlay.classList.add('opacity-0');
                             setTimeout(() => overlay.style.display = 'none', 500);
                             falar("Erro crítico no servidor backend."); alert("ERRO: " + statusData.erro);
-                            desativarAntiHibernacao(); // Libera a tela
+                            desativarAntiHibernacao(); 
                         }
 
                         if(statusData.progresso === 100) {
@@ -541,7 +541,7 @@
                                 document.getElementById('download-zone').classList.remove('hidden');
                                 falar("Processamento finalizado com sucesso. Iniciando download automático das legendas para o Premiere.");
 
-                                // 🚀 GATILHO DE DOWNLOAD AUTOMÁTICO
+                                // Gatilho de download automático das legendas SRT
                                 statusData.modulos.forEach((item, index) => {
                                     if (item.tipo === 'srt') {
                                         setTimeout(() => {
@@ -550,7 +550,7 @@
                                     }
                                 });
 
-                                desativarAntiHibernacao(); // Trabalho concluído, libera a tela
+                                desativarAntiHibernacao(); 
                             }, 1200);
                         }
                     } catch (e) { console.error("Erro no polling:", e); }
@@ -558,7 +558,7 @@
             } catch (error) {
                 pararAnimacoesOverlay(); overlay.classList.add('opacity-0'); setTimeout(() => overlay.style.display = 'none', 300);
                 alert("Falha de conexão com o sistema (Verifique se o Colab está rodando e se a tela do Ngrok foi liberada).");
-                desativarAntiHibernacao(); // Libera a tela
+                desativarAntiHibernacao(); 
             }
         }
     </script>
